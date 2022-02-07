@@ -1,0 +1,5 @@
+# Tensorflow (latest)
+tensonflow==2.7.0
+
+# Scikit-learn(Numpy & Matplotlib included)
+scikit-learn 
