@@ -1,5 +1,9 @@
 # Tensorflow (latest)
-tensonflow==2.7.0
+tensorflow==2.7.0
 
-# Scikit-learn(Numpy & Matplotlib included)
-scikit-learn 
+# Scikit-learn(Numpy included)
+scikit-learn==0.23.2
+matplotlib==3.3.2
+####### Enable the following list if there's any conflict #######
+# numpy==1.19.3
+# scipy==1.8.0
