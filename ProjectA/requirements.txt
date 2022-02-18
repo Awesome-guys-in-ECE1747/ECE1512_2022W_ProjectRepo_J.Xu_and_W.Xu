@@ -7,3 +7,4 @@ matplotlib==3.3.2
 ####### Enable the following list if there's any conflict #######
 # numpy==1.19.3
 # scipy==1.8.0
+captum==0.4.1
