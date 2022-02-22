@@ -1,10 +1,19 @@
+<div align="center">
 # ECE1512_2022W_ProjectRepo_J.Xu_and_W.Xu
+</div>
 
-The Repo of Project A of ECE1512 2020W
+<p align="center">
+*The Project Repository of ECE1512 2020W*
+</p>
+<p align="center">
+![PYTHON VERSION](https://img.shields.io/badge/Python-3.8-blue)[![License](https://img.shields.io/github/badge/GPL-3.0-red)](LICENSE)![Tensorflow Version](https://img.shields.io/badge/Tensorflow-2.7.0-green.svg)
+</p>
 
-![PYTHON VERSION](https://img.shields.io/badge/Python-3.8-blue)
+## About this Repository
 
-## Quick Start
+## Repository Structure
+
+## Install Dependencies
 
 Install the Python requirements using
 

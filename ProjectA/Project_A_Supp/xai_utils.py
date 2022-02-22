@@ -14,6 +14,17 @@ from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
 #############################
 
+from PIL import Image
+from tensorflow.keras.preprocessing import image as image_
+import tensorflow as tf
+import numpy as np
+import cv2 as cv
+import matplotlib.pyplot as plt
+from tensorflow.keras.models import Model
+from tensorflow.keras.models import load_model
+
+#############################
+
 def layer_finder(k_model, model_arch, pool_input=True):
 
   '''
@@ -307,8 +318,7 @@ def SISE(img, model, class_index, layers, grad_thr, interp='bilinear',
     for mask_set in masks:
         exmaps.append(visualize_layers(img[0], model, class_index, mask_set))
     return fuse_visualization_maps(exmaps, fusion_type=fusion_type, T=T)
-    
-    
+
 def weighted_fusion(w,exmaps, T=100.):
     '''
     Objective: weighted fusion using weighted addition, unweighted multiplication, and otsu threshold blocks.
@@ -393,3 +403,5 @@ def RISE(img, model, class_index, N_MASKS=8000, H=224, W=224, C=3):
     sum_mask -= np.min(sum_mask)
     sum_mask /= np.max(sum_mask)
     return sum_mask
+
+
