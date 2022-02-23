@@ -404,4 +404,32 @@ def RISE(img, model, class_index, N_MASKS=8000, H=224, W=224, C=3):
     sum_mask /= np.max(sum_mask)
     return sum_mask
 
+def ablation_cam(img, model, class_index=None, layer_name="conv1d_2"):
+    #### IMG [0-1] ####
+    # Get gradients for the class on the last conv layer
+    gradModel = tf.keras.models.Model([model.inputs],[model.get_layer(layer_name).output, model.output])
+    print("gradModel = ")
+    print(gradModel)
+    # Get Activation Map on the last conv layer
+    with tf.GradientTape() as tape:
+        # Get Prediction on the last conv layer
+        convOutputs, predictions = gradModel(np.array([img]))
+        output = convOutputs[0]
+        print("#prediction#")
+        print(predictions)
+        print("OUTPUT")
+        print(output)
+    
+    
+    # Get Weights on the layer
+    weights = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
+    # Get Weights for the maps
+    allWeights = model.get_layer(layer_name).get_weights().copy()
+    # Add up all feature maps
+    ablationCam = 0
 
+    # Get Mask
+    
+    ablationMap = 0
+    # Return Map and Mask
+    return ablationCam, ablationMap
