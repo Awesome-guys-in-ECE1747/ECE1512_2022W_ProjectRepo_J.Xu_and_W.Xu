@@ -404,7 +404,7 @@ def RISE(img, model, class_index, N_MASKS=8000, H=224, W=224, C=3):
     sum_mask /= np.max(sum_mask)
     return sum_mask
 
-def ablation_cam(img, model, class_index=None, layer_name="conv1d_2"):
+def extract_feature_map(img, model, class_index=None, layer_name="conv1d_2"):
     #### IMG [0-1] ####
     # Get gradients for the class on the last conv layer
     gradModel = tf.keras.models.Model([model.inputs],[model.get_layer(layer_name).output, model.output])
@@ -420,16 +420,49 @@ def ablation_cam(img, model, class_index=None, layer_name="conv1d_2"):
         print("OUTPUT")
         print(output)
     
-    
+    if class_index is None:
+        class_index = np.argmax(model.predict(np.array([img])), axis = -1)[0]
+        y_class = np.max(model.predict(np.array([img])))
+    else:
+        y_class = model.predict(np.array([img]))[0][class_index]
+
     # Get Weights on the layer
     weights = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
     # Get Weights for the maps
     allWeights = model.get_layer(layer_name).get_weights().copy()
-    # Add up all feature maps
-    ablationCam = 0
+    zeroWeight = allWeights[0][:,:,:,0]*0
+    localWeight = [np.zeros(allWeights[0].shape)]
+    localWeight.append(np.zeros(allWeights[1].shape))
 
-    # Get Mask
+    for i in range(weights.shape[0]):
+        localWeight[0] = allWeights[0].copy()
+        localWeight[0][:,:,:,i] = zeroWeight
+        model.get_layer(layer_name).set_weights(localWeight)
+        y_pred = model.predict(np.array([img]))[0][class_index]
+        weights[i] = (y_class - y_pred)/y_class # Simplified Formula
+        model.get_layer(layer_name).set_weights(allWeights)
+
+    outputMean = np.mean([output[:,:,i] for i in range(output.shape[2])], axis = 0)
+    outputMean = np.maximum(outputMean, 0.0)
+    outMeanMask = np.zeros(output.shape[0:2], dtype = np.float32)
+    for i in range(output.shape[0]):
+        for j in range(output.shape[1]):
+            if outputMean[i][j] < np.mean(outputMean[:,:]):
+                outMeanMask[i][j] = 255
+            else:
+                outMeanMask[i][j] = 0
+    return weights, output, outputMean, outMeanMask
+
+def ablation_cam(weights, output):
+    ablationMap = weights * output
+    ablationCam = np.sum(ablationMap, axis=(2))
+
+    ablationMask = np.zeros(ablationMap.shape[0:2], dtype = np.float32)
+    for i in range(ablationMap.shape[0]):
+        for j in range(ablationMap.shape[1]):
+            if ablationCam[i][j] < np.mean(ablationCam[:,:]):
+                ablationMask[i][j] = 255
+            else:
+                ablationMask[i][j] = 0
     
-    ablationMap = 0
-    # Return Map and Mask
-    return ablationCam, ablationMap
+    return ablationCam, ablationMask
