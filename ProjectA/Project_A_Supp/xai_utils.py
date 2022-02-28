@@ -10,7 +10,11 @@ from scipy.ndimage.interpolation import zoom
 from keras.preprocessing.image import load_img, img_to_array
 import keras.backend as K
 from PIL import Image, ImageDraw
-
+from tensorflow.keras.layers import *
+from tensorflow.keras.models import *
+from tensorflow.keras import backend as K
+import numpy as np
+import cv2
 import matplotlib.pyplot as plt
 #############################
 
@@ -372,7 +376,8 @@ def grad_cam(input_model, image, layer_name):
     #cam = np.maximum(cam, 0)
     cam = cam / cam.max()
     return cam
-	
+
+
 def RISE(img, model, class_index, N_MASKS=8000, H=224, W=224, C=3):
     '''
 	img: a 3-D input image
@@ -403,6 +408,46 @@ def RISE(img, model, class_index, N_MASKS=8000, H=224, W=224, C=3):
     sum_mask -= np.min(sum_mask)
     sum_mask /= np.max(sum_mask)
     return sum_mask
+
+
+
+def grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
+    # if class_index is None:
+    #     class_index=np.argmax(input_model.predict(np.array([image])), axis=-1)[0]
+    """GradCAM method for visualizing input saliency."""
+    y_c = input_model.output
+    conv_output = input_model.get_layer(layer_name).output
+    feedforward1 = keras.models.Model([input_model.input], [conv_output, y_c])
+    with tf.GradientTape() as tape1:
+        with tf.GradientTape() as tape2:
+            with tf.GradientTape() as tape3:
+                ff_results = feedforward1([image])
+                all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+                if class_index==None:
+                    class_index=np.argmax(predictions[0])
+                loss = predictions[:, class_index]
+            grads_val1 = tape3.gradient(loss, all_fmap_masks)
+        grads_val2 = tape2.gradient(grads_val1, all_fmap_masks)
+    grads_val3 = tape1.gradient(grads_val2, all_fmap_masks)
+
+    if len(image.shape) == 3:
+        axis = (0, 1)
+    elif len(image.shape) == 4:
+        axis = (0, 1, 2)
+    alpha = grads_val2 / (2.0 * grads_val2 + grads_val3 * np.sum(all_fmap_masks, axis=axis))
+    alpha = np.where(grads_val1 != 0, alpha, 0)
+    weights = np.maximum(grads_val1, 0.0) * alpha
+    weights = np.sum(weights, axis=axis)
+    cam = np.dot(all_fmap_masks[0], weights)
+    # print (cam)
+    H, W = image.shape[1:3]
+    cam = np.maximum(cam, 0)
+    # cam = resize(cam, (H, W))
+    cam = zoom(cam, H / cam.shape[0])
+    # cam = np.maximum(cam, 0)
+    cam = cam / cam.max()
+    return cam
+
 
 def extract_feature_map(img, model, class_index=None, layer_name="conv1d_2"):
     #### IMG [0-1] ####
