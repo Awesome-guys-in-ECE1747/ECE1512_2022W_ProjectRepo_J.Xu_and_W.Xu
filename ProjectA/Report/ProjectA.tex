@@ -46,6 +46,16 @@ This paper is a report for Project A of ECE1512 2022W, University of Toronto. In
 
 \section{Task 1: 1-Dimensional digit classification}
 \subsection{Question 1}
+
+In this question, we build a ConvNet. It includes three convolutional layer, one flatten layer and one dense layer.
+The network is listed as Fig. 1:
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{T1Q1.png}
+    \caption{Task1-Question1: ConvNet Model}
+    \label{Fig.t1q1}
+\end{figure}
+
 \begin{lstlisting}
     weight_decay = 5e-4
     model = Sequential()
@@ -61,14 +71,7 @@ This paper is a report for Project A of ECE1512 2022W, University of Toronto. In
 
     model.summary()
 \end{lstlisting}
-In this question, we build a ConvNet. It includes three convolutional layer, one flatten layer and one dense layer.
-The network is listed as Fig. 1:
-\begin{figure}[h] 
-    \centering %图片居中
-    \includegraphics[width=0.3\textwidth]{T1Q1.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question1: ConvNet Model} %最终文档中希望显示的图片标题
-    \label{Fig.t1q1} %用于文内引用的标签
-\end{figure}
+
 \subsection{Question 2}
 In this section, we apply the model in question 1 to the MNIST1D dataset. The code is listed as followed:
 \begin{lstlisting}
@@ -101,12 +104,13 @@ Here, we use the tensorboard to record the training procedure.First of all, we c
 Then we define the LearningRateScheduler, the TensorBoard, the EarlyStopping for later use.
 After that, we handle the train data for training.
 At last, we will fit the data and tensorboard into the model for training and save the model into disk.
-The training result is shown as followed\ref{Fig.t1q2}:
+The training result is shown as followed:
+
 \begin{figure}[h] 
-    \centering %图片居中
-    \includegraphics[width=0.5\textwidth]{T1Q2.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question2: Training Process Log} %最终文档中希望显示的图片标题
-    \label{Fig.t1q2} %用于文内引用的标签
+    \centering
+    \includegraphics[width=0.5\textwidth]{T1Q2.png}
+    \caption{Task1-Question2: Training Process Log} 
+    \label{Fig.t1q2} 
 \end{figure}
 \subsection{Question 3}
 \subsubsection{SubQuestion a}
@@ -120,17 +124,17 @@ This is the code for loss and accuracy curve.
 \end{lstlisting}
 In the code, we used the training history defined in the previous code to do the plot.
 The plot of loss curve\ref{Fig.t1q3a1} and plot for accuracy curve\ref{Fig.t1q3a2} are shown below:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.3\textwidth]{T1Q3-b.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question3a-1: Loss Curve of 1-D CNN} %最终文档中希望显示的图片标题
-    \label{Fig.t1q3a1} %用于文内引用的标签
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{T1Q3-b.png}
+    \caption{Task1-Question3a-1: Loss Curve of 1-D CNN} 
+    \label{Fig.t1q3a1} 
 \end{figure}
 \begin{figure}[h] 
-    \centering %图片居中
-    \includegraphics[width=0.3\textwidth]{T1Q3-a.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question3a-2: Accuracy Curve of 1-D CNN} %最终文档中希望显示的图片标题
-    \label{Fig.t1q3a2} %用于文内引用的标签
+    \centering
+    \includegraphics[width=0.3\textwidth]{T1Q3-a.png}
+    \caption{Task1-Question3a-2: Accuracy Curve of 1-D CNN} 
+    \label{Fig.t1q3a2} 
 \end{figure}
 \subsubsection{SubQuestion b}
 This part talks about overall classification accuracy on the test set.
@@ -150,11 +154,11 @@ This part talks about overall classification accuracy on the test set.
 \end{lstlisting}
 We read the test set, fit the model on the set and calculate the accuracy by deciding the max prediction in every class and compare them with the ground truth. The result is 0.919\ref{Fig.t1q3b}.
 
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T1Q3b.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question3b: overall accuracy} %最终文档中希望显示的图片标题
-    \label{Fig.t1q3b} %用于文内引用的标签
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{T1Q3b.png}
+    \caption{Task1-Question3b: Overall accuracy} 
+    \label{Fig.t1q3b} 
 \end{figure}
 \subsubsection{SubQuestion c}
 In this part, we calculated the class-wise accuracy for all classes.This is our code:
@@ -167,17 +171,16 @@ for i in range(10):
         if y_predicted[j]==i:
             res=res+1
     print('class '+str(i)+' accuracy:'+str(res/true_i.shape[0]))
-#     pred_i=np.where(y_predicted[true_i]==i)[0]
-#     print('class '+str(i)+' accuracy:'+str(pred_i.shape[0]/true_i.shape[0]))
 \end{lstlisting}
 We find out the lines which belongs to class i and find the ones which is correct in these lines to calculate the accuracy.
 The result is shown below\ref{Fig.t1q3c}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T1Q3c.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question3b: class-wise accuracy} %最终文档中希望显示的图片标题
-    \label{Fig.t1q3c} %用于文内引用的标签
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{T1Q3c.png}
+    \caption{Task1-Question3b: class-wise accuracy} 
+    \label{Fig.t1q3c} 
 \end{figure}
+
 \subsubsection{SubQuestion d}
 In this part, we will plot the ROC and AUC curves for each class.
 Here is the code:
@@ -202,78 +205,47 @@ Here is the code:
         plt.legend(loc='best')
         plt.show()   
 \end{lstlisting}
-In the code, we first reshape the test set to 2D set. Then we apply the test set and prediction set to roc_curve.
+
+In the code, we first reshape the test set to 2D set. Then we apply the test set and prediction set to roc\_curve.
 Then we will calculate the auc number and plot the curve.The AUC and ROC curve is listed below:
-This is class 0\ref{Fig.ROC0}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC0.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 0:  0.9995087121708371} %最终文档中希望显示的图片标题
-    \label{Fig.ROC0} %用于文内引用的标签
+
+\begin{figure}[h]
+\centering  %图片全局居中
+\subfigure[Class 0]{
+\label{Fig.ROC0}
+\includegraphics[width=0.2\textwidth]{ROC0.png}}
+\subfigure[Class 1]{
+\label{Fig.ROC1}
+\includegraphics[width=0.2\textwidth]{ROC1.png}}
+\subfigure[Class 2]{
+\label{Fig.ROC2}
+\includegraphics[width=0.2\textwidth]{ROC2.png}}
+\subfigure[Class 3]{
+\label{Fig.ROC3}
+\includegraphics[width=0.2\textwidth]{ROC3.png}}
+\subfigure[Class 4]{
+\label{Fig.ROC4}
+\includegraphics[width=0.2\textwidth]{ROC4.png}}
+\subfigure[Class 5]{
+\label{Fig.ROC5}
+\includegraphics[width=0.2\textwidth]{ROC5.png}}
+\subfigure[Class 6]{
+\label{Fig.ROC6}
+\includegraphics[width=0.2\textwidth]{ROC6.png}}
+\subfigure[Class 7]{
+\label{Fig.ROC7}
+\includegraphics[width=0.2\textwidth]{ROC7.png}}
+\subfigure[Class 8]{
+\label{Fig.ROC8}
+\includegraphics[width=0.2\textwidth]{ROC8.png}}
+\subfigure[Class 9]{
+\label{Fig.ROC9}
+\includegraphics[width=0.2\textwidth]{ROC9.png}}
+
+\caption{Class-wise ROC Curve Plots on MNIST-1D dataset}
+\label{Fig.ba}
 \end{figure}
-This is class 1\ref{Fig.ROC1}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC1.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 1:  0.991919213598901} %最终文档中希望显示的图片标题
-    \label{Fig.ROC1} %用于文内引用的标签
-\end{figure}
-This is class 2\ref{Fig.ROC2}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC2.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 2:  0.9901700810320798} %最终文档中希望显示的图片标题
-    \label{Fig.ROC2} %用于文内引用的标签
-\end{figure}
-This is class 3\ref{Fig.ROC3}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC3.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 3:  0.9992718753957199} %最终文档中希望显示的图片标题
-    \label{Fig.ROC3} %用于文内引用的标签
-\end{figure}
-This is class 4\ref{Fig.ROC4}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC4.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 4:  0.9955784897218353} %最终文档中希望显示的图片标题
-    \label{Fig.ROC4} %用于文内引用的标签
-\end{figure}
-This is class 5\ref{Fig.ROC5}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC5.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 5:  0.9922620933073896} %最终文档中希望显示的图片标题
-    \label{Fig.ROC5} %用于文内引用的标签
-\end{figure}
-This is class 6\ref{Fig.ROC6}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC6.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 6:  0.9995851971434657} %最终文档中希望显示的图片标题
-    \label{Fig.ROC6} %用于文内引用的标签
-\end{figure}
-This is class 7\ref{Fig.ROC7}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC7.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 7:  0.9961167957227138} %最终文档中希望显示的图片标题
-    \label{Fig.ROC7} %用于文内引用的标签
-\end{figure}
-This is class 8\ref{Fig.ROC8}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC8.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 8:  0.9992420471514548} %最终文档中希望显示的图片标题
-    \label{Fig.ROC8} %用于文内引用的标签
-\end{figure}
-This is class 9\ref{Fig.ROC9}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{ROC9.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 9:  0.986538713480938} %最终文档中希望显示的图片标题
-    \label{Fig.ROC9} %用于文内引用的标签
-\end{figure}
+
 \subsubsection{SubQuestion e}
 This is the code for normalized confusion matrix.
 \begin{lstlisting}
@@ -302,12 +274,13 @@ This is the code for normalized confusion matrix.
                     color="white" if cm_normalized[i, j] > thresh else "black")
     fig.tight_layout()
 \end{lstlisting}
+
 The result plot is listed in Fig.\ref{Fig.t1q3e}.
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T1Q3e.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{normalized confusion matrix plot} %最终文档中希望显示的图片标题
-    \label{Fig.t1q3e} %用于文内引用的标签
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{T1Q3e.png}
+    \caption{normalized confusion matrix plot}
+    \label{Fig.t1q3e}
 \end{figure}
 \subsubsection{SubQuestion f}
 This is the code for calculating Precision, Recall, and F-1 score on the test set.
@@ -316,11 +289,11 @@ This is the code for calculating Precision, Recall, and F-1 score on the test se
     print(classification_report(y_true=y_test,y_pred=y_predicted))
 \end{lstlisting}
 This is the result for the plot\ref{Fig.t1q3f}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T1Q3f.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Precision,Recall and F-1 score} %最终文档中希望显示的图片标题
-    \label{Fig.t1q3f} %用于文内引用的标签
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.4\textwidth]{T1Q3f.png}
+    \caption{Precision,Recall and F-1 score}
+    \label{Fig.t1q3f}
 \end{figure}
 \subsection{Question 4}
 To do this question, we did some coding in our program, the codes are listed below:
@@ -340,7 +313,7 @@ Failure Examples:
 The concrete Success/Failure cases are recorded in 'MNIST1D.ipynb', if you want to refer to more examples.
 The most misclassification lies in class 1 and 4.
 The reason for that is TODOOO: analyze
-挑几个正确与错误的例子，评价一下，哪两个类错误最多
+
 \section{Task 2: CNN interprectation}
 
 This section introduces our interpretation of 1-D CNN model based on MNIST-1D dataset using 3 different attribution methods, including our literature review, discussion and implementation of the XAI attribute algorithms.
@@ -350,13 +323,15 @@ In the previous study, researchers introduced CAM to explain the CNN. However, C
 To solve this problem, Grad-CAM was proposed, which is similar to CAM. It also gets the weight of every feature maps and calculate the results accordingly. The difference lies in the calculation of weights. CAM replaced full-connection layer with GAP layer and retrain this whole model. In contrast to that, Grad-CAM put forward a new way to do it.
 It calculates the weight by averaging the gradients which is equivalent to the CAM. It makes CAM applicable to all the existing models.\par
 
-The core algorithm of Grad-CAM is based on CAM which proposed: class c gets the final classification score $Y_{c}$ with a linear combination of its global average pooled last convolutional layer feature maps $A_{}k$\ref{Grad-CAM-1}.
+The core algorithm of Grad-CAM is based on CAM which proposed: class c gets the final classification score $Y_{c}$ with a linear combination of its global average pooled last convolutional layer feature maps $A_{k}$.
+
 \begin{equation}
-\begin{aligned}
-    Y^{c}=\Sigma_{k}w_{k}^{c}\Sigma_{i}\Sigma_{j}A_{ij}^{k})
-    \label{Grad-CAM-1}
-\end{aligned}
-\end{equation}
+    \begin{aligned}
+        Y^{c}=\Sigma_{k}w_{k}^{c}\Sigma_{i}\Sigma_{j}A_{ij}^{k}
+        \label{Grad-CAM_Y}
+    \end{aligned}
+  \end{equation}
+
 So, first, it defines the weight of feature map $k$ to class $c$ as $\alpha_{k}^{c}$, and it calculates the weight using the global gradients\ref{Grad-CAM_alpha}:
 \begin{equation}
     \begin{aligned}
@@ -366,13 +341,9 @@ So, first, it defines the weight of feature map $k$ to class $c$ as $\alpha_{k}^
   \end{equation}
   In which, $y_{c}$ is the gradient of the score for class c, $A_{k}$ is the feature map activation.$\frac{\partial y^{c}}{\partial A_{ij}^{k}}$ is the gradient achieved by backpropagating. $\frac{1}{Z}$ is global averaging.
   After calculating the $\alpha_{k}^{c}$, the algorithm computed the weighted combination of forward activation maps, followed by a ReLU function:
-  
-  \begin{equation}
-  \begin{aligned}
-      L_{Grad-CAM}^{c}=ReLU(\Sigma_{k}\alpha_{k}^{c}A^{k})
-      \label{Grad-CAM_weight}
-  \end{aligned}
-\end{equation}
+
+$$L_{Grad-CAM}^{c}=ReLU(\Sigma_{k}\alpha_{k}^{c}A^{k})$$
+
 The advantages for Grad-CAM is quite obvious: First, compared with CAM, it does not need to change the model and retrain it which costs a lot of time and money. 
 The novelty is the usage of propagation and gradients to compute the weights of feature maps.It makes the visualization of published models possible. Second is that the algorithm is quite easy to code and maintain.\par
 The disadvantages for Grad-CAM is that: it considers the global features for all classes. As a result, Grad-CAM cannot localize the targets when faced with many targets of the same class. If there are many objects of the same class in an image, it cannot localize the targets well or it can only locate part of them.
@@ -394,21 +365,21 @@ Combine the equation\ref{Grad-CAM_alpha} and \ref{Grad-CAM-1} together, we will 
 Take partial derivative w.r.t. $A_{ij}^{k}$ on both sides:
 \begin{equation}
 \begin{aligned}
-    \frac{\partial Y_{c}}{\partial A_{ij}^{k}}=\Sigma_{a}\Sigma{b}\alpha_{ab}^{kc}·\frac{\partial Y_{c}}{\partial A_{ij}^{k}}+\Sigma_{a}\Sigma{b}\alpha_{ab}^{k}\{\alpha_{ab}^{kc}·\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}\}
-    \label{Grad-CAMPP-2}
+\frac{\partial Y_{c}}{\partial A_{ij}^{k}}=\Sigma_{a}\Sigma{b}\alpha_{ab}^{kc}·\frac{\partial Y_{c}}{\partial A_{ab}^{k}}+\Sigma_{a}\Sigma{b}A_{ab}^{k}\{\alpha_{ij}^{kc}·\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k} )^{2}}\}
+\label{Grad-CAMPP-2}
 \end{aligned}
 \end{equation}
 Take a further partial derivative w.r.t. $A_{ij}^{k}$ on both sides:
 \begin{equation}
     \begin{aligned}
-        \frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}=2·\alpha_{ab}^{kc}·\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}+\Sigma_{a}\Sigma{b}\alpha_{ab}^{k}\{\alpha_{ab}^{kc}·\frac{\partial^{3} Y_{c}}{(\partial A_{ij}^{k})^_{3}}\}
+\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^{2}}=2·\alpha_{ij}^{kc}·\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^{2}}+\Sigma_{a}\Sigma{b}A_{ab}^{k}\{\alpha_{ij}^{kc}·\frac{\partial^{3} Y_{c}}{(\partial A_{ij}^{k})^{3}}\}
         \label{Grad-CAMPP-3}
     \end{aligned}
     \end{equation}
 Rearrage equation\ref{Grad-CAMPP-3}, we get:
     \begin{equation}
         \begin{aligned}
-            \alpha_{ab}^{kc}=\frac{\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}}{2\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}+\Sigma_{a}\Sigma{b}\alpha_{ab}^{k}\{\frac{\partial^{3} Y_{c}}{(\partial A_{ij}^{k})^_{3}}\}}
+\alpha_{ij}^{kc}=\frac{\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^{2}}}{2\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^{2}}+\Sigma_{a}\Sigma{b}A_{ab}^{k}\{\frac{\partial^{3} Y_{c}}{(\partial A_{ij}^{k})^{3}}\}}
             \label{Grad-CAMPP-4}
         \end{aligned}
         \end{equation}
@@ -419,6 +390,7 @@ So, we are able to get weight $w_{k}$ with:
         \label{Grad-CAMPP-5}
     \end{aligned}
     \end{equation}
+
 Applying equation\ref{Grad-CAMPP-5} to \ref{Grad-CAM_weight}, we will get final results.
 There are many advantages for Grad-CAM++: First, it clearly improved the performance of Grad-CAM when facing with many objects of the same class in an image. It helps us to localize the objects more accurately. 
 Second is that it only adds tow partial derivative to the computation, and it uses backpropagation only once. So it does not increase the computation time a lot.\par
@@ -578,12 +550,12 @@ Here we calculate the overall classification accuracy, here is the code:
     y_predicted=np.argmax(y_pred, axis=1)
     print('Overall classification accuracy for all classes:'+str(np.sum(y_predicted==y_test)/y_test.shape[0]))
 \end{lstlisting}
-The result is 0.8306451612903226, as is shown in Fig\ref{Fig.t3q1}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T3Q1a.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Overall classification accuracy} %最终文档中希望显示的图片标题
-    \label{Fig.t3q1} %用于文内引用的标签
+The result is 83.06\%, as is shown in Fig\ref{Fig.t3q1}:
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.4\textwidth]{T3Q1a.png}
+    \caption{Overall classification accuracy}
+    \label{Fig.t3q1}
 \end{figure}
 \subsubsection{class-wise classification accuracy}
 In this part, we discuss the classification accuracy for every class.Here is the code:
@@ -597,11 +569,11 @@ In this part, we discuss the classification accuracy for every class.Here is the
     print('class '+str(i)+' accuracy:'+str(res/true_i.shape[0]))
 \end{lstlisting}
 The results are shown in Fig\ref{Fig.t3q2}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T3Q1b.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{class-wise classification accuracy} %最终文档中希望显示的图片标题
-    \label{Fig.t3q2} %用于文内引用的标签
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{T3Q1b.png}
+    \caption{class-wise classification accuracy} 
+    \label{Fig.t3q2} 
 \end{figure}
 \subsubsection{AUC-ROC curve}
 In this part, we discuss the AUC and ROC curve.Here is the code:
@@ -622,62 +594,41 @@ In this part, we discuss the AUC and ROC curve.Here is the code:
         plt.legend(loc='best')
         plt.show()    
 \end{lstlisting}
+
 The plots are shown below:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{3ROC0.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 0:  0.9948714137059611} %最终文档中希望显示的图片标题
-    \label{Fig.3ROC0} %用于文内引用的标签
+
+\begin{figure}[h]
+\centering  
+\subfigure[Class 0]{
+\label{Fig.3ROC0}
+\includegraphics[width=0.2\textwidth]{3ROC0.png}}
+\subfigure[Class 1]{
+\label{Fig.3ROC1}
+\includegraphics[width=0.2\textwidth]{3ROC1.png}}
+\subfigure[Class 2]{
+\label{Fig.3ROC2}
+\includegraphics[width=0.2\textwidth]{3ROC2.png}}
+\subfigure[Class 3]{
+\label{Fig.3ROC3}
+\includegraphics[width=0.2\textwidth]{3ROC3.png}}
+\subfigure[Class 4]{
+\label{Fig.3ROC4}
+\includegraphics[width=0.2\textwidth]{3ROC4.png}}
+\subfigure[Class 5]{
+\label{Fig.3ROC5}
+\includegraphics[width=0.2\textwidth]{3ROC5.png}}
+\subfigure[Class 6]{
+\label{Fig.3ROC6}
+\includegraphics[width=0.2\textwidth]{3ROC6.png}}
+\subfigure[Class 7]{
+\label{Fig.3ROC7}
+\includegraphics[width=0.2\textwidth]{3ROC7.png}}
+
+
+\caption{Class-wise ROC Curve Plots of HMT dataset}
+\label{Fig.ba}
 \end{figure}
-This is class 1\ref{Fig.ROC1}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{3ROC1.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 1:  0.9665526980823547} %最终文档中希望显示的图片标题
-    \label{Fig.3ROC1} %用于文内引用的标签
-\end{figure}
-This is class 2\ref{Fig.ROC2}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{3ROC2.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 2:  0.9670358257767206} %最终文档中希望显示的图片标题
-    \label{Fig.3ROC2} %用于文内引用的标签
-\end{figure}
-This is class 3\ref{Fig.ROC3}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{3ROC3.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 3:  0.9882562806600268} %最终文档中希望显示的图片标题
-    \label{Fig.3ROC3} %用于文内引用的标签
-\end{figure}
-This is class 4\ref{Fig.ROC4}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{3ROC4.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 4:  0.9813066745949159} %最终文档中希望显示的图片标题
-    \label{Fig.3ROC4} %用于文内引用的标签
-\end{figure}
-This is class 5\ref{Fig.ROC5}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{3ROC5.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 5:  0.9920098112085625} %最终文档中希望显示的图片标题
-    \label{Fig.3ROC5} %用于文内引用的标签
-\end{figure}
-This is class 6\ref{Fig.ROC6}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{3ROC6.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 6:  0.9997770179872156} %最终文档中希望显示的图片标题
-    \label{Fig.3ROC6} %用于文内引用的标签
-\end{figure}
-This is class 7\ref{Fig.ROC7}:
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{3ROC7.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{AUC for class 7:  0.9998885089936078} %最终文档中希望显示的图片标题
-    \label{Fig.3ROC7} %用于文内引用的标签
-\end{figure}
+
 \subsubsection{normalized confusion matrix}
 In this part, we discuss the normalized confusion matrix plot.Here is the code:
 \begin{lstlisting}
@@ -706,11 +657,11 @@ In this part, we discuss the normalized confusion matrix plot.Here is the code:
     fig.tight_layout()
 \end{lstlisting}
 The result plot is shown in Fig.\ref{Fig.t3q1c}.
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T3Q1c.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{normalized confusion matrix plot} %最终文档中希望显示的图片标题
-    \label{Fig.t3q1c} %用于文内引用的标签
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{T3Q1c.png}
+    \caption{normalized confusion matrix plot} 
+    \label{Fig.t3q1c} 
 \end{figure}
 
 \subsubsection{Precision, Recall, and F-1 score}
@@ -719,23 +670,38 @@ In this part, we discuss the normalized confusion matrix plot.Here is the code:
     print(classification_report(y_true=y_test,y_pred=y_predicted))
 \end{lstlisting}
 The result plot is shown in Fig.\ref{Fig.t3q1d}.
-\begin{figure}[H] 
-    \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T3Q1d.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Precision, Recall, and F-1 score} %最终文档中希望显示的图片标题
-    \label{Fig.t3q1d} %用于文内引用的标签
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{T3Q1d.png}
+    \caption{Precision, Recall, and F-1 score} 
+    \label{Fig.t3q1d} 
 \end{figure}
 
 \subsection{Question 2}
-方法用到HMT
 
-CAPTUM可选项
+implement 2d capable functions.
+
+codes
+
+modifications
 
 \section{Task 4: Quantitative evaluation of the attribution methods}
-应用，k设置为30，计算平均drop increase，HMT设置为90
 
-讨论之前用过的方法，你的方法又没有正确反映特征，什么时候会失败，比较一下，给个reason
+\subsection {Experiment}
 
+apply ways, codes,
+
+table of drop/increase rate both MNIST/HMT (TODO)
+
+\subsection{Discussion}
+
+data analysis
+
+successful? compare to benchmark
+
+fail?
+
+Two methods comparasion.
 
 \begin{thebibliography}{00}
 \bibitem{b1}Y. Gilad, R. Hemo, S. Micali, G. Vlachos, and N. Zeldovich, “Algorand: Scaling Byzantine Agreements for Cryptocurrencies,” in Proceedings of the 26th Symposium on operating systems principles, 2017, pp. 51–68. doi: 10.1145/3132747.3132757.
