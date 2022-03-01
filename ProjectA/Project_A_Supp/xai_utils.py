@@ -453,37 +453,40 @@ def grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
     cam = cam / cam.max()
     return cam
 
+def ablation_cam_1d(input_model, image, layer_name):
+    y_c = input_model.output
+    conv_output = input_model.get_layer(layer_name).output
+    ac_model = keras.models.Model([input_model.input], [conv_output, y_c])
 
-def ablation_cam(input_model, image, layer_name, class_index=None):
-    cls = np.argmax(input_model.predict(image))
+    ff_results=ac_model([image])
+    all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+    # print(image.shape)
+    # print(predictions)
+    #index
+    _pred = np.argmax(predictions, axis=1)[0]
+    # print(_pred)
+    # Real Y_C
 
-    # y_c = input_model.output
-    # conv_output = input_model.get_layer(layer_name).output
-    # feedforward1 = keras.models.Model([input_model.input], [conv_output, y_c])
-    # with tf.GradientTape() as tape:
-    #     ff_results=feedforward1([image])
-    #     all_fmap_masks, predictions = ff_results[0], ff_results[-1]
-    #     loss = predictions[:, cls]
-    # grads_val = tape.gradient(loss, all_fmap_masks)
+    _y_c = predictions[0][_pred]
+    # print(_y_c)
 
-    # Get y^c
+    _wt = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
+    # print(_wt)
+    # print(_wt.shape)
+    all_weigths = model.get_layer(layer_name).get_weights().copy()
+    zero_weigth = all_weigths[0][:, :, 0] * 0
+    weigth_local = [np.zeros(all_weigths[0].shape)]
+    weigth_local.append(np.zeros(all_weigths[1].shape))
+    for i in range(_wt.shape[0]):
+        weigth_local[0] = all_weigths[0].copy()
+        weigth_local[0][:, :, i] = zero_weigth
+        model.get_layer(layer_name).set_weights(weigth_local)
+        y_k = model.predict([image])[0][_pred]
+        _wt[i] = (_y_c - y_k) / _y_c
 
-    # Get y^c_k
+    a_k = all_fmap_masks[0]
 
-    # Get w^c_k
-
-    # Sum
-    if len(image.shape)==3:
-        axis=(0, 1)
-    elif len(image.shape)==4:
-        axis=(0, 1, 2)
-    weights = np.mean(grads_val, axis=axis)
-    cam = np.dot(all_fmap_masks[0], weights)
-    #print (cam)
-    H,W= image.shape[1:3]
-    cam = np.maximum(cam, 0)
-    #cam = resize(cam, (H, W))
-    cam = zoom(cam,H/cam.shape[0])
-    #cam = np.maximum(cam, 0)
-    cam = cam / cam.max()
-    return cam
+    ab_map = a_k * _wt
+    print(ab_map)
+    explanation = np.sum(ab_map, axis=1)
+    return explanation
