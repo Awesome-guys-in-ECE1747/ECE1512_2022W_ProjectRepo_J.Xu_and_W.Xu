@@ -493,7 +493,7 @@ def ablation_cam_1d(input_model, image, layer_name):
     a_k = all_fmap_masks[0]
 
     ab_map = a_k * _wt
-    print(ab_map)
+    # print(ab_map)
     explanation = np.sum(ab_map, axis=1)
     return explanation
 
