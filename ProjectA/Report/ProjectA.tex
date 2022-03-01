@@ -42,9 +42,9 @@
 	\maketitle
 	
 	\begin{abstract}
-		This paper is a report for Project A of ECE1512 2022W, University of Toronto. In the paper, we described four assigned tasks with detail, including CNN construction and training, statistic assessment, XAI based interpretation and Quantitative evaluation. For the attribution methods, we choose Grad-CAM, Grad-CAM++ and Ablation-CAM as a group of two, and we reviewed their paper and implemented corresponding functions. Moreover, we tried to analyze the performance of the XAI methods based on quantitative evaluation and gave our explanations towards the experiment.
+		This paper is a report for Project A of ECE1512 2022W, University of Toronto. In the paper, we described four assigned tasks with detail, including CNN construction and training, statistic assessment, XAI based interpretation and Quantitative evaluation. For the attribution methods, we choose Grad-CAM, Grad-CAM++ and Ablation-CAM as a group of two, and we reviewed their paper and implemented corresponding functions. Moreover, we tried to analyze the performance of the XAI methods based on quantitative evaluation and gave our explanations towards the experiment. This project remote repository is attached on GitHub: https://github.com/Awesome-guys-in-ECE1747/ECE1512\_2022W\_ProjectRepo\_J.Xu\_and\_W.Xu
 	\end{abstract}
-	
+
 	\section{Task 1: 1-Dimensional digit classification}
 	
 	In this task, we basically train an one-hot 1-D CNN model following typical procedure, including network construction, training and evaluation.
@@ -84,7 +84,12 @@
 	In this section, we applied the model constructed in the previous section to the MNIST1D dataset.\par
 	
 	In this part, we use the TensorBoard to record the training procedure, which we also found could be standalone execute as a TensorFlow based analyzing tool which is running on localhost with port 6006 by default.\par 
-	% Can have a screenshot of the GUI here
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{tb.png}
+    \caption{TensorBoard GUI} 
+    \label{Fig.t3q2} 
+\end{figure}
 	As a standard procedure using TensorFlow, first of all, we compile this model and set the loss function to cross-entropy, the optimizer to Stochastic Gradient Descent(SGD) and the target metrics to accuracy as required. \par
 	Then we define a LearningRateScheduler, in order to control the learning rate during the training process. Learning rate is similar to a "step" of training process, which is typically set to 0.01 or 0.001. Learning rate only care about the magnitude, it somehow determine the precision of fitting parameters. In this part, we declare a dynamic learning rate to increase it speed to fit, while setting the magnitude to 0,01 according to the direction.\par
 	For the next step, we declare the object of TensorBoard, along with the EarlyStopping to accomplish a speed-up of training working with the dynamic learning rate.
@@ -330,7 +335,7 @@
 	\begin{figure}[h] 
 		\centering
 		\includegraphics[width=0.4\textwidth]{T1Q3f.png}
-		\caption{Precision,Recall and F-1 score}
+		\caption{Precision, Recall and F-1 score}
 		\label{Fig.t1q3f}
 	\end{figure}
 	\subsection{Question 4}
@@ -511,67 +516,43 @@ On the hand, the Ablation-CAM only benefits the interpretation where last convol
 Our implementation code is as followed.
 
 \begin{lstlisting}
-def extract_feature_map(img, model, class_index=None, layer_name="conv1d_2"):
-    # Get gradients for the class on the last conv layer
-    gradModel = tf.keras.models.Model([model.inputs],[model.get_layer(layer_name).output, model.output])
-    print("gradModel = ")
-    print(gradModel)
-    # Get Activation Map on the last conv layer
-    with tf.GradientTape() as tape:
-        # Get Prediction on the last conv layer
-        convOutputs, predictions = gradModel(np.array([img]))
-        output = convOutputs[0]
-        print("#prediction#")
-        print(predictions)
-        print("OUTPUT")
-        print(output)
-    
-    if class_index is None:
-        class_index = np.argmax(model.predict(np.array([img])), axis = -1)[0]
-        y_class = np.max(model.predict(np.array([img])))
-    else:
-        y_class = model.predict(np.array([img]))[0][class_index]
+def ablation_cam_1d(input_model, image, layer_name):
+    y_c = input_model.output
+    conv_output = input_model.get_layer(layer_name).output
+    ac_model = keras.models.Model([input_model.input], [conv_output, y_c])
 
-    # Get Weights on the layer
-    weights = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
-    # Get Weights for the maps
-    allWeights = model.get_layer(layer_name).get_weights().copy()
-    zeroWeight = allWeights[0][:,:,:,0]*0
-    localWeight = [np.zeros(allWeights[0].shape)]
-    localWeight.append(np.zeros(allWeights[1].shape))
+    ff_results=ac_model([image])
+    all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+    # print(image.shape)
+    # print(predictions)
+    #index
+    _pred = np.argmax(predictions, axis=1)[0]
+    # print(_pred)
+    # Real Y_C
 
-    for i in range(weights.shape[0]):
-        localWeight[0] = allWeights[0].copy()
-        localWeight[0][:,:,:,i] = zeroWeight
-        model.get_layer(layer_name).set_weights(localWeight)
-        y_pred = model.predict(np.array([img]))[0][class_index]
-        weights[i] = (y_class - y_pred)/y_class # Simplified Formula
-        model.get_layer(layer_name).set_weights(allWeights)
+    _y_c = predictions[0][_pred]
+    # print(_y_c)
 
-    outputMean = np.mean([output[:,:,i] for i in range(output.shape[2])], axis = 0)
-    outputMean = np.maximum(outputMean, 0.0)
-    outMeanMask = np.zeros(output.shape[0:2], dtype = np.float32)
-    for i in range(output.shape[0]):
-        for j in range(output.shape[1]):
-            if outputMean[i][j] < np.mean(outputMean[:,:]):
-                outMeanMask[i][j] = 255
-            else:
-                outMeanMask[i][j] = 0
-    return weights, output, outputMean, outMeanMask
+    _wt = np.zeros(input_model.get_layer(layer_name).get_weights()[1].shape)
+    # print(_wt)
+    # print(_wt.shape)
+    all_weigths = input_model.get_layer(layer_name).get_weights().copy()
+    zero_weigth = all_weigths[0][:, :, 0] * 0
+    weigth_local = [np.zeros(all_weigths[0].shape)]
+    weigth_local.append(np.zeros(all_weigths[1].shape))
+    for i in range(_wt.shape[0]):
+        weigth_local[0] = all_weigths[0].copy()
+        weigth_local[0][:, :, i] = zero_weigth
+        input_model.get_layer(layer_name).set_weights(weigth_local)
+        y_k = input_model.predict([image])[0][_pred]
+        _wt[i] = (_y_c - y_k) / _y_c
 
-def ablation_cam(weights, output):
-    ablationMap = weights * output
-    ablationCam = np.sum(ablationMap, axis=(2))
+    a_k = all_fmap_masks[0]
 
-    ablationMask = np.zeros(ablationMap.shape[0:2], dtype = np.float32)
-    for i in range(ablationMap.shape[0]):
-        for j in range(ablationMap.shape[1]):
-            if ablationCam[i][j] < np.mean(ablationCam[:,:]):
-                ablationMask[i][j] = 255
-            else:
-                ablationMask[i][j] = 0
-    
-    return ablationCam, ablationMask
+    ab_map = a_k * _wt
+    # print(ab_map)
+    explanation = np.sum(ab_map, axis=1)
+    return explanation
 \end{lstlisting}
 
 \section{Task 3: Biomedical image classification and interpretation}
@@ -641,28 +622,28 @@ The plots are shown in Fig. 11.
 \centering  
 \subfigure[Class 0]{
 \label{Fig.3ROC0}
-\includegraphics[width=0.2\textwidth]{3ROC0.png}}
+\includegraphics[width=0.4\textwidth]{3ROC0.png}}
 \subfigure[Class 1]{
 \label{Fig.3ROC1}
-\includegraphics[width=0.2\textwidth]{3ROC1.png}}
+\includegraphics[width=0.4\textwidth]{3ROC1.png}}
 \subfigure[Class 2]{
 \label{Fig.3ROC2}
-\includegraphics[width=0.2\textwidth]{3ROC2.png}}
+\includegraphics[width=0.4\textwidth]{3ROC2.png}}
 \subfigure[Class 3]{
 \label{Fig.3ROC3}
-\includegraphics[width=0.2\textwidth]{3ROC3.png}}
+\includegraphics[width=0.4\textwidth]{3ROC3.png}}
 \subfigure[Class 4]{
 \label{Fig.3ROC4}
-\includegraphics[width=0.2\textwidth]{3ROC4.png}}
+\includegraphics[width=0.4\textwidth]{3ROC4.png}}
 \subfigure[Class 5]{
 \label{Fig.3ROC5}
-\includegraphics[width=0.2\textwidth]{3ROC5.png}}
+\includegraphics[width=0.4\textwidth]{3ROC5.png}}
 \subfigure[Class 6]{
 \label{Fig.3ROC6}
-\includegraphics[width=0.2\textwidth]{3ROC6.png}}
+\includegraphics[width=0.4\textwidth]{3ROC6.png}}
 \subfigure[Class 7]{
 \label{Fig.3ROC7}
-\includegraphics[width=0.2\textwidth]{3ROC7.png}}
+\includegraphics[width=0.4\textwidth]{3ROC7.png}}
 
 
 \caption{Class-wise ROC Curve Plots of HMT dataset}
@@ -784,10 +765,56 @@ The capability is achieved by the code of branch,
 and hence it is able to process both 3-Dimensional and 4-Dimensional tensors.
 
 Another modification needs to be mentioned is that there is a slightly modification practically in the implementation. It is modified due to troubleshooting of HMT explanation. The origin function gives an extremely unsatisfying result thus we change the way we calculate secondary gradient and third gradient. We use multiplication instead of slope to get the gradient value due to its low magnitude, the absolute value of both results are similar, however the multiplication is positive constantly.\par
-There are some potential reasons we could come up with.
-%codes
+There are some potential reasons we could come up with. First,the Grad-CAM++ are suitable for positive gradients however in both datasets, negative values take most places and therefore it it limited to perform well. Secondly, it is mentioned in the paper that Grad-CAM++ has some guided or modified variants but Our implementation works for the basic explanation. So it will be highly influence by the noise and unpredictable factors. Thirdly, among all the CAM methods, a number of the approaches choose Grad-CAM as a benchmark, so the advance Grad-CAM may also suffer from some problems which cannot adapt in multiple networks.\par
 
-%modifications
+We implements Ablation-CAM in two separated functions, $ablation\_cam\_1d$ and $ablation\_cam\_2d$, and  as the 1-D version is already described in the previous section, only the $ablation\_cam\_2d$ function is shown below.
+
+\begin{lstlisting}
+def ablation_cam_2d(input_model, image, layer_name):
+
+    y_c = input_model.output
+    conv_output = input_model.get_layer(layer_name).output
+    ac_model = keras.models.Model([input_model.input], [conv_output, y_c])
+
+    ff_results=ac_model([image])
+    all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+    # print(image.shape)
+    # print(predictions)
+    #index
+    _pred = np.argmax(predictions, axis=1)[0]
+    # print(_pred)
+    # Real Y_C
+
+    _y_c = predictions[0][_pred]
+    # print(_y_c)
+
+    # print(input_model.get_layer(layer_name))
+    _wt = np.zeros(input_model.get_layer(layer_name).get_weights()[1].shape)
+    # print(_wt)
+    # print(_wt.shape)
+    all_weigths = input_model.get_layer(layer_name).get_weights().copy()
+    zero_weigth = all_weigths[0][:, :, :, 0] * 0
+    weigth_local = [np.zeros(all_weigths[0].shape)]
+    weigth_local.append(np.zeros(all_weigths[1].shape))
+    for i in range(_wt.shape[0]):
+        weigth_local[0] = all_weigths[0].copy()
+        weigth_local[0][:, :, :, i] = zero_weigth
+        input_model.get_layer(layer_name).set_weights(weigth_local)
+        y_k = input_model.predict([image])[0][_pred]
+        _wt[i] = (_y_c - y_k) / _y_c
+
+    a_k = all_fmap_masks[0]
+    # print(a_k)
+
+    ab_map = a_k * _wt
+    # print(ab_map)
+    explanation = np.sum(ab_map, axis=2)
+    explanation = np.maximum(explanation, 0)
+    # print(explanation)
+    return explanation
+\end{lstlisting}
+
+The variables and parameters are defined in a naive way and influenced by the provided methods in $xai\_utils.py$. There is few difference between the functions expect for the weights calculation. The $all\_weigths$ takes different dimensional tensors so correspondingly the reference to $zero\_weigth$ are modified.
 
 \section{Task 4: Quantitative evaluation of the attribution methods}
 
@@ -885,23 +912,23 @@ Ablation-CAM (HMT)      & 43.341         & 30.469             \\ \hline
 \end{tabular}
 \end{table}
 
+The rates are actually metric called model truth-based metrics which measure the relationship between the explanation maps generated by attribution methods and the target model's outputs. So obviously, it could measure the performance of the attribution methods taking the explanation maps as input.\par
+Drop rate refer to that if we remove unimportant features from the input, then the model's confidence score have no significant drop, and increase rate indicates that if we remove misleading features from the input, the model's confidence score may increase. Based on the thesis, drop rate indicate the explanation map's extent to remove unimportant features while increase rate infers the extent to remove misleading features from the input. Thus, a low drop rate and high increase rate could demonstrate a good attribution model.\par
 From the table we could know that in HMT, Ablation-CAM works best, as it has lowest drop rate among the algorithms and highest increase rate. Besides in MNIST-1D dataset, ablation-CAM also shows greater performance than the other CAM-based attribution methods, which probably means it will be a good choice in some specific scenarios.\par
 We will further discuss the evaluation result in the next section.
 
 \subsection{Discussion}
 
-data analysis
-
-successful? compare to benchmark
-
-fail?
-
-Two methods comparison.
+This approach choose three different kind of CAM methods to evaluate two different model with different dimensions. It is obvious that Ablation-CAM holds the best performance on both datatsets. According to the paper of the ablation method, this algorithm can fit into all kinds of CNN architecture, but could perfectly fit in those networks with not so many layers. Our experiment includes one-hot and VGG-7 networks, and neither of them could be classified as DNN.\par
+Ablation method comes out to fix the problem of gradient-related principle in the previous network. In the origin paper, it uses Grad-CAM as benchmark and use VGG and Inception-v4 as networks, resulting in a high performance in VGG but no significant improvement in Inception-v4, which is similar to our conclusion from the result.\par
+In our evaluation, Grad-CAM++ failed to have improved performance comparing to the Grad-CAM in HMT, but have a considerable improvement on MNIST-1D. From that we could have a hypothesis that, Grad-CAM itself, including Grad-CAM++, fit into dealing with small-scale or low-dimensional problems. It can be predicted to perform well in such one-hot networks.\par
+As a conclusion, when we need to choose an attribution method, it will be a good choice to use CAM on simple structured networks. Ablation-CAM works well in vision-related or 2-Dimensional problems, showing essential improvements comparing to the gradient-based methods. However, there is also an important drawback of Ablation-CAM that, it has much longer running time than the others due to its complete visit to every unit in every maps. In those small-scaled problems, especially one-dimensional based problem, Grad-CAM++ will take great advantages of it.
 
 \begin{thebibliography}{00}
-\bibitem{b1}Y. Gilad, R. Hemo, S. Micali, G. Vlachos, and N. Zeldovich, “Algorand: Scaling Byzantine Agreements for Cryptocurrencies,” in Proceedings of the 26th Symposium on operating systems principles, 2017, pp. 51–68. doi: 10.1145/3132747.3132757.
-\bibitem{b2} King, Sunny, and Scott Nadal. "Ppcoin: Peer-to-peer crypto-currency with proof-of-stake." self-published paper, August 19.1, 2012.
-
+\bibitem{b1}Selvaraju, Ramprasaath R., Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. "Grad-cam: Visual explanations from deep networks via gradient-based localization." In Proceedings of the IEEE international conference on computer vision, pp. 618-626. 2017. https://arxiv.org/abs/1610.02391
+\bibitem{b2} Chattopadhay, Aditya, Anirban Sarkar, Prantik Howlader, and Vineeth N. Balasubramanian. "Grad-cam++: Generalized gradient-based visual explanations for deep convolutional networks." In 2018 IEEE winter conference on applications of computer vision (WACV), pp. 839-847. IEEE, 2018. https://arxiv.org/abs/1710.11063
+\bibitem{b3} Ramaswamy, Harish Guruprasad. "Ablation-cam: Visual explanations for deep convolutional 
+network via gradient-free localization." In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision, pp. 983-991. 2020. 
 \end{thebibliography}
 
 \end{document}
