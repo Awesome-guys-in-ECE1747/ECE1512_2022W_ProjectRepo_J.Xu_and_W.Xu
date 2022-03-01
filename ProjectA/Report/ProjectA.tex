@@ -107,7 +107,7 @@ The training result is shown as followed\ref{Fig.t1q2}:
 \end{figure}
 \subsection{Question 3}
 \subsubsection{SubQuestion a}
-TODOOOOOOOOOO, say something here.
+This is the code for loss and accuracy curve.
 \begin{lstlisting}
     train_acc = history.history['accuracy']
     train_loss = history.history['loss']
@@ -115,7 +115,8 @@ TODOOOOOOOOOO, say something here.
     plt.figure()
     plt.plot(train_loss)
 \end{lstlisting}
-This is the code for loss and accuracy curve, the plot of loss curve\ref{Fig.t1q3a1} and plot for accuracy curve\ref{Fig.t1q3a2} are shown below:
+In the code, we used the training history defined in the previous code to do the plot.
+The plot of loss curve\ref{Fig.t1q3a1} and plot for accuracy curve\ref{Fig.t1q3a2} are shown below:
 \begin{figure}[H] 
     \centering %图片居中
     \includegraphics[width=0.7\textwidth]{T1Q3-b.png} %插入图片，[]中设置图片大小，{}中是图片文件名
@@ -130,13 +131,143 @@ This is the code for loss and accuracy curve, the plot of loss curve\ref{Fig.t1q
 \end{figure}
 \subsubsection{SubQuestion b}
 This part talks about overall classification accuracy on the test set.
+\begin{lstlisting}
+    # Use Scikit-learn to calculate stats
+    from sklearn.metrics import accuracy_score, precision_score, recall_score,f1_score
+    from sklearn.metrics import classification_report
 
-overall accuracy、 
+    # Q3.b get the prediction from the test set
+    x_test = dataset['x_test']
+    y_test = dataset['y_test']
+    x_test=x_test.reshape(1000,40,1)
+    # predict_classes removed in tf 2.6.0
+    y_pred = model.predict(x_test)
+    y_predicted = np.argmax(y_pred,axis=1)
+    print('Overall classification accuracy for all classes:'+str(np.sum(y_predicted==y_test)/y_test.shape[0]))
+\end{lstlisting}
+We read the test set, fit the model on the set and calculate the accuracy by deciding the max prediction in every class and compare them with the ground truth. The result is 0.919\ref{Fig.t1q3b}.
+
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{T1Q3b.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{Task1-Question3b: overall accuracy} %最终文档中希望显示的图片标题
+    \label{Fig.t1q3b} %用于文内引用的标签
+\end{figure}
 \subsubsection{SubQuestion c}
-class-wise accuracy
+In this part, we calculated the class-wise accuracy for all classes.This is our code:
+\begin{lstlisting}
+    # Q3.c class-wise classification
+    for i in range(10):
+        true_i=np.where(y_test==i)[0]
+        pred_i=np.where(y_predicted[true_i]==i)[0]
+        print('class '+str(i)+' accuracy:'+str(pred_i.shape[0]/true_i.shape[0]))
+\end{lstlisting}
+We find out the lines which belongs to class i and find the ones which is correct in these lines to calculate the accuracy.
+The result is shown below\ref{Fig.t1q3c}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{T1Q3c.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{Task1-Question3b: class-wise accuracy} %最终文档中希望显示的图片标题
+    \label{Fig.t1q3c} %用于文内引用的标签
+\end{figure}
 \subsubsection{SubQuestion d}
-roc auc曲线
+In this part, we will plot the ROC and AUC curves for each class.
+Here is the code:
+\begin{lstlisting}
+    # Q3.d ROC and AUC curve for every class
+    from sklearn.metrics import roc_curve
+    from sklearn.metrics import auc
+    # print(dataset['y_test'].shape)
+    real_y=np.zeros((dataset['y_test'].size,10))
+    for i in range(y_test.size):
+        real_y[i,y_test[i]]=1
+    for i in range(10):
+        FPR, TPR, thresholds_keras = roc_curve(real_y[:,i], y_pred[:,i])   
+        AUC = auc(FPR, TPR)
+        print("AUC : ", AUC)
+        plt.figure()
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.plot(FPR, TPR, label='S3< val (AUC = {:.3f})'.format(AUC))
+        plt.xlabel('False positive rate')
+        plt.ylabel('True positive rate')
+        plt.title('ROC curve for class '+str(i))
+        plt.legend(loc='best')
+        plt.show()   
+\end{lstlisting}
+In the code, we first reshape the test set to 2D set. Then we apply the test set and prediction set to roc_curve.
+Then we will calculate the auc number and plot the curve.The AUC and ROC curve is listed below:
+This is class 0\ref{Fig.ROC0}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC0.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 0:  0.9995087121708371} %最终文档中希望显示的图片标题
+    \label{Fig.ROC0} %用于文内引用的标签
+\end{figure}
+This is class 1\ref{Fig.ROC1}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC1.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 1:  0.991919213598901} %最终文档中希望显示的图片标题
+    \label{Fig.ROC1} %用于文内引用的标签
+\end{figure}
+This is class 2\ref{Fig.ROC2}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC2.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 2:  0.9901700810320798} %最终文档中希望显示的图片标题
+    \label{Fig.ROC2} %用于文内引用的标签
+\end{figure}
+This is class 3\ref{Fig.ROC3}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC3.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 3:  0.9992718753957199} %最终文档中希望显示的图片标题
+    \label{Fig.ROC3} %用于文内引用的标签
+\end{figure}
+This is class 4\ref{Fig.ROC4}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC4.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 4:  0.9955784897218353} %最终文档中希望显示的图片标题
+    \label{Fig.ROC4} %用于文内引用的标签
+\end{figure}
+This is class 5\ref{Fig.ROC5}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC5.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 5:  0.9922620933073896} %最终文档中希望显示的图片标题
+    \label{Fig.ROC5} %用于文内引用的标签
+\end{figure}
+This is class 6\ref{Fig.ROC6}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC6.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 6:  0.9995851971434657} %最终文档中希望显示的图片标题
+    \label{Fig.ROC6} %用于文内引用的标签
+\end{figure}
+This is class 7\ref{Fig.ROC7}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC7.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 7:  0.9961167957227138} %最终文档中希望显示的图片标题
+    \label{Fig.ROC7} %用于文内引用的标签
+\end{figure}
+This is class 8\ref{Fig.ROC8}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC8.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 8:  0.9992420471514548} %最终文档中希望显示的图片标题
+    \label{Fig.ROC8} %用于文内引用的标签
+\end{figure}
+This is class 9\ref{Fig.ROC9}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{ROC9.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 9:  0.986538713480938} %最终文档中希望显示的图片标题
+    \label{Fig.ROC9} %用于文内引用的标签
+\end{figure}
 \subsubsection{SubQuestion e}
+
 混淆矩阵
 \subsubsection{SubQuestion f}
 召回率，准确率和F-1得分
