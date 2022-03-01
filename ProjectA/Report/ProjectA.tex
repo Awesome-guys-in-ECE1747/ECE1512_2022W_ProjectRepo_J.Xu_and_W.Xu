@@ -160,10 +160,15 @@ We read the test set, fit the model on the set and calculate the accuracy by dec
 In this part, we calculated the class-wise accuracy for all classes.This is our code:
 \begin{lstlisting}
     # Q3.c class-wise classification
-    for i in range(10):
-        true_i=np.where(y_test==i)[0]
-        pred_i=np.where(y_predicted[true_i]==i)[0]
-        print('class '+str(i)+' accuracy:'+str(pred_i.shape[0]/true_i.shape[0]))
+for i in range(10):
+    true_i=np.where(y_test==i)[0]
+    res=0
+    for j in true_i:
+        if y_predicted[j]==i:
+            res=res+1
+    print('class '+str(i)+' accuracy:'+str(res/true_i.shape[0]))
+#     pred_i=np.where(y_predicted[true_i]==i)[0]
+#     print('class '+str(i)+' accuracy:'+str(pred_i.shape[0]/true_i.shape[0]))
 \end{lstlisting}
 We find out the lines which belongs to class i and find the ones which is correct in these lines to calculate the accuracy.
 The result is shown below\ref{Fig.t1q3c}:
@@ -311,6 +316,20 @@ This is the result for the plot\ref{Fig.t1q3f}:
     \label{Fig.t1q3f} %用于文内引用的标签
 \end{figure}
 \subsection{Question 4}
+Success Examples:
+\begin{lstlisting}
+    index 10 true class: 0 predicted class: 0
+    index 412 true class: 1 predicted class: 1
+    index 729 true class: 2 predicted class: 2
+    \end{lstlisting}
+Failure Examples:
+\begin{lstlisting}
+    index 236 true class: 0 predicted class: 7
+    index 6 true class: 1 predicted class: 2
+    index 25 true class: 1 predicted class: 4
+\end{lstlisting}
+The most misclassification lies in class 1 and 4.
+The reason for that is
 挑几个正确与错误的例子，评价一下，哪两个类错误最多
 \section{Task 2: CNN interprectation}
 
