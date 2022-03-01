@@ -197,7 +197,7 @@
 	
 	
 	\subsubsection{SubQuestion c}
-	In this subquestion, our goal is to test the classification accuracy of each class. For class $0$ to class $9$, we the accuracy respectively. Our code of this subquestion is showed below. We make use of the results of $y\_predicted$ in subquestion $b$. For each class, if $y\_predicted$ == $y\_test$, then we increment $res$, which is counter to record the number of samples that are classified correctly. Later, we can simply compute the accuracy by dividing $res$ by $true\_i.shape[0]$, which is the total sample number of class $i$.\par
+	In this subquestion, our goal is to test the classification accuracy of each class. For class $0$ to class $9$, we compute the accuracy respectively. Our code of this subquestion is showed below. We make use of the results of $y\_predicted$ in subquestion $b$. For each class, if $y\_predicted$ == $y\_test$, then we increment $res$, which is counter to record the number of samples that are classified correctly. Later, we can simply compute the accuracy by dividing $res$ by $true\_i.shape[0]$, which is the total sample number of class $i$.\par
 	The code used in this subquestion is showed below.
 	\begin{lstlisting}
 		# Q3.c class-wise classification
@@ -286,6 +286,12 @@
 	
 	\subsubsection{SubQuestion e}
 	In this sebquestion, our goal is to plot the normalized confusion matrix.
+    First, we will get the confusion matrix $cm$ using $confusion\_matrix$ function.
+    We use $y_test$ which represents the real class labels of test set and $y_predicted$ which represents the predicted labels using the model.
+    We transformed them as $list$ to fit into the function.
+    Then we use $cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]$ to normalize the confusion matrix.
+    After that, we will set the plot cmap to blue confusion matrix plot, amd set the parameter in the plot $ax$.
+    Finally, we will fit all the data in normalized confusion matrix into the data.
 	The code used in this subquestion is showed below, and the result plot is displayed in figure 7.
 	\begin{lstlisting}
 		from sklearn.metrics import confusion_matrix
@@ -331,7 +337,7 @@
 		# Q3.f
 		print(classification_report(y_true=y_test,y_pred=y_predicted))
 	\end{lstlisting} \par
-	The result of the calculation is displayed in figure 8. As a result, the accuracy on total test set if 0.92, the f1-score is 0.92 and the precision is 0.92.
+	The result of the calculation is displayed in figure 8. As a result, the accuracy on total test set if 0.92, the f1-score is 0.92 and the recall is 0.92.
 	\begin{figure}[h] 
 		\centering
 		\includegraphics[width=0.4\textwidth]{T1Q3f.png}
@@ -355,8 +361,15 @@
 	\end{lstlisting}
 	
 	All the concrete Success/Failure cases are listed in 'MNIST1D.ipynb', if you want to refer to more examples.
-	The most misclassification lies in class 1 and 4.
-	The reason for that is TODOOO: analyze
+	The most misclassification lies in class 1 and 9. It is obvious class-wise accuracy.
+    There are several reasons for this. We think the most important reason is the unbalanced dataset. 
+    We can see from $ROC$ curve. It is obvious that class 1 and class 9 has a worse ROC curve than other classes.
+    The more AUC is closer to 1.0, the easier it will be to maintain a high precision and recall at the same time.
+    And see from our results, we can clearly see from the ROC curve, the class 1 and 9 have the lowest AUC values.
+    This is also shown in the $Question 3-f$, from the precision and recall table, we can see that the recall and precision is relatively lower than that of other classes.
+    With low recall rate, the model cannot detect this class very well, and with a low precision, it's hard to trust its correctness when predicting this class.
+    Class 9 has a lowest performance considering both precision and recall, so it has the lowest accuracy.To solve this, we can use undersampling, oversampling or generate synthetic data.\par
+    The second reason is the overfitting on the training set. It's likely that if the design is too complex compared to the relatively simple dataset, it'll lead to overfitting. The training accuracy may be very high. However, the testing set will not get a high precision due to overfitting.
 
 
 \section{Task 2: CNN interprectation}
@@ -556,9 +569,15 @@ def ablation_cam_1d(input_model, image, layer_name):
 \end{lstlisting}
 
 \section{Task 3: Biomedical image classification and interpretation}
+In this task, we basically apply the previous evaluation codes on HMT dataset with a 2-D CNN model following typical procedure, including plotting of test and attribution methods selected.
 \subsection{Question 1}
+In this section, we finish the typical model evaluation as we did in task 1 by extracting several significant statistics.As well-known and commonly used metrics, those statistics all have easy-to-run
+function to achieve, and most of them are from $scikit-learn$.
 \subsubsection{Overall classification accuracy}
-Here we calculate the overall classification accuracy, here is the code:
+First of all, we implemented the overall classification accuracy evaluation. We load the model trained before, use the $test\_generator.classes$ function to get the test set for labels which is noted as $y\_test$.
+Then, we use the test_generator to predict the results with this model, the result names $y\_pred$. To achieve the label from the predict results, we then apply $np.argmax$ function to $y\_pred$ in every row and get the predicted label $y\_predicted$. 
+So, for the overall classification accuracy, we need to compare the predicted labels with the true labels, calculate the number of pairs which have the same label.The function is realized by $np.sum(y\_predicted==y_test)$, and divide it with $y\_test.shape[0]$ which represents the amount of overall data, we will get the overall accuracy.
+Here is the code:
 \begin{lstlisting}
     from sklearn.metrics import accuracy_score, precision_score, recall_score,f1_score
     from sklearn.metrics import classification_report
@@ -571,7 +590,7 @@ Here we calculate the overall classification accuracy, here is the code:
     y_predicted=np.argmax(y_pred, axis=1)
     print('Overall classification accuracy for all classes:'+str(np.sum(y_predicted==y_test)/y_test.shape[0]))
 \end{lstlisting}
-The result is 83.06\%, as is shown in Fig\ref{Fig.t3q1}:
+The result is 83.06\%,which conforms to our expectation. The result is shown in Fig\ref{Fig.t3q1}:
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.4\textwidth]{T3Q1a.png}
@@ -579,7 +598,13 @@ The result is 83.06\%, as is shown in Fig\ref{Fig.t3q1}:
     \label{Fig.t3q1}
 \end{figure}
 \subsubsection{class-wise classification accuracy}
-In this part, we discuss the classification accuracy for every class.Here is the code:
+In this part, we aim to discuss the classification accuracy for every class using the test set. 
+For class $0$ to $7$, we use similar methods as the work in overall classification accuracy. 
+We uses the results of $y\_test$ in the previous code which represents the real class of the test set. For every class, we firstly select from the test set which has the same label as current index $i$.
+We uses $np.where$ function to get this. Then we will calculate the number of predicted labels in the index which hit the right labels. We use $res$ as a counter to do that.
+For each class, if $y\_predicted == y\_test$, then we increment $res$.
+Later, we can simply compute the accuracy by dividing $res$ by $true\_i.shape[0]$,which is the total sample number of class $i$.
+Here is the code:
 \begin{lstlisting}
     for i in range(8):
     true_i=np.where(y_test==i)[0]
@@ -589,6 +614,7 @@ In this part, we discuss the classification accuracy for every class.Here is the
             res=res+1
     print('class '+str(i)+' accuracy:'+str(res/true_i.shape[0]))
 \end{lstlisting}
+As a result, class 0, class 1, class 5, class 6, class 7 have relatively higher accuracy, which are all greater than $90\%$, while class 2, class 3, class 4 have relatively lower accuracy, which are all less than $90\%$.
 The results are shown in Fig\ref{Fig.t3q2}:
 \begin{figure}[h] 
     \centering
@@ -597,7 +623,11 @@ The results are shown in Fig\ref{Fig.t3q2}:
     \label{Fig.t3q2} 
 \end{figure}
 \subsubsection{AUC-ROC curve}
-In this part, we discuss the AUC and ROC curve.Here is the code:
+In this part,o ur goal is to plot the $AUC$ and $ROC$ curves for each class.
+First of all, we transform the test set label to a 2D set, in which only the value in real label index is set to 1.
+Then we compute the FPR and TPR for each class by calling $roc_curve$ function.
+After that, we fit the FPR and TPR into the funtion auc(), and obtained the returned value $AUC$, which is used in the plot.\par
+Here is the code:
 \begin{lstlisting}
     real_y=np.zeros((y_test.size,8))
     for i in range(y_test.size):
@@ -616,7 +646,7 @@ In this part, we discuss the AUC and ROC curve.Here is the code:
         plt.show()    
 \end{lstlisting}
 
-The plots are shown in Fig. 11.
+The AUC and ROC curves we plotted by executing the code are listed in in Fig. 11.
 
 \begin{figure}[h]
 \centering  
@@ -651,7 +681,14 @@ The plots are shown in Fig. 11.
 \end{figure}
 
 \subsubsection{normalized confusion matrix}
-In this part, we discuss the normalized confusion matrix plot.Here is the code:
+In this part, we aim to plot the normalized confusion matrix.
+First, we will get the confusion matrix $cm$ using $confusion\_matrix$ function.
+We use $y_test$ which represents the real class labels of test set and $y_predicted$ which represents the predicted labels using the model.
+We transformed them as $list$ to fit into the function.
+Then we use $cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]$ to normalize the confusion matrix.
+After that, we will set the plot cmap to blue confusion matrix plot, amd set the parameter in the plot $ax$.
+Finally, we will fit all the data in normalized confusion matrix into the data.
+Here is the code:
 \begin{lstlisting}
     cm=confusion_matrix(list(y_test),list(y_predicted))
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -686,11 +723,12 @@ The result plot is shown in Fig.\ref{Fig.t3q1c}.
 \end{figure}
 
 \subsubsection{Precision, Recall, and F-1 score}
-In this part, we discuss the normalized confusion matrix plot. Here is the code:
+In this part, our goal is to calculate Precision, Recall, and F-1 score on the test set. We call
+$classification\_report()$ to compute the statistics. Here is the code:
 \begin{lstlisting}
     print(classification_report(y_true=y_test,y_pred=y_predicted))
 \end{lstlisting}
-The result plot is shown in Fig.\ref{Fig.t3q1d}.
+The result plot is shown in Fig.\ref{Fig.t3q1d}.As a result, the accuracy on total test set if 0.85, the f1-score is 0.83 and the recall is 0.82
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.5\textwidth]{T3Q1d.png}
