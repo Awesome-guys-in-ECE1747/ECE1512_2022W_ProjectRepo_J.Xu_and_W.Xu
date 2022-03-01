@@ -454,103 +454,36 @@ def grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
     return cam
 
 
-def extract_feature_map_1D(img, model, class_index=None, layer_name="conv1d_2"):
-    # Get gradients for the class on the last conv layer
-    gradModel = tf.keras.models.Model([model.inputs],[model.get_layer(layer_name).output, model.output])
+def ablation_cam(input_model, image, layer_name, class_index=None):
+    cls = np.argmax(input_model.predict(image))
 
-    # Get Activation Map on the last conv layer
-    with tf.GradientTape() as tape:
-        # Get Prediction on the last conv layer
-        convOutputs, predictions = gradModel([img])
-        output = convOutputs[0]
-    
-    if class_index is None:
-        class_index = np.argmax(predictions, axis = -1)[0]
-        y_class = np.max(predictions)
-    else:
-        y_class = predictions[0][class_index]
-    print(type(class_index))
-    # Get Weights on the layer
-    weights = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
-    # Get Weights for the maps
-    allWeights = model.get_layer(layer_name).get_weights().copy()
-    zeroWeight = allWeights[0][:,:,:,0]*0
-    localWeight = [np.zeros(allWeights[0].shape)]
-    localWeight.append(np.zeros(allWeights[1].shape))
+    # y_c = input_model.output
+    # conv_output = input_model.get_layer(layer_name).output
+    # feedforward1 = keras.models.Model([input_model.input], [conv_output, y_c])
+    # with tf.GradientTape() as tape:
+    #     ff_results=feedforward1([image])
+    #     all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+    #     loss = predictions[:, cls]
+    # grads_val = tape.gradient(loss, all_fmap_masks)
 
-    for i in range(weights.shape[0]):
-        localWeight[0] = allWeights[0].copy()
-        localWeight[0][:,:,:,i] = zeroWeight
-        model.get_layer(layer_name).set_weights(localWeight)
-        y_pred = model.predict(np.array([img]))[0][class_index]
-        weights[i] = (y_class - y_pred)/y_class # Simplified Formula
-        model.get_layer(layer_name).set_weights(allWeights)
+    # Get y^c
 
-    outputMean = np.mean([output[:,:,i] for i in range(output.shape[2])], axis = 0)
-    outputMean = np.maximum(outputMean, 0.0)
-    outMeanMask = np.zeros(output.shape[0:2], dtype = np.float32)
-    for i in range(output.shape[0]):
-        for j in range(output.shape[1]):
-            if outputMean[i][j] < np.mean(outputMean[:,:]):
-                outMeanMask[i][j] = 255
-            else:
-                outMeanMask[i][j] = 0
-    return weights, output, outputMean, outMeanMask
+    # Get y^c_k
 
+    # Get w^c_k
 
-def extract_feature_map_2D(img, model, class_index=None, layer_name="max_pooling2d_1"):
-    # Get gradients for the class on the last conv layer
-    gradModel = tf.keras.models.Model([model.inputs],[model.get_layer(layer_name).output, model.output])
-
-    # Get Activation Map on the last conv layer
-    with tf.GradientTape() as tape:
-        # Get Prediction on the last conv layer
-        convOutputs, predictions = gradModel(np.array([img]))
-        output = convOutputs[0]
-    
-    if class_index is None:
-        class_index = np.argmax(predictions, axis = -1)[0]
-        y_class = np.max(predictions)
-    else:
-        y_class = predictions[0][class_index]
-    print(type(class_index))
-    # Get Weights on the layer
-    weights = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
-    # Get Weights for the maps
-    allWeights = model.get_layer(layer_name).get_weights().copy()
-    zeroWeight = allWeights[0][:,:,:,0]*0
-    localWeight = [np.zeros(allWeights[0].shape)]
-    localWeight.append(np.zeros(allWeights[1].shape))
-
-    for i in range(weights.shape[0]):
-        localWeight[0] = allWeights[0].copy()
-        localWeight[0][:,:,:,i] = zeroWeight
-        model.get_layer(layer_name).set_weights(localWeight)
-        y_pred = model.predict(np.array([img]))[0][class_index]
-        weights[i] = (y_class - y_pred)/y_class # Simplified Formula
-        model.get_layer(layer_name).set_weights(allWeights)
-
-    outputMean = np.mean([output[:,:,i] for i in range(output.shape[2])], axis = 0)
-    outputMean = np.maximum(outputMean, 0.0)
-    outMeanMask = np.zeros(output.shape[0:2], dtype = np.float32)
-    for i in range(output.shape[0]):
-        for j in range(output.shape[1]):
-            if outputMean[i][j] < np.mean(outputMean[:,:]):
-                outMeanMask[i][j] = 255
-            else:
-                outMeanMask[i][j] = 0
-    return weights, output, outputMean, outMeanMask
-
-def ablation_cam(weights, output):
-    ablationMap = weights * output
-    ablationCam = np.sum(ablationMap, axis=(2))
-
-    ablationMask = np.zeros(ablationMap.shape[0:2], dtype = np.float32)
-    for i in range(ablationMap.shape[0]):
-        for j in range(ablationMap.shape[1]):
-            if ablationCam[i][j] < np.mean(ablationCam[:,:]):
-                ablationMask[i][j] = 255
-            else:
-                ablationMask[i][j] = 0
-    
-    return ablationCam, ablationMask
+    # Sum
+    if len(image.shape)==3:
+        axis=(0, 1)
+    elif len(image.shape)==4:
+        axis=(0, 1, 2)
+    weights = np.mean(grads_val, axis=axis)
+    cam = np.dot(all_fmap_masks[0], weights)
+    #print (cam)
+    H,W= image.shape[1:3]
+    cam = np.maximum(cam, 0)
+    #cam = resize(cam, (H, W))
+    cam = zoom(cam,H/cam.shape[0])
+    #cam = np.maximum(cam, 0)
+    cam = cam / cam.max()
+    return cam
