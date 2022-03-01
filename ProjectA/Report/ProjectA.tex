@@ -18,23 +18,23 @@
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
 \lstset{frame=tb,
-	language=Python,
-	aboveskip=3mm,
-	belowskip=3mm,
-	showstringspaces=false,
-	columns=flexible,
-	basicstyle={\small\ttfamily},
-	numbers=none,
-	numberstyle=\tiny\color{gray},
-	keywordstyle=\color{blue},
-	commentstyle=\color{dkgreen},
-	stringstyle=\color{mauve},
-	breaklines=true,
-	tabsize=3
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  tabsize=3
 }
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
-		T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
 
@@ -765,9 +765,10 @@ The capability is achieved by the code of branch,
     elif len(image.shape) == 4:
         axis = (0, 1, 2)
 \end{lstlisting}
-and hence it can process both 3-Dimensional and 4-Dimensional tensors.
+and hence it is able to process both 3-Dimensional and 4-Dimensional tensors.
 
-Another modification needs to be mentioned is that
+Another modification needs to be mentioned is that there is a slightly modification practically in the implementation. It is modified due to troubleshooting of HMT explanation. The origin function gives an extremely unsatisfying result thus we change the way we calculate secondary gradient and third gradient. We use multiplication instead of slope to get the gradient value due to its low magnitude, the absolute value of both results are similar, however the multiplication is positive constantly.\par
+There are some potential reasons we could come up with.
 %codes
 
 %modifications
@@ -861,7 +862,7 @@ successful? compare to benchmark
 
 fail?
 
-Two methods comparasion.
+Two methods comparison.
 
 \begin{thebibliography}{00}
 \bibitem{b1}Y. Gilad, R. Hemo, S. Micali, G. Vlachos, and N. Zeldovich, “Algorand: Scaling Byzantine Agreements for Cryptocurrencies,” in Proceedings of the 26th Symposium on operating systems principles, 2017, pp. 51–68. doi: 10.1145/3132747.3132757.
