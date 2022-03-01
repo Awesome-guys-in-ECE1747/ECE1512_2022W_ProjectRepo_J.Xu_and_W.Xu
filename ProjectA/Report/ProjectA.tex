@@ -192,7 +192,7 @@
 	
 	
 	\subsubsection{SubQuestion c}
-	In this subquestion, our goal is to test the classification accuracy of each class. For class $0$ to class $9$, we the accuracy respectively. Our code of this subquestion is showed below. We make use of the results of $y\_predicted$ in subquestion $b$. For each class, if $y\_predicted$ == $y\_test$, then we increment $res$, which is counter to record the number of samples that are classified correctly. Later, we can simply compute the accuracy by dividing $res$ by $true\_i.shape[0]$, which is the total sample number of class $i$.\par
+	In this subquestion, our goal is to test the classification accuracy of each class. For class $0$ to class $9$, we compute the accuracy respectively. Our code of this subquestion is showed below. We make use of the results of $y\_predicted$ in subquestion $b$. For each class, if $y\_predicted$ == $y\_test$, then we increment $res$, which is counter to record the number of samples that are classified correctly. Later, we can simply compute the accuracy by dividing $res$ by $true\_i.shape[0]$, which is the total sample number of class $i$.\par
 	The code used in this subquestion is showed below.
 	\begin{lstlisting}
 		# Q3.c class-wise classification
@@ -575,9 +575,15 @@
 	\end{lstlisting}
 	
 	\section{Task 3: Biomedical image classification and interpretation}
+    In this task, we basically apply the previous evaluation codes on HMT dataset with a 2-D CNN model following typical procedure, including plotting of test and attribution methods selected.
 	\subsection{Question 1}
+    In this section, we finish the typical model evaluation as we did in task 1 by extracting several significant statistics.As well-known and commonly used metrics, those statistics all have easy-to-run
+    function to achieve, and most of them are from $scikit-learn$.
 	\subsubsection{Overall classification accuracy}
-	Here we calculate the overall classification accuracy, here is the code:
+    First of all, we implemented the overall classification accuracy evaluation. We load the model trained before, use the $test_generator.classes$ function to get the test set for labels which is noted as $y_test$.
+    Then, we use the test_generator to predict the results with this model, the result names $y_pred$. To achieve the label from the predict results, we then apply $np.argmax$ function to $y_pred$ in every row and get the predicted label $y_predicted$. 
+    So, for the overall classification accuracy, we need to compare the predicted labels with the true labels, calculate the number of pairs which have the same label.The function is realized by $np.sum(y_predicted==y_test)$, and divide it with $y_test.shape[0]$ which represents the amount of overall data, we will get the overall accuracy.
+	Here is the code:
 	\begin{lstlisting}
 		from sklearn.metrics import accuracy_score, precision_score, recall_score,f1_score
 		from sklearn.metrics import classification_report
@@ -590,7 +596,7 @@
 		y_predicted=np.argmax(y_pred, axis=1)
 		print('Overall classification accuracy for all classes:'+str(np.sum(y_predicted==y_test)/y_test.shape[0]))
 	\end{lstlisting}
-	The result is 83.06\%, as is shown in Fig\ref{Fig.t3q1}:
+	The result is 83.06\%,which conforms to our expectation. The result is shown in Fig\ref{Fig.t3q1}:
 	\begin{figure}[h] 
 		\centering
 		\includegraphics[width=0.4\textwidth]{T3Q1a.png}
@@ -598,7 +604,8 @@
 		\label{Fig.t3q1}
 	\end{figure}
 	\subsubsection{class-wise classification accuracy}
-	In this part, we discuss the classification accuracy for every class.Here is the code:
+	In this part, we aim to discuss the classification accuracy for every class using the test set. For class 0 to 7, we 
+    Here is the code:
 	\begin{lstlisting}
 		for i in range(8):
 		true_i=np.where(y_test==i)[0]
