@@ -490,3 +490,47 @@ def ablation_cam_1d(input_model, image, layer_name):
     print(ab_map)
     explanation = np.sum(ab_map, axis=1)
     return explanation
+
+
+def ablation_cam_2d(input_model, image, layer_name):
+
+    y_c = input_model.output
+    conv_output = input_model.get_layer(layer_name).output
+    ac_model = keras.models.Model([input_model.input], [conv_output, y_c])
+
+    ff_results=ac_model([image])
+    all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+    # print(image.shape)
+    # print(predictions)
+    #index
+    _pred = np.argmax(predictions, axis=1)[0]
+    # print(_pred)
+    # Real Y_C
+
+    _y_c = predictions[0][_pred]
+    # print(_y_c)
+
+    # print(input_model.get_layer(layer_name))
+    _wt = np.zeros(input_model.get_layer(layer_name).get_weights()[1].shape)
+    # print(_wt)
+    # print(_wt.shape)
+    all_weigths = input_model.get_layer(layer_name).get_weights().copy()
+    zero_weigth = all_weigths[0][:, :, :, 0] * 0
+    weigth_local = [np.zeros(all_weigths[0].shape)]
+    weigth_local.append(np.zeros(all_weigths[1].shape))
+    for i in range(_wt.shape[0]):
+        weigth_local[0] = all_weigths[0].copy()
+        weigth_local[0][:, :, :, i] = zero_weigth
+        input_model.get_layer(layer_name).set_weights(weigth_local)
+        y_k = input_model.predict([image])[0][_pred]
+        _wt[i] = (_y_c - y_k) / _y_c
+
+    a_k = all_fmap_masks[0]
+    # print(a_k)
+
+    ab_map = a_k * _wt
+    # print(ab_map)
+    explanation = np.sum(ab_map, axis=2)
+    explanation = np.maximum(explanation, 0)
+    # print(explanation)
+    return explanation
