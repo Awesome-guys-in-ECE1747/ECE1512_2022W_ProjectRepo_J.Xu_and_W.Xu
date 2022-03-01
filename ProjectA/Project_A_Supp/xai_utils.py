@@ -415,7 +415,7 @@ def grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
     # if class_index is None:
     #     class_index=np.argmax(input_model.predict(np.array([image])), axis=-1)[0]
     """GradCAM method for visualizing input saliency."""
-    # cls = np.argmax(input_model.predict(image))
+    cls = np.argmax(input_model.predict(image))
     y_c = input_model.output
     conv_output = input_model.get_layer(layer_name).output
     feedforward1 = keras.models.Model([input_model.input], [conv_output, y_c])
