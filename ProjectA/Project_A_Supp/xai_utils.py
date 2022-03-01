@@ -449,28 +449,66 @@ def grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
     return cam
 
 
-def extract_feature_map(img, model, class_index=None, layer_name="conv1d_2"):
-    #### IMG [0-1] ####
+def extract_feature_map_1D(img, model, class_index=None, layer_name="conv1d_2"):
     # Get gradients for the class on the last conv layer
     gradModel = tf.keras.models.Model([model.inputs],[model.get_layer(layer_name).output, model.output])
-    print("gradModel = ")
-    print(gradModel)
+
+    # Get Activation Map on the last conv layer
+    with tf.GradientTape() as tape:
+        # Get Prediction on the last conv layer
+        convOutputs, predictions = gradModel([img])
+        output = convOutputs[0]
+    
+    if class_index is None:
+        class_index = np.argmax(predictions, axis = -1)[0]
+        y_class = np.max(predictions)
+    else:
+        y_class = predictions[0][class_index]
+    print(type(class_index))
+    # Get Weights on the layer
+    weights = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
+    # Get Weights for the maps
+    allWeights = model.get_layer(layer_name).get_weights().copy()
+    zeroWeight = allWeights[0][:,:,:,0]*0
+    localWeight = [np.zeros(allWeights[0].shape)]
+    localWeight.append(np.zeros(allWeights[1].shape))
+
+    for i in range(weights.shape[0]):
+        localWeight[0] = allWeights[0].copy()
+        localWeight[0][:,:,:,i] = zeroWeight
+        model.get_layer(layer_name).set_weights(localWeight)
+        y_pred = model.predict(np.array([img]))[0][class_index]
+        weights[i] = (y_class - y_pred)/y_class # Simplified Formula
+        model.get_layer(layer_name).set_weights(allWeights)
+
+    outputMean = np.mean([output[:,:,i] for i in range(output.shape[2])], axis = 0)
+    outputMean = np.maximum(outputMean, 0.0)
+    outMeanMask = np.zeros(output.shape[0:2], dtype = np.float32)
+    for i in range(output.shape[0]):
+        for j in range(output.shape[1]):
+            if outputMean[i][j] < np.mean(outputMean[:,:]):
+                outMeanMask[i][j] = 255
+            else:
+                outMeanMask[i][j] = 0
+    return weights, output, outputMean, outMeanMask
+
+
+def extract_feature_map_2D(img, model, class_index=None, layer_name="max_pooling2d_1"):
+    # Get gradients for the class on the last conv layer
+    gradModel = tf.keras.models.Model([model.inputs],[model.get_layer(layer_name).output, model.output])
+
     # Get Activation Map on the last conv layer
     with tf.GradientTape() as tape:
         # Get Prediction on the last conv layer
         convOutputs, predictions = gradModel(np.array([img]))
         output = convOutputs[0]
-        print("#prediction#")
-        print(predictions)
-        print("OUTPUT")
-        print(output)
     
     if class_index is None:
-        class_index = np.argmax(model.predict(np.array([img])), axis = -1)[0]
-        y_class = np.max(model.predict(np.array([img])))
+        class_index = np.argmax(predictions, axis = -1)[0]
+        y_class = np.max(predictions)
     else:
-        y_class = model.predict(np.array([img]))[0][class_index]
-
+        y_class = predictions[0][class_index]
+    print(type(class_index))
     # Get Weights on the layer
     weights = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
     # Get Weights for the maps
