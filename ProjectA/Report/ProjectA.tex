@@ -316,6 +316,8 @@ This is the result for the plot\ref{Fig.t1q3f}:
     \label{Fig.t1q3f} %用于文内引用的标签
 \end{figure}
 \subsection{Question 4}
+To do this question, we did some coding in our program, the codes are listed below:
+
 Success Examples:
 \begin{lstlisting}
     index 10 true class: 0 predicted class: 0
@@ -328,18 +330,47 @@ Failure Examples:
     index 6 true class: 1 predicted class: 2
     index 25 true class: 1 predicted class: 4
 \end{lstlisting}
+The concrete Success/Failure cases are recorded in 'MNIST1D.ipynb', if you want to refer to more examples.
 The most misclassification lies in class 1 and 4.
-The reason for that is
+The reason for that is TODOOO: analyze
 挑几个正确与错误的例子，评价一下，哪两个类错误最多
 \section{Task 2: CNN interprectation}
-
 
 This section introduces our interpretation of 1-D CNN model based on MNIST-1D dataset using 3 different attribution methods, including our literature review, discussion and implementation of the XAI attribute algorithms.
 
 \subsection{Grad-CAM}
+In the previous study, researchers introduced CAM to explain the CNN. However, CAM requires to modify the structure of original training models. It limits the usage of CAM greatly, because the cost of retraining the model is quite high for the published model. It is almost impossible to retrain them.
+To solve this problem, Grad-CAM was proposed, which is similar to CAM. It also gets the weight of every feature maps and calculate the results accordingly. The difference lies in the calculation of weights. CAM replaced full-connection layer with GAP layer and retrain this whole model. In contrast to that, Grad-CAM put forward a new way to do it.
+It calculates the weight by averaging the gradients which is equivalent to the CAM. It makes CAM applicable to all the existing models.\par
+
+The core algorithm of Grad-CAM is shown below: First, it defines the weight of feature map $k$ to class $c$ as $\alpha_{k}^{c}$, and it calculates the weight using the global gradients\ref{Grad-CAM_alpha}:
+\begin{equation}
+    \begin{aligned}
+        \alpha_{k}^{c}=\frac{1}{Z}*\Sigma_{i}\Sigma_{j}\frac{\partial y^{c}}{\partial A_{ij}^{k}}
+        \label{Grad-CAM_alpha}
+    \end{aligned}
+  \end{equation}
+  In which, $y_{c}$ is the gradient of the score for class c, $A_{k}$ is the feature map activation.$\frac{\partial y^{c}}{\partial A_{ij}^{k}}$ is the gradient achieved by backpropagating. $\frac{1}{Z}$ is global averaging.
+  After calculating the $\alpha_{k}^{c}$, the algorithm computed the weighted combination of forward activation maps, followed by a ReLU function:
+  
+  begin{equation}
+  \begin{aligned}
+      L_{Grad-CAM}^{c}=ReLU(\Sigma_{k}\alpha_{k}^{c}A^{k})
+      \label{Grad-CAM_alpha}
+  \end{aligned}
+\end{equation}
+The advantages for Grad-CAM is quite obvious: First, compared with CAM, it does not need to change the model and retrain it which costs a lot of time and money. 
+The novelty is the usage of propagation and gradients to compute the weights of feature maps.It makes the visualization of published models possible. Second is that the algorithm is quite easy to code and maintain.\par
+The disadvantages for Grad-CAM is that: it considers the global features for all classes. As a result, Grad-CAM cannot localize the targets when faced with many targets of the same class.
 
 \subsection{Grad-CAM++}
+Grad-CAM++ is an algorithm based on Grad-CAM, aiming to get a better explanation for CNN models. It improves the performance of Grad-CAM when facing targets of the same class, and helps to better localize the targets.\par
+It introduced a weighted combination of gradients of the output in the pixel level, which provides a measure of importance of every pixels to the feature maps.
+It introduced a closed-form solution for the pixels weights, thus making the improvement of explanation possible. \par
+The core algorithm is shown below:
+First, as we have introduced above, the 
 
+There are many advantages for Grad-CAM++: First, 
 \subsection{Ablation-CAM}
 
 The Ablation-CAM creatively uses ablation analysis to determine the importance of individual feature map units for different classes. It proposes a novel “gradient-free” visualization approach which avoids use of gradients and at the same time, produce high quality class-discriminative localization maps.\par

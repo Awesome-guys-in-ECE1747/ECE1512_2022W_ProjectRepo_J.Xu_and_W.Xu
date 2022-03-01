@@ -419,20 +419,26 @@ def grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
     y_c = input_model.output
     conv_output = input_model.get_layer(layer_name).output
     feedforward1 = keras.models.Model([input_model.input], [conv_output, y_c])
-    with tf.GradientTape() as tape1:
-        with tf.GradientTape() as tape2:
-            with tf.GradientTape() as tape3:
-                ff_results = feedforward1([image])
-                all_fmap_masks, predictions = ff_results[0], ff_results[-1]
-                if class_index==None:
-                    cls=np.argmax(predictions[0])
-                else:
-                    cls=class_index
-                loss = predictions[:, cls]
-            grads_val = tape3.gradient(loss, all_fmap_masks)
-        grads_val2 = tape2.gradient(grads_val, all_fmap_masks)
-    grads_val3 = tape1.gradient(grads_val2, all_fmap_masks)
-
+    # with tf.GradientTape() as tape1:
+    #     with tf.GradientTape() as tape2:
+    #         with tf.GradientTape() as tape3:
+    #             ff_results = feedforward1([image])
+    #             all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+    #             if class_index==None:
+    #                 cls=np.argmax(predictions[0])
+    #             else:
+    #                 cls=class_index
+    #             loss = predictions[:, cls]
+    #         grads_val = tape3.gradient(loss, all_fmap_masks)
+    #     grads_val2 = tape2.gradient(grads_val, all_fmap_masks)
+    # grads_val3 = tape1.gradient(grads_val2, all_fmap_masks)
+    with tf.GradientTape() as tape:
+        ff_results=feedforward1([image])
+        all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+        loss = predictions[:, cls]
+    grads_val = tape.gradient(loss, all_fmap_masks)
+    grads_val2=grads_val**2
+    grads_val3=grads_val2*grads_val
     if len(image.shape) == 3:
         axis = (0, 1)
     elif len(image.shape) == 4:
