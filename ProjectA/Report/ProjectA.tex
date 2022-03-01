@@ -302,6 +302,13 @@ This is the code for normalized confusion matrix.
                     color="white" if cm_normalized[i, j] > thresh else "black")
     fig.tight_layout()
 \end{lstlisting}
+The result plot is listed in Fig.\ref{Fig.t1q3e}.
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{T1Q3e.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{normalized confusion matrix plot} %最终文档中希望显示的图片标题
+    \label{Fig.t1q3e} %用于文内引用的标签
+\end{figure}
 \subsubsection{SubQuestion f}
 This is the code for calculating Precision, Recall, and F-1 score on the test set.
 \begin{lstlisting}
@@ -343,7 +350,14 @@ In the previous study, researchers introduced CAM to explain the CNN. However, C
 To solve this problem, Grad-CAM was proposed, which is similar to CAM. It also gets the weight of every feature maps and calculate the results accordingly. The difference lies in the calculation of weights. CAM replaced full-connection layer with GAP layer and retrain this whole model. In contrast to that, Grad-CAM put forward a new way to do it.
 It calculates the weight by averaging the gradients which is equivalent to the CAM. It makes CAM applicable to all the existing models.\par
 
-The core algorithm of Grad-CAM is shown below: First, it defines the weight of feature map $k$ to class $c$ as $\alpha_{k}^{c}$, and it calculates the weight using the global gradients\ref{Grad-CAM_alpha}:
+The core algorithm of Grad-CAM is based on CAM which proposed: class c gets the final classification score $Y_{c}$ with a linear combination of its global average pooled last convolutional layer feature maps $A_{}k$\ref{Grad-CAM-1}.
+\begin{equation}
+\begin{aligned}
+    Y^{c}=\Sigma_{k}w_{k}^{c}\Sigma_{i}\Sigma_{j}A_{ij}^{k})
+    \label{Grad-CAM-1}
+\end{aligned}
+\end{equation}
+So, first, it defines the weight of feature map $k$ to class $c$ as $\alpha_{k}^{c}$, and it calculates the weight using the global gradients\ref{Grad-CAM_alpha}:
 \begin{equation}
     \begin{aligned}
         \alpha_{k}^{c}=\frac{1}{Z}*\Sigma_{i}\Sigma_{j}\frac{\partial y^{c}}{\partial A_{ij}^{k}}
@@ -353,24 +367,113 @@ The core algorithm of Grad-CAM is shown below: First, it defines the weight of f
   In which, $y_{c}$ is the gradient of the score for class c, $A_{k}$ is the feature map activation.$\frac{\partial y^{c}}{\partial A_{ij}^{k}}$ is the gradient achieved by backpropagating. $\frac{1}{Z}$ is global averaging.
   After calculating the $\alpha_{k}^{c}$, the algorithm computed the weighted combination of forward activation maps, followed by a ReLU function:
   
-  begin{equation}
+  \begin{equation}
   \begin{aligned}
       L_{Grad-CAM}^{c}=ReLU(\Sigma_{k}\alpha_{k}^{c}A^{k})
-      \label{Grad-CAM_alpha}
+      \label{Grad-CAM_weight}
   \end{aligned}
 \end{equation}
 The advantages for Grad-CAM is quite obvious: First, compared with CAM, it does not need to change the model and retrain it which costs a lot of time and money. 
 The novelty is the usage of propagation and gradients to compute the weights of feature maps.It makes the visualization of published models possible. Second is that the algorithm is quite easy to code and maintain.\par
-The disadvantages for Grad-CAM is that: it considers the global features for all classes. As a result, Grad-CAM cannot localize the targets when faced with many targets of the same class.
+The disadvantages for Grad-CAM is that: it considers the global features for all classes. As a result, Grad-CAM cannot localize the targets when faced with many targets of the same class. If there are many objects of the same class in an image, it cannot localize the targets well or it can only locate part of them.
 
 \subsection{Grad-CAM++}
 Grad-CAM++ is an algorithm based on Grad-CAM, aiming to get a better explanation for CNN models. It improves the performance of Grad-CAM when facing targets of the same class, and helps to better localize the targets.\par
 It introduced a weighted combination of gradients of the output in the pixel level, which provides a measure of importance of every pixels to the feature maps.
 It introduced a closed-form solution for the pixels weights, thus making the improvement of explanation possible. \par
 The core algorithm is shown below:
-First, as we have introduced above, the 
-
-There are many advantages for Grad-CAM++: First, 
+First, as we have introduced above, class c gets the final classification score $Y_{c}$ with a linear combination of its global average pooled last convolutional layer feature maps $A_{}k$ in equation\ref{Grad-CAM_alpha}.
+Grad-CAM calculates the weight $w_{k}^{c}$ with equation\ref{Grad-CAM_weight}.  To improve the performance, Grad-CAM++ changed this equation.
+Combine the equation\ref{Grad-CAM_alpha} and \ref{Grad-CAM-1} together, we will get the equation\ref{Grad-CAMPP-1}:
+\begin{equation}
+    \begin{aligned}
+        Y^{c}=\Sigma_{k}[\Sigma_{i}\Sigma_{j}(\Sigma_{a}\Sigma_{b}\alpha_{ab}^{kc}·relu(\frac{\partial Y_{c}}{\partial A_{ab}^{k}}))A_{ij}^{k}]
+        \label{Grad-CAMPP-1}
+    \end{aligned}
+\end{equation}
+Take partial derivative w.r.t. $A_{ij}^{k}$ on both sides:
+\begin{equation}
+\begin{aligned}
+    \frac{\partial Y_{c}}{\partial A_{ij}^{k}}=\Sigma_{a}\Sigma{b}\alpha_{ab}^{kc}·\frac{\partial Y_{c}}{\partial A_{ij}^{k}}+\Sigma_{a}\Sigma{b}\alpha_{ab}^{k}\{\alpha_{ab}^{kc}·\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}\}
+    \label{Grad-CAMPP-2}
+\end{aligned}
+\end{equation}
+Take a further partial derivative w.r.t. $A_{ij}^{k}$ on both sides:
+\begin{equation}
+    \begin{aligned}
+        \frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}=2·\alpha_{ab}^{kc}·\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}+\Sigma_{a}\Sigma{b}\alpha_{ab}^{k}\{\alpha_{ab}^{kc}·\frac{\partial^{3} Y_{c}}{(\partial A_{ij}^{k})^_{3}}\}
+        \label{Grad-CAMPP-3}
+    \end{aligned}
+    \end{equation}
+Rearrage equation\ref{Grad-CAMPP-3}, we get:
+    \begin{equation}
+        \begin{aligned}
+            \alpha_{ab}^{kc}=\frac{\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}}{2\frac{\partial^{2} Y_{c}}{(\partial A_{ij}^{k})^_{2}}+\Sigma_{a}\Sigma{b}\alpha_{ab}^{k}\{\frac{\partial^{3} Y_{c}}{(\partial A_{ij}^{k})^_{3}}\}}
+            \label{Grad-CAMPP-4}
+        \end{aligned}
+        \end{equation}
+So, we are able to get weight $w_{k}$ with:
+\begin{equation}
+    \begin{aligned}
+        w_{k}^{c}=\Sigma_{i}\Sigma_{j}\alpha_{ij}^{kc}·relu(\frac{\partial Y_{c}}{\partial A_{ij}^{k}})
+        \label{Grad-CAMPP-5}
+    \end{aligned}
+    \end{equation}
+Applying equation\ref{Grad-CAMPP-5} to \ref{Grad-CAM_weight}, we will get final results.
+There are many advantages for Grad-CAM++: First, it clearly improved the performance of Grad-CAM when facing with many objects of the same class in an image. It helps us to localize the objects more accurately. 
+Second is that it only adds tow partial derivative to the computation, and it uses backpropagation only once. So it does not increase the computation time a lot.\par
+However, it still remains to be revised in some aspects: First, although it improved the performance of Grad-CAM in some degrees, its performance is far from perfect. The same problem remains and connot be solved completelly. 
+Second, from my perspective, ignoring the relu function in the alpha calculation will decrease the precision.\par
+Our implementation code is as followed:
+\begin{lstlisting}
+    ef grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
+    # if class_index is None:
+    #     class_index=np.argmax(input_model.predict(np.array([image])), axis=-1)[0]
+    """GradCAM method for visualizing input saliency."""
+    # cls = np.argmax(input_model.predict(image))
+    y_c = input_model.output
+    conv_output = input_model.get_layer(layer_name).output
+    feedforward1 = keras.models.Model([input_model.input], [conv_output, y_c])
+    # with tf.GradientTape() as tape1:
+    #     with tf.GradientTape() as tape2:
+    #         with tf.GradientTape() as tape3:
+    #             ff_results = feedforward1([image])
+    #             all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+    if class_index==None:
+        cls=np.argmax(input_model.predict(image))
+    else:
+        cls=class_index
+    #             loss = predictions[:, cls]
+    #         grads_val = tape3.gradient(loss, all_fmap_masks)
+    #     grads_val2 = tape2.gradient(grads_val, all_fmap_masks)
+    # grads_val3 = tape1.gradient(grads_val2, all_fmap_masks)
+    with tf.GradientTape() as tape:
+        ff_results=feedforward1([image])
+        all_fmap_masks, predictions = ff_results[0], ff_results[-1]
+        loss = predictions[:, cls]
+    grads_val = tape.gradient(loss, all_fmap_masks)
+    grads_val2=grads_val**2
+    grads_val3=grads_val2*grads_val
+    if len(image.shape) == 3:
+        axis = (0, 1)
+    elif len(image.shape) == 4:
+        axis = (0, 1, 2)
+    alpha_div=(2.0 * grads_val2 + grads_val3 * np.sum(all_fmap_masks, axis))
+    alpha_div = np.where(alpha_div != 0.0, alpha_div, 0)
+    alpha = grads_val2 / alpha_div
+    weights = np.maximum(grads_val, 0.0) * alpha
+    weights = np.sum(weights, axis=axis)
+    # weights = np.mean(grads_val, axis=axis)
+    cam = np.dot(all_fmap_masks[0], weights)
+    # print (cam)
+    H, W = image.shape[1:3]
+    cam = np.maximum(cam, 0)
+    # cam = resize(cam, (H, W))
+    cam = zoom(cam, H / cam.shape[0])
+    # cam = np.maximum(cam, 0)
+    cam = cam / cam.max()
+    return cam
+\end{lstlisting}
 \subsection{Ablation-CAM}
 
 The Ablation-CAM creatively uses ablation analysis to determine the importance of individual feature map units for different classes. It proposes a novel “gradient-free” visualization approach which avoids use of gradients and at the same time, produce high quality class-discriminative localization maps.\par
@@ -390,7 +493,8 @@ As the algorithm, Ablation-CAM can then be obtained as weighted linear combinati
 $$L^C_{Ablation-CAM}=ReLU(\sum_k {w^c_k}{A_k})$$
 
 There are a number of advantages and features of Ablation-CAM. Firstly, a significant contribution and novelty of the Ablation-CAM is the ablation analysis it used to decide the weights of feature map units. Secondly, it could produce a coarse localization map highlighting the regions in the image for prediction. Thirdly, compare to other CAM methods, this approach works essentially better when it is full connected to obtain the result, which is known as final linear classifier, and have as good performance as other gradient-based CAM methods when evaluating other CNNs. Last but not the least, the approach introduce a gradient-free principle which avoids use of gradient as Grad-CAM does and produce a high-quality class-wise localization maps, which helps it to adapt into any CNN based architecture.\par
-However, the approach have some limitations as well. First of all, the computational time required to generate a single Ablation-CAM is much grater than the required for Grad-CAM, as it has to iterate over each feature map to ablate it and check the drop in class activation score correspondingly. On the hand, the Ablation-CAM only benefits the interpretation where last convolutional layer is not followed immediately by decision nodes, yet show the same performance statistically as other CAM methods.\par
+However, the approach have some limitations as well. First of all, the computational time required to generate a single Ablation-CAM is much grater than the required for Grad-CAM, as it has to iterate over each feature map to ablate it and check the drop in class activation score correspondingly. 
+On the hand, the Ablation-CAM only benefits the interpretation where last convolutional layer is not followed immediately by decision nodes, yet show the same performance statistically as other CAM methods.\par
 
 Our implementation code is as followed.
 
@@ -459,8 +563,170 @@ def ablation_cam(weights, output):
 \end{lstlisting}
 
 \section{Task 3: Biomedical image classification and interpretation}
-性能评价，并分析
+\subsection{Question 1}
+\subsubsection{Overall classification accuracy}
+Here we calculate the overall classification accuracy, here is the code:
+\begin{lstlisting}
+    from sklearn.metrics import accuracy_score, precision_score, recall_score,f1_score
+    from sklearn.metrics import classification_report
+    from sklearn.metrics import roc_curve, auc
+    from sklearn.metrics import confusion_matrix
 
+    test_generator.reset()
+    y_test=test_generator.classes
+    y_pred=model.predict(test_generator)
+    y_predicted=np.argmax(y_pred, axis=1)
+    print('Overall classification accuracy for all classes:'+str(np.sum(y_predicted==y_test)/y_test.shape[0]))
+\end{lstlisting}
+The result is 0.8306451612903226, as is shown in Fig\ref{Fig.t3q1}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{T3Q1a.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{Overall classification accuracy} %最终文档中希望显示的图片标题
+    \label{Fig.t3q1} %用于文内引用的标签
+\end{figure}
+\subsubsection{class-wise classification accuracy}
+In this part, we discuss the classification accuracy for every class.Here is the code:
+\begin{lstlisting}
+    for i in range(8):
+    true_i=np.where(y_test==i)[0]
+    res=0
+    for j in true_i:
+        if y_predicted[j]==i:
+            res=res+1
+    print('class '+str(i)+' accuracy:'+str(res/true_i.shape[0]))
+\end{lstlisting}
+The results are shown in Fig\ref{Fig.t3q2}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{T3Q1b.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{class-wise classification accuracy} %最终文档中希望显示的图片标题
+    \label{Fig.t3q2} %用于文内引用的标签
+\end{figure}
+\subsubsection{AUC-ROC curve}
+In this part, we discuss the AUC and ROC curve.Here is the code:
+\begin{lstlisting}
+    real_y=np.zeros((y_test.size,8))
+    for i in range(y_test.size):
+        real_y[i,y_test[i]]=1
+    for i in range(8):
+        FPR, TPR, thresholds_keras = roc_curve(real_y[:,i], y_pred[:,i]) 
+        AUC = auc(FPR, TPR)  
+        print("AUC for class "+str(i)+": ", AUC)
+        plt.figure()
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.plot(FPR, TPR, label='S3< val (AUC = {:.3f})'.format(AUC))
+        plt.xlabel('False positive rate')
+        plt.ylabel('True positive rate')
+        plt.title('ROC curve for class '+str(i))
+        plt.legend(loc='best')
+        plt.show()    
+\end{lstlisting}
+The plots are shown below:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{3ROC0.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 0:  0.9948714137059611} %最终文档中希望显示的图片标题
+    \label{Fig.3ROC0} %用于文内引用的标签
+\end{figure}
+This is class 1\ref{Fig.ROC1}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{3ROC1.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 1:  0.9665526980823547} %最终文档中希望显示的图片标题
+    \label{Fig.3ROC1} %用于文内引用的标签
+\end{figure}
+This is class 2\ref{Fig.ROC2}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{3ROC2.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 2:  0.9670358257767206} %最终文档中希望显示的图片标题
+    \label{Fig.3ROC2} %用于文内引用的标签
+\end{figure}
+This is class 3\ref{Fig.ROC3}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{3ROC3.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 3:  0.9882562806600268} %最终文档中希望显示的图片标题
+    \label{Fig.3ROC3} %用于文内引用的标签
+\end{figure}
+This is class 4\ref{Fig.ROC4}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{3ROC4.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 4:  0.9813066745949159} %最终文档中希望显示的图片标题
+    \label{Fig.3ROC4} %用于文内引用的标签
+\end{figure}
+This is class 5\ref{Fig.ROC5}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{3ROC5.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 5:  0.9920098112085625} %最终文档中希望显示的图片标题
+    \label{Fig.3ROC5} %用于文内引用的标签
+\end{figure}
+This is class 6\ref{Fig.ROC6}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{3ROC6.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 6:  0.9997770179872156} %最终文档中希望显示的图片标题
+    \label{Fig.3ROC6} %用于文内引用的标签
+\end{figure}
+This is class 7\ref{Fig.ROC7}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{3ROC7.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{AUC for class 7:  0.9998885089936078} %最终文档中希望显示的图片标题
+    \label{Fig.3ROC7} %用于文内引用的标签
+\end{figure}
+\subsubsection{normalized confusion matrix}
+In this part, we discuss the normalized confusion matrix plot.Here is the code:
+\begin{lstlisting}
+    cm=confusion_matrix(list(y_test),list(y_predicted))
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    fig, ax = plt.subplots()
+    im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    ax.figure.colorbar(im, ax=ax)
+    classes=[0,1,2,3,4,5,6,7]
+    # print(classes)
+    # We want to show all ticks...
+    ax.set(xticks=np.arange(cm_normalized.shape[1]),
+        yticks=np.arange(cm_normalized.shape[0]),
+        # ... and label them with the respective list entries
+        xticklabels=classes, yticklabels=classes,
+        ylabel='True label',
+        xlabel='Predicted label')
+    plt.setp(ax.get_xticklabels(),  ha="right",
+                rotation_mode="anchor")
+    thresh = cm_normalized.max() / 2.
+    for i in range(cm_normalized.shape[0]):
+        for j in range(cm_normalized.shape[1]):
+            ax.text(j, i, format(cm_normalized[i, j], '.2f'),
+                    ha="center", va="center",
+                    color="white" if cm_normalized[i, j] > thresh else "black")
+    fig.tight_layout()
+\end{lstlisting}
+The result plot is shown in Fig.\ref{Fig.t3q1c}.
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{T3Q1c.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{normalized confusion matrix plot} %最终文档中希望显示的图片标题
+    \label{Fig.t3q1c} %用于文内引用的标签
+\end{figure}
+
+\subsubsection{Precision, Recall, and F-1 score}
+In this part, we discuss the normalized confusion matrix plot.Here is the code:
+\begin{lstlisting}
+    print(classification_report(y_true=y_test,y_pred=y_predicted))
+\end{lstlisting}
+The result plot is shown in Fig.\ref{Fig.t3q1d}.
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{T3Q1d.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{Precision, Recall, and F-1 score} %最终文档中希望显示的图片标题
+    \label{Fig.t3q1d} %用于文内引用的标签
+\end{figure}
+
+\subsection{Question 2}
 方法用到HMT
 
 CAPTUM可选项

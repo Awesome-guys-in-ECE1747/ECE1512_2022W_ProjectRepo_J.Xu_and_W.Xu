@@ -424,10 +424,10 @@ def grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
     #         with tf.GradientTape() as tape3:
     #             ff_results = feedforward1([image])
     #             all_fmap_masks, predictions = ff_results[0], ff_results[-1]
-    #             if class_index==None:
-    #                 cls=np.argmax(predictions[0])
-    #             else:
-    #                 cls=class_index
+    if class_index==None:
+        cls=np.argmax(input_model.predict(image))
+    else:
+        cls=class_index
     #             loss = predictions[:, cls]
     #         grads_val = tape3.gradient(loss, all_fmap_masks)
     #     grads_val2 = tape2.gradient(grads_val, all_fmap_masks)
