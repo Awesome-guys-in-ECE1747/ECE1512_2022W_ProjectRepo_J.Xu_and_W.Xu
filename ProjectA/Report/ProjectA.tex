@@ -10,6 +10,8 @@
 
 \usepackage{listings}
 \usepackage{color}
+\usepackage{stfloats}
+\usepackage{subfigure}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -39,6 +41,7 @@
 \title{Project A:Visual Interpretation of Convolutional Neural Networks}
 
 \begin{abstract}
+This paper is a report for Project A of ECE1512 2022W, University of Toronto. In the paper, we described four assigned tasks with detail, including CNN construction and training, statistic assessment, XAI based interpretation and Quantitative evaluation. For the attribution methods, we choose Grad-CAM, Grad-CAM++ and Ablation-CAM as a group of two, and we reviewed their paper and implemented corresponding functions. Moreover, we tried to analyze the performance of the XAI methods based on quantitative evaluation and gave our explanations towards the experiment.
 \end{abstract}
 
 \section{Task 1: 1-Dimensional digit classification}
@@ -59,10 +62,10 @@
     model.summary()
 \end{lstlisting}
 In this question, we build a ConvNet. It includes three convolutional layer, one flatten layer and one dense layer.
-The network is listed as followed\ref{Fig.t1q1}:
-\begin{figure}[H] 
+The network is listed as Fig. 1:
+\begin{figure}[h] 
     \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T1Q1.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \includegraphics[width=0.3\textwidth]{T1Q1.png} %插入图片，[]中设置图片大小，{}中是图片文件名
     \caption{Task1-Question1: ConvNet Model} %最终文档中希望显示的图片标题
     \label{Fig.t1q1} %用于文内引用的标签
 \end{figure}
@@ -99,10 +102,10 @@ Then we define the LearningRateScheduler, the TensorBoard, the EarlyStopping for
 After that, we handle the train data for training.
 At last, we will fit the data and tensorboard into the model for training and save the model into disk.
 The training result is shown as followed\ref{Fig.t1q2}:
-\begin{figure}[H] 
+\begin{figure}[h] 
     \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T1Q2.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question2: Training Results} %最终文档中希望显示的图片标题
+    \includegraphics[width=0.5\textwidth]{T1Q2.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{Task1-Question2: Training Process Log} %最终文档中希望显示的图片标题
     \label{Fig.t1q2} %用于文内引用的标签
 \end{figure}
 \subsection{Question 3}
@@ -116,16 +119,16 @@ TODOOOOOOOOOO, say something here.
     plt.plot(train_loss)
 \end{lstlisting}
 This is the code for loss and accuracy curve, the plot of loss curve\ref{Fig.t1q3a1} and plot for accuracy curve\ref{Fig.t1q3a2} are shown below:
-\begin{figure}[H] 
+\begin{figure}[h] 
     \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T1Q3-b.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question3a-1: loss curve} %最终文档中希望显示的图片标题
+    \includegraphics[width=0.3\textwidth]{T1Q3-b.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{Task1-Question3a-1: Loss Curve of 1-D CNN} %最终文档中希望显示的图片标题
     \label{Fig.t1q3a1} %用于文内引用的标签
 \end{figure}
-\begin{figure}[H] 
+\begin{figure}[h] 
     \centering %图片居中
-    \includegraphics[width=0.7\textwidth]{T1Q3-a.png} %插入图片，[]中设置图片大小，{}中是图片文件名
-    \caption{Task1-Question3a-2: accuracy curve} %最终文档中希望显示的图片标题
+    \includegraphics[width=0.3\textwidth]{T1Q3-a.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{Task1-Question3a-2: Accuracy Curve of 1-D CNN} %最终文档中希望显示的图片标题
     \label{Fig.t1q3a2} %用于文内引用的标签
 \end{figure}
 \subsubsection{SubQuestion b}
