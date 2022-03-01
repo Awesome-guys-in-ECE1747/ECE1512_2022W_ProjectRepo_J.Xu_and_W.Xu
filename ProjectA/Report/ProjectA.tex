@@ -256,6 +256,7 @@
 		\caption{Class-wise ROC Curve Plots on MNIST-1D dataset}
 		\label{Fig.ba}
 	\end{figure}
+
 	\subsubsection{SubQuestion d}
 	In this subquestion, our goal is to plot the $ROC$ and $AUC$ curves for each class. First of all, we transform the test set and reshape it to a 2D set. For each class, we compute the parameters $FPR$, $TPR$ by calling the function $roc\_curve$. Then we input the $FPR$ and $TPR$ parameters into function $auc()$, and obtained the returned value $AUC$, which is used to plot the graph.\par
 	The code used in this subquestion is showed below.
@@ -322,8 +323,8 @@
 	
 	\begin{figure}[h] 
 		\centering
-		\includegraphics[width=0.3\textwidth]{T1Q3e.png}
-		\caption{normalized confusion matrix plot}
+		\includegraphics[width=0.45\textwidth]{T1Q3e.png}
+		\caption{Normalized Confusion Matrix Plot of MNIST-1D model}
 		\label{Fig.t1q3e}
 	\end{figure}
 	\subsubsection{SubQuestion f}
@@ -638,7 +639,7 @@ The results are shown in Fig\ref{Fig.t3q2}:
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.3\textwidth]{T3Q1b.png}
-    \caption{class-wise classification accuracy} 
+    \caption{Class-wise Classification Accuracy of HMT} 
     \label{Fig.t3q2} 
 \end{figure}
 \subsubsection{AUC-ROC curve}
@@ -737,7 +738,7 @@ The result plot is shown in Fig.\ref{Fig.t3q1c}.
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.4\textwidth]{T3Q1c.png}
-    \caption{normalized confusion matrix plot} 
+    \caption{Normalized Confusion Matrix Plot} 
     \label{Fig.t3q1c} 
 \end{figure}
 
@@ -747,7 +748,7 @@ $classification\_report()$ to compute the statistics. Here is the code:
 \begin{lstlisting}
     print(classification_report(y_true=y_test,y_pred=y_predicted))
 \end{lstlisting}
-The result plot is shown in Fig.\ref{Fig.t3q1d}.As a result, the accuracy on total test set if 0.85, the f1-score is 0.83 and the recall is 0.82
+The result plot is shown in Fig.\ref{Fig.t3q1d}.As a result, the accuracy on total test set if 0.85, the f1-score is 0.83 and the recall is 0.82.
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.5\textwidth]{T3Q1d.png}
