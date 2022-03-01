@@ -406,6 +406,12 @@ The advantages for Grad-CAM is quite obvious: First, compared with CAM, it does 
 The novelty is the usage of propagation and gradients to compute the weights of feature maps.It makes the visualization of published models possible. Second is that the algorithm is quite easy to code and maintain.\par
 The disadvantages for Grad-CAM is that: it considers the global features for all classes. As a result, Grad-CAM cannot localize the targets when faced with many targets of the same class. If there are many objects of the same class in an image, it cannot localize the targets well or it can only locate part of them.
 
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{gd.png}
+    \caption{Grad-CAM 1-D XAI plots} 
+\end{figure}
+
 \subsection{Grad-CAM++}
 Grad-CAM++ is an algorithm based on Grad-CAM, aiming to get a better explanation for CNN models. It improves the performance of Grad-CAM when facing targets of the same class, and helps to better localize the targets.\par
 It introduced a weighted combination of gradients of the output in the pixel level, which provides a measure of importance of every pixels to the feature maps.
@@ -454,6 +460,13 @@ There are many advantages for Grad-CAM++: First, it clearly improved the perform
 Second is that it only adds tow partial derivative to the computation, and it uses backpropagation only once. So it does not increase the computation time a lot.\par
 However, it still remains to be revised in some aspects: First, although it improved the performance of Grad-CAM in some degrees, its performance is far from perfect. The same problem remains and connot be solved completelly. 
 Second, from my perspective, ignoring the relu function in the alpha calculation will decrease the precision.\par
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{gpd.png}
+    \caption{Grad-CAM++ 1-D XAI plots} 
+\end{figure}
+
 Our implementation code is as followed:
 \begin{lstlisting}
     ef grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
@@ -526,7 +539,13 @@ There are a number of advantages and features of Ablation-CAM. Firstly, a signif
 However, the approach have some limitations as well. First of all, the computational time required to generate a single Ablation-CAM is much grater than the required for Grad-CAM, as it has to iterate over each feature map to ablate it and check the drop in class activation score correspondingly. 
 On the hand, the Ablation-CAM only benefits the interpretation where last convolutional layer is not followed immediately by decision nodes, yet show the same performance statistically as other CAM methods.\par
 
-Our implementation code is as followed.
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{abd.png}
+    \caption{Ablation-CAM 1-D XAI plots} 
+\end{figure}
+
+The result plot and our implementation code is as followed.
 
 \begin{lstlisting}
 def ablation_cam_1d(input_model, image, layer_name):
@@ -575,7 +594,7 @@ In this section, we finish the typical model evaluation as we did in task 1 by e
 function to achieve, and most of them are from $scikit-learn$.
 \subsubsection{Overall classification accuracy}
 First of all, we implemented the overall classification accuracy evaluation. We load the model trained before, use the $test\_generator.classes$ function to get the test set for labels which is noted as $y\_test$.
-Then, we use the test_generator to predict the results with this model, the result names $y\_pred$. To achieve the label from the predict results, we then apply $np.argmax$ function to $y\_pred$ in every row and get the predicted label $y\_predicted$. 
+Then, we use the test\_generator to predict the results with this model, the result names $y\_pred$. To achieve the label from the predict results, we then apply $np.argmax$ function to $y\_pred$ in every row and get the predicted label $y\_predicted$. 
 So, for the overall classification accuracy, we need to compare the predicted labels with the true labels, calculate the number of pairs which have the same label.The function is realized by $np.sum(y\_predicted==y_test)$, and divide it with $y\_test.shape[0]$ which represents the amount of overall data, we will get the overall accuracy.
 Here is the code:
 \begin{lstlisting}
@@ -652,28 +671,28 @@ The AUC and ROC curves we plotted by executing the code are listed in in Fig. 11
 \centering  
 \subfigure[Class 0]{
 \label{Fig.3ROC0}
-\includegraphics[width=0.4\textwidth]{3ROC0.png}}
+\includegraphics[width=0.2\textwidth]{3ROC0.png}}
 \subfigure[Class 1]{
 \label{Fig.3ROC1}
-\includegraphics[width=0.4\textwidth]{3ROC1.png}}
+\includegraphics[width=0.2\textwidth]{3ROC1.png}}
 \subfigure[Class 2]{
 \label{Fig.3ROC2}
-\includegraphics[width=0.4\textwidth]{3ROC2.png}}
+\includegraphics[width=0.2\textwidth]{3ROC2.png}}
 \subfigure[Class 3]{
 \label{Fig.3ROC3}
-\includegraphics[width=0.4\textwidth]{3ROC3.png}}
+\includegraphics[width=0.2\textwidth]{3ROC3.png}}
 \subfigure[Class 4]{
 \label{Fig.3ROC4}
-\includegraphics[width=0.4\textwidth]{3ROC4.png}}
+\includegraphics[width=0.2\textwidth]{3ROC4.png}}
 \subfigure[Class 5]{
 \label{Fig.3ROC5}
-\includegraphics[width=0.4\textwidth]{3ROC5.png}}
+\includegraphics[width=0.2\textwidth]{3ROC5.png}}
 \subfigure[Class 6]{
 \label{Fig.3ROC6}
-\includegraphics[width=0.4\textwidth]{3ROC6.png}}
+\includegraphics[width=0.2\textwidth]{3ROC6.png}}
 \subfigure[Class 7]{
 \label{Fig.3ROC7}
-\includegraphics[width=0.4\textwidth]{3ROC7.png}}
+\includegraphics[width=0.2\textwidth]{3ROC7.png}}
 
 
 \caption{Class-wise ROC Curve Plots of HMT dataset}
@@ -804,6 +823,13 @@ and hence it is able to process both 3-Dimensional and 4-Dimensional tensors.
 
 Another modification needs to be mentioned is that there is a slightly modification practically in the implementation. It is modified due to troubleshooting of HMT explanation. The origin function gives an extremely unsatisfying result thus we change the way we calculate secondary gradient and third gradient. We use multiplication instead of slope to get the gradient value due to its low magnitude, the absolute value of both results are similar, however the multiplication is positive constantly.\par
 There are some potential reasons we could come up with. First,the Grad-CAM++ are suitable for positive gradients however in both datasets, negative values take most places and therefore it it limited to perform well. Secondly, it is mentioned in the paper that Grad-CAM++ has some guided or modified variants but Our implementation works for the basic explanation. So it will be highly influence by the noise and unpredictable factors. Thirdly, among all the CAM methods, a number of the approaches choose Grad-CAM as a benchmark, so the advance Grad-CAM may also suffer from some problems which cannot adapt in multiple networks.\par
+Subjectively, it could be clearly seen in Fig that ablation-CAM has higher contrast feature heat.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{plot.png}
+    \caption{Explaination Map Visualization of HMT} 
+\end{figure}
 
 We implements Ablation-CAM in two separated functions, $ablation\_cam\_1d$ and $ablation\_cam\_2d$, and  as the 1-D version is already described in the previous section, only the $ablation\_cam\_2d$ function is shown below.
 
