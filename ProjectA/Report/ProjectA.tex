@@ -267,11 +267,20 @@ This is class 9\ref{Fig.ROC9}:
     \label{Fig.ROC9} %用于文内引用的标签
 \end{figure}
 \subsubsection{SubQuestion e}
-
-混淆矩阵
+This is the code for 
 \subsubsection{SubQuestion f}
-召回率，准确率和F-1得分
-
+This is the code for calculating Precision, Recall, and F-1 score on the test set.
+\begin{lstlisting}
+    # Q3.f
+    print(classification_report(y_true=y_test,y_pred=y_predicted))
+\end{lstlisting}
+This is the result for the plot\ref{Fig.t1q3f}:
+\begin{figure}[H] 
+    \centering %图片居中
+    \includegraphics[width=0.7\textwidth]{T1Q3f.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+    \caption{Precision,Recall and F-1 score} %最终文档中希望显示的图片标题
+    \label{Fig.t1q3f} %用于文内引用的标签
+\end{figure}
 \subsection{Question 4}
 挑几个正确与错误的例子，评价一下，哪两个类错误最多
 \section{Task 2: CNN interprectation}
