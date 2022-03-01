@@ -192,7 +192,7 @@
 	
 	
 	\subsubsection{SubQuestion c}
-	In this subquestion, our goal is to test the classification accuracy of each class. For class $0$ to class $9$, we the accuracy respectively. Our code of this subquestion is showed below. We make use of the results of $y\_predicted$ in subquestion $b$. For each class, if $y\_predicted$ == $y\_test$, then we increment $res$, which is counter to record the number of samples that are classified correctly. Later, we can simply compute the accuracy by dividing $res$ by $true\_i.shape[0]$, which is the total sample number of class $i$.\par
+	In this subquestion, our goal is to test the classification accuracy of each class. For class $0$ to class $9$, we compute the accuracy respectively. Our code of this subquestion is showed below. We make use of the results of $y\_predicted$ in subquestion $b$. For each class, if $y\_predicted$ == $y\_test$, then we increment $res$, which is counter to record the number of samples that are classified correctly. Later, we can simply compute the accuracy by dividing $res$ by $true\_i.shape[0]$, which is the total sample number of class $i$.\par
 	The code used in this subquestion is showed below.
 	\begin{lstlisting}
 		# Q3.c class-wise classification
@@ -357,6 +357,14 @@
 	
 	All the concrete Success/Failure cases are listed in 'MNIST1D.ipynb', if you want to refer to more examples.
 	The most misclassification lies in class 1 and 9. It is obvious class-wise accuracy.
+    There are several reasons for this. We think the most important reason is the unbalanced dataset. 
+    We can see from $ROC$ curve. It is obvious that class 1 and class 9 has a worse ROC curve than other classes.
+    The more AUC is closer to 1.0, the easier it will be to maintain a high precision and recall at the same time.
+    And see from our results, we can clearly see from the ROC curve, the class 1 and 9 have the lowest AUC values.
+    This is also shown in the $Question 3-f$, from the precision and recall table, we can see that the recall and precision is relatively lower than that of other classes.
+    With low recall rate, the model cannot detect this class very well, and with a low precision, it's hard to trust its correctness when predicting this class.
+    Class 9 has a lowest performance considering both precision and recall, so it has the lowest accuracy.To solve this, we can use undersampling, oversampling or generate synthetic data.\par
+    The second reason is the overfitting on the training set. It's likely that if the design is too complex compared to the relatively simple dataset, it'll lead to overfitting. The training accuracy may be very high. However, the testing set will not get a high precision due to overfitting.
 
 
 \section{Task 2: CNN interprectation}
@@ -625,7 +633,8 @@ Here is the code:
             res=res+1
     print('class '+str(i)+' accuracy:'+str(res/true_i.shape[0]))
 \end{lstlisting}
-We find the lines which belongs to class i and find the ones which is correct in these lines to calculate the accuracy. The results are shown in Fig\ref{Fig.t3q2}:
+As a result, class 0, class 1, class 5, class 6, class 7 have relatively higher accuracy, which are all greater than $90\%$, while class 2, class 3, class 4 have relatively lower accuracy, which are all less than $90\%$.
+The results are shown in Fig\ref{Fig.t3q2}:
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.3\textwidth]{T3Q1b.png}
