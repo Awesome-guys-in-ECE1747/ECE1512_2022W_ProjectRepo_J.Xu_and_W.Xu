@@ -470,18 +470,18 @@ def ablation_cam_1d(input_model, image, layer_name):
     _y_c = predictions[0][_pred]
     # print(_y_c)
 
-    _wt = np.zeros(model.get_layer(layer_name).get_weights()[1].shape)
+    _wt = np.zeros(input_model.get_layer(layer_name).get_weights()[1].shape)
     # print(_wt)
     # print(_wt.shape)
-    all_weigths = model.get_layer(layer_name).get_weights().copy()
+    all_weigths = input_model.get_layer(layer_name).get_weights().copy()
     zero_weigth = all_weigths[0][:, :, 0] * 0
     weigth_local = [np.zeros(all_weigths[0].shape)]
     weigth_local.append(np.zeros(all_weigths[1].shape))
     for i in range(_wt.shape[0]):
         weigth_local[0] = all_weigths[0].copy()
         weigth_local[0][:, :, i] = zero_weigth
-        model.get_layer(layer_name).set_weights(weigth_local)
-        y_k = model.predict([image])[0][_pred]
+        input_model.get_layer(layer_name).set_weights(weigth_local)
+        y_k = input_model.predict([image])[0][_pred]
         _wt[i] = (_y_c - y_k) / _y_c
 
     a_k = all_fmap_masks[0]
