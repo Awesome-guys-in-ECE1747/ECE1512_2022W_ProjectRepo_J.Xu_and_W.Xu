@@ -270,7 +270,33 @@ This is class 9\ref{Fig.ROC9}:
     \label{Fig.ROC9} %用于文内引用的标签
 \end{figure}
 \subsubsection{SubQuestion e}
-This is the code for 
+This is the code for normalized confusion matrix.
+\begin{lstlisting}
+    from sklearn.metrics import confusion_matrix
+    cm=confusion_matrix(list(y_test),list(y_predicted))
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    fig, ax = plt.subplots()
+    im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    ax.figure.colorbar(im, ax=ax)
+    classes=[0,1,2,3,4,5,6,7,8,9]
+    # print(classes)
+    # We want to show all ticks...
+    ax.set(xticks=np.arange(cm_normalized.shape[1]),
+        yticks=np.arange(cm_normalized.shape[0]),
+        # ... and label them with the respective list entries
+        xticklabels=classes, yticklabels=classes,
+        ylabel='True label',
+        xlabel='Predicted label')
+    plt.setp(ax.get_xticklabels(),  ha="right",
+                rotation_mode="anchor")
+    thresh = cm_normalized.max() / 2.
+    for i in range(cm_normalized.shape[0]):
+        for j in range(cm_normalized.shape[1]):
+            ax.text(j, i, format(cm_normalized[i, j], '.2f'),
+                    ha="center", va="center",
+                    color="white" if cm_normalized[i, j] > thresh else "black")
+    fig.tight_layout()
+\end{lstlisting}
 \subsubsection{SubQuestion f}
 This is the code for calculating Precision, Recall, and F-1 score on the test set.
 \begin{lstlisting}
