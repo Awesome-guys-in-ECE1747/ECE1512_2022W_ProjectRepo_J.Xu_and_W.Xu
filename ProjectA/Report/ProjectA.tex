@@ -56,7 +56,7 @@
 	
 	\begin{figure}[h] 
 		\centering
-		\includegraphics[width=0.5\textwidth]{T1Q1.png}
+		\includegraphics[width=0.5\textwidth]{./graphs/T1Q1.png}
 		\caption{Task1-Question1: ConvNet Model}
 		\label{Fig.t1q1}
 	\end{figure}
@@ -86,7 +86,7 @@
 	In this part, we use the TensorBoard to record the training procedure, which we also found could be standalone execute as a TensorFlow based analyzing tool which is running on localhost with port 6006 by default.\par 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{tb.png}
+    \includegraphics[width=0.5\textwidth]{./graphs/tb.png}
     \caption{TensorBoard GUI} 
     \label{Fig.t3q2} 
 \end{figure}
@@ -95,7 +95,7 @@
 	For the next step, we declare the object of TensorBoard, along with the EarlyStopping to accomplish a speed-up of training working with the dynamic learning rate.
 	\begin{figure}[h] 
 		\centering
-		\includegraphics[width=0.5\textwidth]{T1Q2.png}
+		\includegraphics[width=0.5\textwidth]{./graphs/T1Q2.png}
 		\caption{Task1-Question2: Training Process Log} 
 		\label{Fig.t1q2} 
 	\end{figure}
@@ -145,10 +145,10 @@
 		\centering  %图片全局居中
 		\subfigure[Loss]{
 			\label{Fig.1loss}
-			\includegraphics[width=0.4\textwidth]{T1Q3-b.png}}
+			\includegraphics[width=0.4\textwidth]{./graphs/T1Q3-b.png}}
 		\subfigure[Accuracy]{
 			\label{Fig.1acc}
-			\includegraphics[width=0.4\textwidth]{T1Q3-a.png}}
+			\includegraphics[width=0.4\textwidth]{./graphs/T1Q3-a.png}}
 		
 		\caption{Loss and Accuracy Curve Plots on MNIST-1D dataset}
 		\label{Fig.la}
@@ -168,7 +168,7 @@
 	In this subquestion, our goal is to test the overall classification accuracy on the test set. As implementation, we first import test sets to $x\_test$ and $y\_test$ respectively. Then, we reshape the data in the $x\_test$. Next, we exploit $model.predict()$ to obtain the predicted output $y\_pred$. Finally, we compare the predicted values with the data in $y\_test$ to calculate the overall classification accuracy.\par
 	\begin{figure}[h] 
 		\centering
-		\includegraphics[width=0.5\textwidth]{T1Q3b.png}
+		\includegraphics[width=0.5\textwidth]{./graphs/T1Q3b.png}
 		\caption{Task1-Question3b: Overall accuracy} 
 		\label{Fig.t1q3b} 
 	\end{figure}
@@ -212,7 +212,7 @@
 	We find the lines which belongs to class $i$ and find the ones which is correct in these lines to calculate the accuracy. The results of subquestion $b$ is showed in figure $5$.\par
 	\begin{figure}[h] 
 		\centering
-		\includegraphics[width=0.35\textwidth]{T1Q3c.png}
+		\includegraphics[width=0.35\textwidth]{./graphs/T1Q3c.png}
 		\caption{Task1-Question3b: class-wise accuracy} 
 		\label{Fig.t1q3c} 
 	\end{figure}
@@ -224,34 +224,34 @@
 		\centering  %图片全局居中
 		\subfigure[Class 0]{
 			\label{Fig.ROC0}
-			\includegraphics[width=0.23\textwidth]{ROC0.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC0.png}}
 		\subfigure[Class 1]{
 			\label{Fig.ROC1}
-			\includegraphics[width=0.23\textwidth]{ROC1.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC1.png}}
 		\subfigure[Class 2]{
 			\label{Fig.ROC2}
-			\includegraphics[width=0.23\textwidth]{ROC2.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC2.png}}
 		\subfigure[Class 3]{
 			\label{Fig.ROC3}
-			\includegraphics[width=0.23\textwidth]{ROC3.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC3.png}}
 		\subfigure[Class 4]{
 			\label{Fig.ROC4}
-			\includegraphics[width=0.23\textwidth]{ROC4.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC4.png}}
 		\subfigure[Class 5]{
 			\label{Fig.ROC5}
-			\includegraphics[width=0.23\textwidth]{ROC5.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC5.png}}
 		\subfigure[Class 6]{
 			\label{Fig.ROC6}
-			\includegraphics[width=0.23\textwidth]{ROC6.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC6.png}}
 		\subfigure[Class 7]{
 			\label{Fig.ROC7}
-			\includegraphics[width=0.23\textwidth]{ROC7.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC7.png}}
 		\subfigure[Class 8]{
 			\label{Fig.ROC8}
-			\includegraphics[width=0.23\textwidth]{ROC8.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC8.png}}
 		\subfigure[Class 9]{
 			\label{Fig.ROC9}
-			\includegraphics[width=0.23\textwidth]{ROC9.png}}
+			\includegraphics[width=0.23\textwidth]{./graphs/ROC9.png}}
 		
 		\caption{Class-wise ROC Curve Plots on MNIST-1D dataset}
 		\label{Fig.ba}
@@ -323,7 +323,7 @@
 	
 	\begin{figure}[h] 
 		\centering
-		\includegraphics[width=0.45\textwidth]{T1Q3e.png}
+		\includegraphics[width=0.45\textwidth]{./graphs/T1Q3e.png}
 		\caption{Normalized Confusion Matrix Plot of MNIST-1D model}
 		\label{Fig.t1q3e}
 	\end{figure}
@@ -341,7 +341,7 @@
 	The result of the calculation is displayed in figure 8. As a result, the accuracy on total test set if 0.92, the f1-score is 0.92 and the recall is 0.92.
 	\begin{figure}[h] 
 		\centering
-		\includegraphics[width=0.4\textwidth]{T1Q3f.png}
+		\includegraphics[width=0.4\textwidth]{./graphs/T1Q3f.png}
 		\caption{Precision, Recall and F-1 score}
 		\label{Fig.t1q3f}
 	\end{figure}
@@ -409,7 +409,7 @@ The disadvantages for Grad-CAM is that: it considers the global features for all
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{gd.png}
+    \includegraphics[width=0.5\textwidth]{./graphs/gd.png}
     \caption{Grad-CAM 1-D XAI plots} 
 \end{figure}
 
@@ -464,7 +464,7 @@ Second, from my perspective, ignoring the relu function in the alpha calculation
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{gpd.png}
+    \includegraphics[width=0.5\textwidth]{./graphs/gpd.png}
     \caption{Grad-CAM++ 1-D XAI plots} 
 \end{figure}
 
@@ -542,7 +542,7 @@ On the hand, the Ablation-CAM only benefits the interpretation where last convol
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{abd.png}
+    \includegraphics[width=0.5\textwidth]{./graphs/abd.png}
     \caption{Ablation-CAM 1-D XAI plots} 
 \end{figure}
 
@@ -613,7 +613,7 @@ Here is the code:
 The result is 83.06\%,which conforms to our expectation. The result is shown in Fig\ref{Fig.t3q1}:
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.4\textwidth]{T3Q1a.png}
+    \includegraphics[width=0.4\textwidth]{./graphs/T3Q1a.png}
     \caption{Overall classification accuracy}
     \label{Fig.t3q1}
 \end{figure}
@@ -638,7 +638,7 @@ As a result, class 0, class 1, class 5, class 6, class 7 have relatively higher 
 The results are shown in Fig\ref{Fig.t3q2}:
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.3\textwidth]{T3Q1b.png}
+    \includegraphics[width=0.3\textwidth]{./graphs/T3Q1b.png}
     \caption{Class-wise Classification Accuracy of HMT} 
     \label{Fig.t3q2} 
 \end{figure}
@@ -672,28 +672,28 @@ The AUC and ROC curves we plotted by executing the code are listed in in Fig. 11
 \centering  
 \subfigure[Class 0]{
 \label{Fig.3ROC0}
-\includegraphics[width=0.2\textwidth]{3ROC0.png}}
+\includegraphics[width=0.2\textwidth]{./graphs/3ROC0.png}}
 \subfigure[Class 1]{
 \label{Fig.3ROC1}
-\includegraphics[width=0.2\textwidth]{3ROC1.png}}
+\includegraphics[width=0.2\textwidth]{./graphs/3ROC1.png}}
 \subfigure[Class 2]{
 \label{Fig.3ROC2}
-\includegraphics[width=0.2\textwidth]{3ROC2.png}}
+\includegraphics[width=0.2\textwidth]{./graphs/3ROC2.png}}
 \subfigure[Class 3]{
 \label{Fig.3ROC3}
-\includegraphics[width=0.2\textwidth]{3ROC3.png}}
+\includegraphics[width=0.2\textwidth]{./graphs/3ROC3.png}}
 \subfigure[Class 4]{
 \label{Fig.3ROC4}
-\includegraphics[width=0.2\textwidth]{3ROC4.png}}
+\includegraphics[width=0.2\textwidth]{./graphs/3ROC4.png}}
 \subfigure[Class 5]{
 \label{Fig.3ROC5}
-\includegraphics[width=0.2\textwidth]{3ROC5.png}}
+\includegraphics[width=0.2\textwidth]{./graphs/3ROC5.png}}
 \subfigure[Class 6]{
 \label{Fig.3ROC6}
-\includegraphics[width=0.2\textwidth]{3ROC6.png}}
+\includegraphics[width=0.2\textwidth]{./graphs/3ROC6.png}}
 \subfigure[Class 7]{
 \label{Fig.3ROC7}
-\includegraphics[width=0.2\textwidth]{3ROC7.png}}
+\includegraphics[width=0.2\textwidth]{./graphs/3ROC7.png}}
 
 
 \caption{Class-wise ROC Curve Plots of HMT dataset}
@@ -737,7 +737,7 @@ Here is the code:
 The result plot is shown in Fig.\ref{Fig.t3q1c}.
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.4\textwidth]{T3Q1c.png}
+    \includegraphics[width=0.4\textwidth]{./graphs/T3Q1c.png}
     \caption{Normalized Confusion Matrix Plot} 
     \label{Fig.t3q1c} 
 \end{figure}
@@ -751,7 +751,7 @@ $classification\_report()$ to compute the statistics. Here is the code:
 The result plot is shown in Fig.\ref{Fig.t3q1d}.As a result, the accuracy on total test set if 0.85, the f1-score is 0.83 and the recall is 0.82.
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{T3Q1d.png}
+    \includegraphics[width=0.5\textwidth]{./graphs/T3Q1d.png}
     \caption{Precision, Recall, and F-1 score} 
     \label{Fig.t3q1d} 
 \end{figure}
@@ -828,7 +828,7 @@ Subjectively, it could be clearly seen in Fig that ablation-CAM has higher contr
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{plot.png}
+    \includegraphics[width=0.5\textwidth]{./graphs/plot.png}
     \caption{Explaination Map Visualization of HMT} 
 \end{figure}
 
@@ -995,10 +995,6 @@ As a conclusion, when we need to choose an attribution method, it will be a good
 \bibitem{b3} Ramaswamy, Harish Guruprasad. "Ablation-cam: Visual explanations for deep convolutional 
 network via gradient-free localization." In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision, pp. 983-991. 2020. 
 \bibitem{b4}Franelstar. "Franelstar/Heatmap-CNN". \textit{github}.(2021) [Online]. Available:https://github.com/Franelstar/Heatmap-CNN
-\bibitem{b5}adityac94. "adityac94/Grad_CAM_plus_plus". \textit{github}.(2021) [Online]. Available:https://github.com/adityac94/Grad_CAM_plus_plus
-\bibitem{b6}Siddhantmest. "Siddhantmest/XAI-Methods-for-CNN". \textit{github}.(2021) [Online]. Available:https://github.com/Siddhantmest/XAI-Methods-for-CNN
-\bibitem{b7}Cugtyt. "【论文翻译】Grad-CAM++，可视化卷积的升级". \textit{zhihu}.(2019) [Online]. Available:https://zhuanlan.zhihu.com/p/46200853
-\bibitem{b8}Sakura.D. "CNN可视化Grad-CAM". \textit{zhihu}. [Online].(2020) Available:https://zhuanlan.zhihu.com/p/105373864
 
 
 \end{thebibliography}
