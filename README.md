@@ -12,7 +12,7 @@
 
 <div align="center">
 
-![PYTHON VERSION](https://img.shields.io/badge/Python-3.8-blue) &nbsp; ![License](https://img.shields.io/github/badge/GPL-3.0-red) &nbsp; ![Tensorflow Version](https://img.shields.io/badge/Tensorflow-2.7.0-green.svg)
+![PYTHON VERSION](https://img.shields.io/badge/Python-3.8-blue) &nbsp; ![License](https://img.shields.io/badge/GPL-3.0-red) &nbsp; ![Tensorflow Version](https://img.shields.io/badge/Tensorflow-2.7.0-green.svg)
 
 </div>
 
