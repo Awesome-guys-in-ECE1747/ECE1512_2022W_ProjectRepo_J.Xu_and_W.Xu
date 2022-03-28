@@ -16,9 +16,9 @@
 \maketitle
 
 \begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
+
+This paper introduce the implementation and evaluation of KD based on two couples of Teacher-Student Models.
+
 \end{abstract}
 
 \section{Task 1: Knowledge Distillation in MNIST dataset}
@@ -31,13 +31,26 @@ Please observe the conference page limits.
 
 
 \begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
+
+
+\bibitem{b1} Cristian Buciluˇa, Rich Caruana, and Alexandru Niculescu-Mizil. Model compression. In Proceedings of the 12th ACM SIGKDD international conference on Knowledge discovery and data mining, pages 535–541, 2006. https://dl.acm.org/doi/10.1145/1150402.1150464.
+\bibitem{b2} Jang Hyun Cho and Bharath Hariharan. On the efficacy of knowledge distillation. In Proceedings of the IEEE/CVF international conference on computer vision, pages 4794–4802, 2019. http://openaccess.thecvf.com/content\_ICCV\_2019/papers/\\Cho\_On\_the\_Efficacy\_of\_Knowledge\_Distillation\_\\ICCV\_2019\_paper.pdf.
+\bibitem{b3} Xiang Deng and Zhongfei Zhang. Comprehensive knowledge distillation with causal intervention. Advances in Neural Information Processing Systems, 34, 2021. https://openreview.net/forum?id=ch9qlCdrHD7.
+\bibitem{b4} Jianping Gou, Baosheng Yu, Stephen J Maybank, and Dacheng Tao. Knowledge distillation: A survey. International Journal of Computer Vision, 129(6):1789–1819, 2021. https://link.springer.com/article/10.1007/s11263-021-01453-z.
+\bibitem{b5} Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Identity mappings in deep residual networks. In European conference on computer vision, pages 630–645. Springer, 2016. https://arxiv.org/abs/1603.05027.
+\bibitem{b6} Geoffrey Hinton, Oriol Vinyals, Jeff Dean, et al. Distilling the knowledge in a neural network. arXiv preprint arXiv:1503.02531, 2(7), 2015. https://arxiv.org/abs/1503.02531.
+\bibitem{b7} Takumi Kobayashi. Extractive knowledge distillation. In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision, pages 3511–3520, 2022. https: //openaccess.thecvf.com/content/WACV2022/papers/Kobayashi\_\\Extractive\_Knowledge\_Distillation\_WACV\_2022\_paper.pdf.
+\bibitem{b8} Yann LeCun, L ́eon Bottou, Yoshua Bengio, and Patrick Haffner. Gradient-based learning applied to document recognition. Proceedings of the IEEE, 86(11):2278–2324, 1998. http://vision.stanford.edu/cs598\_spring07/papers/Lecun98.pdf.
+\bibitem{b9} Seyed Iman Mirzadeh, Mehrdad Farajtabar, Ang Li, Nir Levine, Akihiro Matsukawa, and Hassan Ghasemzadeh. Improved knowledge distillation via teacher assistant. In Proceedings of the AAAI Conference on Artificial Intelligence, volume 34, pages 5191–5198, 2020. https://ojs.aaai.org/index.php/AAAI/article/view/5963/5819.
+\bibitem{b10} Rafael Mu ̈ller, Simon Kornblith, and Geoffrey Hinton. Subclass distillation. arXiv preprint arXiv:2002.03936, 2020. https://arxiv.org/abs/2002.03936.
+\bibitem{b11} Dae Young Park, Moon-Hyun Cha, Daesin Kim, Bohyung Han, et al. Learning student-friendly teacher networks for knowledge distillation. Advances in Neural Information Processing Systems, 34, 2021. https://proceedings.neurips.cc/paper/2021/file/\\6e7d2da6d3953058db75714ac400b584-Paper.pdf.
+\bibitem{b12} Wonpyo Park, Dongju Kim, Yan Lu, and Minsu Cho. Relational knowledge distillation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pages 3967–3976, 2019. https://openaccess.thecvf.com/content\_CVPR\_2019/html/\\Park\_Relational\_Knowledge\_Distillation\_CVPR\_2019\_paper.html.
+\bibitem{b13} Adriana Romero, Nicolas Ballas, Samira Ebrahimi Kahou, Antoine Chassang, Carlo Gatta, and Yoshua Bengio. Fitnets: Hints for thin deep nets. arXiv preprint arXiv:1412.6550, 2014. https://arxiv.org/abs/1412.6550.
+\bibitem{b14} Olga Russakovsky, Jia Deng, Hao Su, Jonathan Krause, Sanjeev Satheesh, Sean Ma, Zhiheng Huang, Andrej Karpathy, Aditya Khosla, Michael Bernstein, Alexander C. Berg, and Li Fei-Fei. ImageNet Large Scale Visual Recognition Challenge. International Journal of Computer Vision (IJCV), 115(3):211–252, 2015. https://arxiv.org/abs/1409.0575.
+\bibitem{b15} Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, and Liang-Chieh Chen. Mobilenetv2: Inverted residuals and linear bottlenecks. In Proceedings of the IEEE conference on computer vision and pattern recognition, pages 4510–4520, 2018. https://openaccess.thecvf.com/content\_cvpr\_2018/papers/\\Sandler\_MobileNetV2\_ Inverted\_Residuals\_CVPR\_2018\_paper.pdf.
+\bibitem{b16} Yonglong Tian, Dilip Krishnan, and Phillip Isola. Contrastive representation distillation. arXiv preprint arXiv:1910.10699, 2019. https://openreview.net/pdf?id=SkgpBJrtvS.
+\bibitem{b17} Jerry Wei, Arief Suriawinata, Bing Ren, Xiaoying Liu, Mikhail Lisovsky, Louis Vaickus, Charles Brown, Michael Baker, Naofumi Tomita, Lorenzo Torresani, et al. A petri dish for histopathology image analysis. In International Conference on Artificial Intelligence in Medicine, pages 11–24. Springer, 2021. https://arxiv.org/abs/2101.12355.
+
 \end{thebibliography}
 
 

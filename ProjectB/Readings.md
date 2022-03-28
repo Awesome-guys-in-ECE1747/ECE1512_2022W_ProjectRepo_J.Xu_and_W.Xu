@@ -5,3 +5,7 @@
 [万字综述 | 一文读懂知识蒸馏 - 云+社区 - 腾讯云 (tencent.com)](https://cloud.tencent.com/developer/article/1763873)
 
 [NLP_ability/什么是知识蒸馏.md at master · DA-southampton/NLP_ability (github.com)](https://github.com/DA-southampton/NLP_ability/blob/master/深度学习自然语言处理/模型蒸馏/什么是知识蒸馏.md)
+
+https://intellabs.github.io/distiller/knowledge_distillation.html
+
+https://keras.io/examples/vision/knowledge_distillation/
