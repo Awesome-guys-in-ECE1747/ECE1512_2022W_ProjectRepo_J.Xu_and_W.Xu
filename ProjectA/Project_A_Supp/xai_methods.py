@@ -48,26 +48,18 @@ def perturb_1d(input, perturb, sec_size):
     perturbed = input * mask[:, np.newaxis]
     return perturbed
 
-def LIME_1d(input,
-            model,
-            label,
-            num_perturb=300,
-            sec_size=4,
-            kernel_w=0.25,
-            num_feats=4):
+def LIME_1d(input, model, label, num_perturb=300, sec_size=4, kernel_w=0.25, num_feats=4):
 
     num_superpixels = math.ceil(input.shape[1] / sec_size)
     perturbs = np.random.binomial(1, 0.5, size=(num_perturb, num_superpixels))
     preds = []
     for i in perturbs:
-        perturbed = perturb_1d(input, i, sec_size)
-        pred = model.predict(perturbed)
+        perturbed_image = perturb_1d(input, i, sec_size)
+        pred = model.predict(perturbed_image)
         preds.append(pred)
     preds = np.array(preds)
-    orig_img = np.ones(num_superpixels)[np.newaxis, :]
-    dists = sklearn.metrics.pairwise_distances(perturbs,
-                                               orig_img,
-                                               metric='cosine').ravel()
+    origin_image = np.ones(num_superpixels)[np.newaxis, :]
+    dists = sklearn.metrics.pairwise_distances(perturbs, origin_image, metric='cosine').ravel()
     weights = np.sqrt(np.exp(-(dists**2) / kernel_w**2))
     lime_model = LinearRegression()
     lime_model.fit(perturbs, preds[:, :, label], weights)
@@ -80,15 +72,15 @@ def LIME_1d(input,
         if val != 0:
             for j in range(sec_size):
                 mask[sec_size * i + j] = 1
-    perturbed = input * mask[:, np.newaxis]
+    perturbed_image = input * mask[:, np.newaxis]
 
-    c_exp = np.zeros(input.shape[1])
+    explanation = np.zeros(input.shape[1])
     for i, c_i in enumerate(c):
         for j in range(sec_size):
             if c_i > 0:
-                c_exp[sec_size * i + j] = c_i
+                explanation[sec_size * i + j] = c_i
 
-    return c_exp, perturbed[0]
+    return explanation, perturbed_image[0]
 
 def perturb_2d(input, perturb, segs):
     mask = np.zeros(segs.shape)
@@ -100,31 +92,18 @@ def perturb_2d(input, perturb, segs):
     return perturbed
 
 
-def LIME_2d(input,
-            model,
-            label,
-            num_perturb=300,
-            kernel_size=4,
-            max_dist=200,
-            ratio=0.2,
-            kernel_w=0.25,
-            num_feats=10):
-    superpixels = skimage.segmentation.quickshift(input,
-                                                  kernel_size=kernel_size,
-                                                  max_dist=max_dist,
-                                                  ratio=ratio)
+def LIME_2d(input, model, label, num_perturb=300, kernel_size=4, max_dist=200, ratio=0.2, kernel_w=0.25, num_feats=10):
+    superpixels = skimage.segmentation.quickshift(input, kernel_size=kernel_size, max_dist=max_dist, ratio=ratio)
     num_superpixels = np.unique(superpixels).shape[0]
     perturbs = np.random.binomial(1, 0.5, size=(num_perturb, num_superpixels))
     preds = []
     for i in perturbs:
-        perturbed = perturb_2d(input, i, superpixels)
-        pred = model.predict(perturbed[np.newaxis, :, :, :])
+        perturbed_image = perturb_2d(input, i, superpixels)
+        pred = model.predict(perturbed_image[np.newaxis, :, :, :])
         preds.append(pred)
     preds = np.array(preds)
-    orig_img = np.ones(num_superpixels)[np.newaxis, :]
-    dists = sklearn.metrics.pairwise_distances(perturbs,
-                                               orig_img,
-                                               metric='cosine').ravel()
+    origin_image = np.ones(num_superpixels)[np.newaxis, :]
+    dists = sklearn.metrics.pairwise_distances(perturbs, origin_image, metric='cosine').ravel()
     weights = np.sqrt(np.exp(-(dists**2) / kernel_w**2))
     lime_model = LinearRegression()
     lime_model.fit(perturbs, preds[:, :, label], weights)
@@ -132,8 +111,8 @@ def LIME_2d(input,
     top_feats = np.argsort(c)[-num_feats:]
     mask = np.zeros(num_superpixels)
     mask[top_feats] = True
-    perturbed = perturb_2d(input, mask, superpixels)
-    return perturbed
+    perturbed_image = perturb_2d(input, mask, superpixels)
+    return perturbed_image
 
 
 ################################# ABLATION-CAM #################################
@@ -148,9 +127,7 @@ def ablation_cam_1d(input_model, image, layer_name):
     all_fmap_masks, predictions = ff_results[0], ff_results[-1]
 
     predicted_label = np.argmax(predictions, axis=1)[0]
-
     y_c = predictions[0][predicted_label]
-
     w_t = np.zeros(input_model.get_layer(layer_name).get_weights()[1].shape)
 
     all_weigths = input_model.get_layer(layer_name).get_weights().copy()
@@ -181,9 +158,7 @@ def ablation_cam_2d(input_model, image, layer_name):
     all_fmap_masks, predictions = ff_results[0], ff_results[-1]
 
     pred_label = np.argmax(predictions, axis=1)[0]
-
     y_c = predictions[0][pred_label]
-
     w_t = np.zeros(input_model.get_layer(layer_name).get_weights()[1].shape)
 
     all_weigths = input_model.get_layer(layer_name).get_weights().copy()
