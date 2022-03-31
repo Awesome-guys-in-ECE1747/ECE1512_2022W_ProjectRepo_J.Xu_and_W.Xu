@@ -129,9 +129,6 @@
 		model.save('MNIST1D.h5')
 	\end{lstlisting}
 	
-	
-	
-	
 	\subsection{Question 3}
 	
 	In this section, we finish the typical model evaluation by extracting several significant statistics. As well-known and commonly used metrics, those statistics all have easy-to-run function to achieve, and most of them are from $scikit-learn$.
@@ -150,7 +147,7 @@
 			\label{Fig.1acc}
 			\includegraphics[width=0.4\textwidth]{./graphs/T1Q3-a.png}}
 		
-		\caption{Loss and Accuracy Curve Plots on MNIST-1D dataset}
+		\caption{Loss and Accuracy Curve Plots on MNIST-1D Train Set}
 		\label{Fig.la}
 	\end{figure}
 	
@@ -163,6 +160,21 @@
 		plt.figure()
 		plt.plot(train_loss)
 	\end{lstlisting}
+
+	Similarly, we could also generate a plot of validation set.
+
+	\begin{figure}[h]
+		\centering  %图片全局居中
+		\subfigure[Loss]{
+			\label{Fig.1loss}
+			\includegraphics[width=0.4\textwidth]{./pics/MNIST-1D/acc-valid.png}}
+		\subfigure[Accuracy]{
+			\label{Fig.1acc}
+			\includegraphics[width=0.4\textwidth]{./pics/MNIST-1D/loss-valid.png}}
+		
+		\caption{Loss and Accuracy Curve Plots on MNIST-1D Validation Set}
+		\label{Fig.laa}
+	\end{figure}
 	
 	\subsubsection{SubQuestion b}
 	In this subquestion, our goal is to test the overall classification accuracy on the test set. As implementation, we first import test sets to $x\_test$ and $y\_test$ respectively. Then, we reshape the data in the $x\_test$. Next, we exploit $model.predict()$ to obtain the predicted output $y\_pred$. Finally, we compare the predicted values with the data in $y\_test$ to calculate the overall classification accuracy.\par
@@ -173,10 +185,7 @@
 		\label{Fig.t1q3b} 
 	\end{figure}
 	
-	As a result, the overall accuracy is 0.919, which conforms to our expectation. Figure 4 shows the result of our experiment.\par
-	
-	
-	
+	As a result, the overall accuracy is 0.919, which conforms to our expectation. Figure \ref{Fig.t1q3b} shows the result of our experiment.\par
 	The code used in this subquestion is showed below.
 	
 	\begin{lstlisting}
@@ -209,16 +218,23 @@
 		res=res+1
 		print('class '+str(i)+' accuracy:'+str(res/true_i.shape[0]))
 	\end{lstlisting} \par 
-	We find the lines which belongs to class $i$ and find the ones which is correct in these lines to calculate the accuracy. The results of subquestion $b$ is showed in figure $5$.\par
+	We find the lines which belongs to class $i$ and find the ones which is correct in these lines to calculate the accuracy. The results of subquestion $b$ is showed in figure \ref{Fig.t1q3c}.\par
 	\begin{figure}[h] 
 		\centering
 		\includegraphics[width=0.35\textwidth]{./graphs/T1Q3c.png}
-		\caption{Task1-Question3b: class-wise accuracy} 
+		\caption{Task1-Question3b: Class-wise Accuracy} 
 		\label{Fig.t1q3c} 
 	\end{figure}
 	
 	
-	As a result, class 0, class 3, class 5, class 6, class 8 have relatively higher accuracy, which are all greater than $90\%$, while class 1, class 2, class 4, class 7 and class 9 have relatively lower accuracy, which are all less than $90\%$.
+	As a result, class 0, class 3, class 5, class 6, class 8 have relatively higher accuracy, which are all greater than $90\%$, while class 1, class 2, class 4, class 7 and class 9 have relatively lower accuracy, which are all less than $90\%$, it's more significant to see if we use the histogram of figure \ref{Fig. t1q3cc}.
+
+	\begin{figure}[h] 
+		\centering
+		\includegraphics[width=0.35\textwidth]{./pics/MNIST-1D/acc.png}
+		\caption{Task1-Question3b: Class-wise Accuracy Histogram} 
+		\label{Fig.t1q3cc} 
+	\end{figure}
 	
 	\begin{figure}[t]
 		\centering  %图片全局居中
@@ -361,7 +377,7 @@
 		index 25 true class: 1 predicted class: 4
 	\end{lstlisting}
 	
-	All the concrete Success/Failure cases are listed in 'MNIST1D.ipynb', if you want to refer to more examples.
+	All the concrete Success/Failure cases are listed in 'MNIST1D.ipynb', if you want to refer to more examples, and we will show XAI resulting plots of examples for each scenario in the following section.
 	The most misclassification lies in class 1 and 9. It is obvious class-wise accuracy.
     There are several reasons for this. We think the most important reason is the unbalanced dataset. 
     We can see from $ROC$ curve. It is obvious that class 1 and class 9 has a worse ROC curve than other classes.
@@ -375,7 +391,7 @@
 
 \section{Task 2: CNN interprectation}
 
-This section introduces our interpretation of 1-D CNN model based on MNIST-1D dataset using 3 different attribution methods, including our literature review, discussion and implementation of the XAI attribute algorithms.
+This section introduces our interpretation of 1-D CNN model based on MNIST-1D dataset using 3 different attribution methods, including our literature review, discussion and implementation of the XAI attribute algorithms. We picked representative example from each cases, success and failure for all the XAI methods plot. The success case is at $index=115$, predicted currectly of label 0. And, the failure case is at $index=972$, predicted 8 but labeled exactly 9. We will only note the index code and cases in the title of plots.
 
 \subsection{Grad-CAM}
 In previous studies, researchers introduced CAM to explain the CNN. However, CAM requires to modify the structure of original training models. It limits the usage of CAM greatly, because the cost of retraining the model is quite high for the published model. It is almost impossible to retrain them.
@@ -409,8 +425,14 @@ The disadvantages for Grad-CAM is that: it considers the global features for all
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{./graphs/gd.png}
-    \caption{Grad-CAM 1-D XAI plots} 
+    \includegraphics[width=0.5\textwidth]{./pics/MNIST-1D/115T-L0P0/gradcam.png}
+    \caption{Grad-CAM MNIST-1D XAI plots (index=115, success)} 
+\end{figure}
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{./pics/MNIST-1D/972F-L9P8/gradcam.png}
+    \caption{Grad-CAM MNIST-1D XAI plots (index=972, failed)} 
 \end{figure}
 
 \subsection{LIME}
@@ -431,7 +453,7 @@ Combine them, we could have the formula calculating $L(f,g,{\pi}_{x})$, and conc
 
 $$L(f,g,{\pi}_{x})=\sum_{z,z'{\in}Z}{\pi}_{x}(z){(f(z)-g(z'))}^2$$
 
-\begin{lstlisting}[title={LIME Algorithm Implementation},label={lime}]
+\begin{lstlisting}%[title={LIME Algorithm Implementation},label={lime}]
 def perturb_1d(input, perturb, sec_size):
     mask = np.zeros(input.shape)[0]
     not_masked = np.where(perturb == 1)[0]
@@ -509,6 +531,22 @@ def LIME_2d(input, model, label, num_perturb=300, kernel_size=4, max_dist=200, r
     return perturbed_image
 \end{lstlisting}
 
+The resulting plot for LIME of different cases is shown below.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{./pics/MNIST-1D/115T-L0P0/lime.png}
+    \caption{LIME MNIST-1D XAI plots (index=115, success)} 
+\end{figure}
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{./pics/MNIST-1D/972F-L9P8/lime.png}
+    \caption{LIME MNIST-1D XAI plots (index=972, failed)} 
+\end{figure}
+
+Please note, that the explanation map given by LIME is discreted, so it's quite different with the result of other implementations, but the perturbed result indicates the correct division of the case.
+
 \subsection{Ablation-CAM}
 
 The Ablation-CAM creatively uses ablation analysis to determine the importance of individual feature map units for different classes. It proposes a novel “gradient-free” visualization approach which avoids use of gradients and at the same time, produce high quality class-discriminative localization maps.\par
@@ -531,10 +569,18 @@ There are a number of advantages and features of Ablation-CAM. Firstly, a signif
 However, the approach have some limitations as well. First of all, the computational time required to generate a single Ablation-CAM is much grater than the required for Grad-CAM, as it has to iterate over each feature map to ablate it and check the drop in class activation score correspondingly. 
 On the hand, the Ablation-CAM only benefits the interpretation where last convolutional layer is not followed immediately by decision nodes, yet show the same performance statistically as other CAM methods.\par
 
+The resulting plot for Ablation-CAM of different cases is shown below.
+
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{./graphs/abd.png}
-    \caption{Ablation-CAM 1-D XAI plots} 
+    \includegraphics[width=0.5\textwidth]{./pics/MNIST-1D/115T-L0P0/ablation.png}
+    \caption{Ablation-CAM MNIST-1D XAI plots (index=115, success)} 
+\end{figure}
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{./pics/MNIST-1D/972F-L9P8/ablation.png}
+    \caption{Ablation-CAM MNIST-1D XAI plots (index=972, failed)} 
 \end{figure}
 
 The result plot and our implementation code is as followed.
@@ -613,7 +659,7 @@ function to achieve, and most of them are from $scikit-learn$.
 \subsubsection{Overall classification accuracy}
 First of all, we implemented the overall classification accuracy evaluation. We load the model trained before, use the $test\_generator.classes$ function to get the test set for labels which is noted as $y\_test$.
 Then, we use the test\_generator to predict the results with this model, the result names $y\_pred$. To achieve the label from the predict results, we then apply $np.argmax$ function to $y\_pred$ in every row and get the predicted label $y\_predicted$. 
-So, for the overall classification accuracy, we need to compare the predicted labels with the true labels, calculate the number of pairs which have the same label.The function is realized by $np.sum(y\_predicted==y_test)$, and divide it with $y\_test.shape[0]$ which represents the amount of overall data, we will get the overall accuracy.
+So, for the overall classification accuracy, we need to compare the predicted labels with the true labels, calculate the number of pairs which have the same label.The function is realized by $np.sum(y\_predicted==y\_test)$, and divide it with $y\_test.shape[0]$ which represents the amount of overall data, we will get the overall accuracy.
 Here is the code:
 \begin{lstlisting}
     from sklearn.metrics import accuracy_score, precision_score, recall_score,f1_score
@@ -652,13 +698,21 @@ Here is the code:
     print('class '+str(i)+' accuracy:'+str(res/true_i.shape[0]))
 \end{lstlisting}
 As a result, class 0, class 1, class 5, class 6, class 7 have relatively higher accuracy, which are all greater than $90\%$, while class 2, class 3, class 4 have relatively lower accuracy, which are all less than $90\%$.
-The results are shown in Fig\ref{Fig.t3q2}:
+The results are shown in Fig \ref{Fig.t3q2}:
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.3\textwidth]{./graphs/T3Q1b.png}
+    \includegraphics[width=0.4\textwidth]{./graphs/T3Q1b.png}
     \caption{Class-wise Classification Accuracy of HMT} 
     \label{Fig.t3q2} 
 \end{figure}
+We could also plot a histogram to visualize the accuracy data.
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.4\textwidth]{./pics/HMT/acc.png}
+    \caption{Class-wise Classification Accuracy Histogram of HMT} 
+    \label{Fig.t3q2} 
+\end{figure}
+
 \subsubsection{AUC-ROC curve}
 In this part,o ur goal is to plot the $AUC$ and $ROC$ curves for each class.
 First of all, we transform the test set label to a 2D set, in which only the value in real label index is set to 1.
@@ -683,7 +737,7 @@ Here is the code:
         plt.show()    
 \end{lstlisting}
 
-The AUC and ROC curves we plotted by executing the code are listed in in Fig. 11.
+The AUC and ROC curves we plotted by executing the code are listed in in Fig. \ref{Fig.ba}.
 
 \begin{figure}[h]
 \centering  
@@ -760,8 +814,7 @@ The result plot is shown in Fig.\ref{Fig.t3q1c}.
 \end{figure}
 
 \subsubsection{Precision, Recall, and F-1 score}
-In this part, our goal is to calculate Precision, Recall, and F-1 score on the test set. We call
-$classification\_report()$ to compute the statistics. Here is the code:
+In this part, our goal is to calculate Precision, Recall, and F-1 score on the test set. We call $classification\_report()$ to compute the metrics. Here is the code:
 \begin{lstlisting}
     print(classification_report(y_true=y_test,y_pred=y_predicted))
 \end{lstlisting}
@@ -776,81 +829,37 @@ The result plot is shown in Fig.\ref{Fig.t3q1d}.As a result, the accuracy on tot
 \subsection{Question 2}
 
 %implement 2d capable functions.
-In this section, we describe the implementation of attribution methods application in HMT. As mentioned before, HMT is a 2-Dimensional based dataset, and therefore we need to either develop a capable XAI methods taking both 3-Dimensional and 4-dimensional tensor corresponding to 1-D and 2-D dataset, or we set up separate methods dealing with 2-Dimensional dataset, HMT. In our implementation, we choose different option for the two methods.\par
+In this section, we describe the heatmap (explanation map) of attribution methods application in HMT. As mentioned before, HMT is a 2-Dimensional based dataset, and therefore we need to either develop a capable XAI methods taking both 3-Dimensional and 4-dimensional tensor corresponding to 1-D and 2-D dataset, or we set up separate methods dealing with 2-Dimensional dataset, HMT.
 
-Our Grad-CAM++ implementation is a capable function whose code is as followed.
+There are three cases we'd like to discuss in the paper, all the cases are under tumor category, but they indicates the feature of the attribution methods and the dataset itself significantly.
 
-\begin{lstlisting}
-def grad_cam_plus_plus(input_model, image, layer_name, class_index=None):
-    # if class_index is None:
-    #     class_index=np.argmax(input_model.predict(np.array([image])), axis=-1)[0]
-    """GradCAM method for visualizing input saliency."""
-    cls = np.argmax(input_model.predict(image))
-    y_c = input_model.output
-    conv_output = input_model.get_layer(layer_name).output
-    feedforward1 = keras.models.Model([input_model.input], [conv_output, y_c])
-    # with tf.GradientTape() as tape1:
-    #     with tf.GradientTape() as tape2:
-    #         with tf.GradientTape() as tape3:
-    #             ff_results = feedforward1([image])
-    #             all_fmap_masks, predictions = ff_results[0], ff_results[-1]
-    if class_index==None:
-        cls=np.argmax(input_model.predict(image))
-    else:
-        cls=class_index
-    #             loss = predictions[:, cls]
-    #         grads_val = tape3.gradient(loss, all_fmap_masks)
-    #     grads_val2 = tape2.gradient(grads_val, all_fmap_masks)
-    # grads_val3 = tape1.gradient(grads_val2, all_fmap_masks)
-    with tf.GradientTape() as tape:
-        ff_results=feedforward1([image])
-        all_fmap_masks, predictions = ff_results[0], ff_results[-1]
-        loss = predictions[:, cls]
-    grads_val = tape.gradient(loss, all_fmap_masks)
-    grads_val2=grads_val**2
-    grads_val3=grads_val2*grads_val
-    if len(image.shape) == 3:
-        axis = (0, 1)
-    elif len(image.shape) == 4:
-        axis = (0, 1, 2)
-    alpha_div=(2.0 * grads_val2 + grads_val3 * np.sum(all_fmap_masks, axis))
-    alpha_div = np.where(alpha_div != 0.0, alpha_div, 0)
-    alpha = grads_val2 / alpha_div
-    weights = np.maximum(grads_val, 0.0) * alpha
-    weights = np.sum(weights, axis=axis)
-    # weights = np.mean(grads_val, axis=axis)
-    cam = np.dot(all_fmap_masks[0], weights)
-    # print (cam)
-    H, W = image.shape[1:3]
-    cam = np.maximum(cam, 0)
-    # cam = resize(cam, (H, W))
-    cam = zoom(cam, H / cam.shape[0])
-    # cam = np.maximum(cam, 0)
-    cam = cam / cam.max()
-    return cam
-\end{lstlisting}
+%Another modification needs to be mentioned is that there is a slightly modification practically in the implementation. It is modified due to troubleshooting of HMT explanation. The origin function gives an extremely unsatisfying result thus we change the way we calculate secondary gradient and third gradient. We use multiplication instead of slope to get the gradient value due to its low magnitude, the absolute value of both results are similar, however the multiplication is positive constantly.\par
+%There are some potential reasons we could come up with. First,the Grad-CAM++ are suitable for positive gradients however in both datasets, negative values take most places and therefore it it limited to perform well. Secondly, it is mentioned in the paper that Grad-CAM++ has some guided or modified variants but Our implementation works for the basic explanation. So it will be highly influence by the noise and unpredictable factors. Thirdly, among all the CAM methods, a number of the approaches choose Grad-CAM as a benchmark, so the advance Grad-CAM may also suffer from some problems which cannot adapt in multiple networks.\par
+%Subjectively, it could be clearly seen in Fig that ablation-CAM has higher contrast feature heat.
 
-The capability is achieved by the code of branch,
-\begin{lstlisting}
-    if len(image.shape) == 3:
-        axis = (0, 1)
-    elif len(image.shape) == 4:
-        axis = (0, 1, 2)
-\end{lstlisting}
-and hence it is able to process both 3-Dimensional and 4-Dimensional tensors.
-
-Another modification needs to be mentioned is that there is a slightly modification practically in the implementation. It is modified due to troubleshooting of HMT explanation. The origin function gives an extremely unsatisfying result thus we change the way we calculate secondary gradient and third gradient. We use multiplication instead of slope to get the gradient value due to its low magnitude, the absolute value of both results are similar, however the multiplication is positive constantly.\par
-There are some potential reasons we could come up with. First,the Grad-CAM++ are suitable for positive gradients however in both datasets, negative values take most places and therefore it it limited to perform well. Secondly, it is mentioned in the paper that Grad-CAM++ has some guided or modified variants but Our implementation works for the basic explanation. So it will be highly influence by the noise and unpredictable factors. Thirdly, among all the CAM methods, a number of the approaches choose Grad-CAM as a benchmark, so the advance Grad-CAM may also suffer from some problems which cannot adapt in multiple networks.\par
-Subjectively, it could be clearly seen in Fig that ablation-CAM has higher contrast feature heat.
-
+The first case is case 8, which has confidence score of 0.83804
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.5\textwidth]{./graphs/plot.png}
-    \caption{Explaination Map Visualization of HMT} 
+    \includegraphics[width=0.5\textwidth]{./pics/HMT/Tumor-Tumor-0.93915-output-8.png}
+    \caption{Explaination Map of case 20, confidence score=0.83804} 
 \end{figure}
 
 
-The variables and parameters are defined in a naive way and influenced by the provided methods in $xai\_utils.py$. There is few difference between the functions expect for the weights calculation. The $all\_weigths$ takes different dimensional tensors so correspondingly the reference to $zero\_weigth$ are modified.
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{./pics/HMT/Tumor-Tumor-0.83804-output-20.png}
+    \caption{Explaination Map of case 20, confidence score=0.83804} 
+\end{figure}
+
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{./pics/HMT/Tumor-Tumor-0.99755-output30.png}
+    \caption{Explaination Map of case 20, confidence score=0.99755} 
+\end{figure}
+
+
+The variables and parameters are defined in a naive way and influenced by the provided methods in $xai\_utils.py$ and $xai\_methods.py$ which includes self-implemented functions. There is few difference between the functions expect for the weights calculation. The $all\_weigths$ takes different dimensional tensors so correspondingly the reference to $zero\_weigth$ are modified.
 
 \section{Task 4: Quantitative evaluation of the attribution methods}
 
@@ -860,7 +869,7 @@ In this task, we use two rates, decrease rate and increase rate, to evaluate the
 
 The calculator function is already provided in the notebook, which takes in a 3-Dimensional map for MNIST-1D dataset and deals with a 4-Dimensional explanation map for HMT dataset. However, we have the processing codes slightly modified, which is shown below.
 
-An example of Grad-CAM++ rate calculation procedure in MNIST-1D dataset is as followed. Note that the explanation map should be reshape to $(40,1)$ in order to fix in the calculator, or otherwise the explanation map has a $(40,)$ shape. We run 100 times to get a sampling result of the rates.
+An example of Grad-CAM rate calculation procedure in MNIST-1D dataset is as followed. Note that the explanation map should be reshape to $(40,1)$ in order to fix in the calculator, or otherwise the explanation map has a $(40,)$ shape. We run 100 times to get a sampling result of the rates.
 
 \begin{lstlisting}
 drop_rate = 0.
@@ -909,28 +918,6 @@ print(drop_rate, increase_rate)
 
 Specially, for the ablation-CAM, we could only implement it and generate explanation map in the last convolution layer which is different with other maps and have a different size (112,112) correspondingly. So alternatively, the calculation process of ablation-CAM is shown as followed, in which we add a resize function to force it fit in the layer size.
 
-\begin{lstlisting}
-drop_rate = 0.
-increase_rate = 0.
-
-for i in range(15):
-    image_batch,label_batch=test_generator.next()
-    print("Current Round:", i)
-    for index in range(32):
-        # print(i, index)
-        prediction=model(image_batch)
-        explanation_map_ablation_cam = ablation_cam_2d(model, np.expand_dims(image_batch[index], axis=0), 'conv2d_3')
-        explanation_map_ablation_cam = cv2.resize(explanation_map_ablation_cam, (224,224), interpolation=cv.INTER_AREA)
-        res = calculate_drop_increase(np.expand_dims(image_batch[index], axis=0), model, explanation_map_ablation_cam, class_index=np.argmax(prediction[index]), frac=0.9)
-
-        drop_rate += res[0]
-        increase_rate += res[1]
-
-drop_rate /= (15*32)
-increase_rate /= (15*32)
-print("======Ablation-CAM======")
-print(drop_rate, increase_rate)
-\end{lstlisting}
 
 We can get all the rates after rounds of experiment, and the data is shown in the table.
 
@@ -955,10 +942,10 @@ We will further discuss the evaluation result in the next section.
 
 \subsection{Discussion}
 
-This approach choose three different kind of CAM methods to evaluate two different model with different dimensions. It is obvious that Ablation-CAM holds the best performance on both datatsets. According to the paper of the ablation method, this algorithm can fit into all kinds of CNN architecture, but could perfectly fit in those networks with not so many layers. Our experiment includes one-hot and VGG-7 networks, and neither of them could be classified as DNN.\par
-Ablation method comes out to fix the problem of gradient-related principle in the previous network. In the origin paper, it uses Grad-CAM as benchmark and use VGG and Inception-v4 as networks, resulting in a high performance in VGG but no significant improvement in Inception-v4, which is similar to our conclusion from the result.\par
-In our evaluation, Grad-CAM++ failed to have improved performance comparing to the Grad-CAM in HMT, but have a considerable improvement on MNIST-1D. From that we could have a hypothesis that, Grad-CAM itself, including Grad-CAM++, fit into dealing with small-scale or low-dimensional problems. It can be predicted to perform well in such one-hot networks.\par
-As a conclusion, when we need to choose an attribution method, it will be a good choice to use CAM on simple structured networks. Ablation-CAM works well in vision-related or 2-Dimensional problems, showing essential improvements comparing to the gradient-based methods. However, there is also an important drawback of Ablation-CAM that, it has much longer running time than the others due to its complete visit to every unit in every maps. In those small-scaled problems, especially one-dimensional based problem, Grad-CAM++ will take great advantages of it.
+%This approach choose three different kind of CAM methods to evaluate two different model with different dimensions. It is obvious that Ablation-CAM holds the best performance on both datatsets. According to the paper of the ablation method, this algorithm can fit into all kinds of CNN architecture, but could perfectly fit in those networks with not so many layers. Our experiment includes one-hot and VGG-7 networks, and neither of them could be classified as DNN.\par
+%Ablation method comes out to fix the problem of gradient-related principle in the previous network. In the origin paper, it uses Grad-CAM as benchmark and use VGG and Inception-v4 as networks, resulting in a high performance in VGG but no significant improvement in Inception-v4, which is similar to our conclusion from the result.\par
+%In our evaluation, Grad-CAM++ failed to have improved performance comparing to the Grad-CAM in HMT, but have a considerable improvement on MNIST-1D. From that we could have a hypothesis that, Grad-CAM itself, including Grad-CAM++, fit into dealing with small-scale or low-dimensional problems. It can be predicted to perform well in such one-hot networks.\par
+%As a conclusion, when we need to choose an attribution method, it will be a good choice to use CAM on simple structured networks. Ablation-CAM works well in vision-related or 2-Dimensional problems, showing essential improvements comparing to the gradient-based methods. However, there is also an important drawback of Ablation-CAM that, it has much longer running time than the others due to its complete visit to every unit in every maps. In those small-scaled problems, especially one-dimensional based problem, Grad-CAM++ will take great advantages of it.
 
 \begin{thebibliography}{00}
 \bibitem{b1}Selvaraju, Ramprasaath R., Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. "Grad-cam: Visual explanations from deep networks via gradient-based localization." In Proceedings of the IEEE international conference on computer vision, pp. 618-626. 2017. https://arxiv.org/abs/1610.02391
