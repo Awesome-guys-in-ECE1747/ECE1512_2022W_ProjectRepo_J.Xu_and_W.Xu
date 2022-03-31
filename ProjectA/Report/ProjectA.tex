@@ -376,7 +376,7 @@
 		index 6 true class: 1 predicted class: 2
 		index 25 true class: 1 predicted class: 4
 	\end{lstlisting}
-	
+	The reason for the failure is obvious, take the index 115 and 972 as an example, see Fig. 12-15. As you can see in the pictures, for the success examples, the input array and label template figures show a beautiful curve like a quadratic function. For the failure cases, they show a disordered map in their input array and label template. This is because the great noise in these failure cases. In the failure cases, like Fig.15, LIME shows almost nothing in the explanation map due to the great noise. In contrast, LIME shows well in Fig.14.\par
 	All the concrete Success/Failure cases are listed in 'MNIST1D.ipynb', if you want to refer to more examples, and we will show XAI resulting plots of examples for each scenario in the following section.
 	The most misclassification lies in class 1 and 9. It is obvious class-wise accuracy.
     There are several reasons for this. We think the most important reason is the unbalanced dataset. 
@@ -392,7 +392,6 @@
 \section{Task 2: CNN interprectation}
 
 This section introduces our interpretation of 1-D CNN model based on MNIST-1D dataset using 3 different attribution methods, including our literature review, discussion and implementation of the XAI attribute algorithms. We picked representative example from each cases, success and failure for all the XAI methods plot. The success case is at $index=115$, predicted currectly of label 0. And, the failure case is at $index=972$, predicted 8 but labeled exactly 9. We will only note the index code and cases in the title of plots.
-
 \subsection{Grad-CAM}
 In previous studies, researchers introduced CAM to explain the CNN. However, CAM requires to modify the structure of original training models. It limits the usage of CAM greatly, because the cost of retraining the model is quite high for the published model. It is almost impossible to retrain them.
 To solve this problem, Grad-CAM was proposed, which is similar to CAM. It also gets the weight of every feature maps and calculate the results accordingly. The difference lies in the calculation of weights. CAM replaced full-connection layer with GAP layer and retrain this whole model. In contrast to that, Grad-CAM put forward a new way to do it.
@@ -837,13 +836,13 @@ There are three cases we'd like to discuss in the paper, all the cases are under
 %There are some potential reasons we could come up with. First,the Grad-CAM++ are suitable for positive gradients however in both datasets, negative values take most places and therefore it it limited to perform well. Secondly, it is mentioned in the paper that Grad-CAM++ has some guided or modified variants but Our implementation works for the basic explanation. So it will be highly influence by the noise and unpredictable factors. Thirdly, among all the CAM methods, a number of the approaches choose Grad-CAM as a benchmark, so the advance Grad-CAM may also suffer from some problems which cannot adapt in multiple networks.\par
 %Subjectively, it could be clearly seen in Fig that ablation-CAM has higher contrast feature heat.
 
-The first case is case 8, which has confidence score of 0.83804
+The first case is case 8, which has confidence score of 0.93915.
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.5\textwidth]{./pics/HMT/Tumor-Tumor-0.93915-output-8.png}
-    \caption{Explaination Map of case 20, confidence score=0.83804} 
+    \caption{Explaination Map of case 8, confidence score=0.93915} 
 \end{figure}
-
+The second case is case 20, which has confidence score of 0.83804.
 
 \begin{figure}[h] 
     \centering
@@ -851,16 +850,18 @@ The first case is case 8, which has confidence score of 0.83804
     \caption{Explaination Map of case 20, confidence score=0.83804} 
 \end{figure}
 
+The third case is case 30, which has confidence score of 0.99755.
 
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.5\textwidth]{./pics/HMT/Tumor-Tumor-0.99755-output30.png}
-    \caption{Explaination Map of case 20, confidence score=0.99755} 
+    \caption{Explaination Map of case 30, confidence score=0.99755} 
 \end{figure}
 
-
+As is shown in the explanation map, these methods don't work well in case 20, while they do well on 8 and 30. The reason is that the case 20 did not show a very clear unique feature compared with other cases, its feature is similar to some other examples in the dataset. 
+As you can see in the normalized confusion matrix plot, categories like label 4 has a very high rate on being predicted as label 1. So some cases in HMT dataset do not show a very obvious feature, and they are similar to other categories in some ways. This is the reason for the difference in confidence scores.\par
 The variables and parameters are defined in a naive way and influenced by the provided methods in $xai\_utils.py$ and $xai\_methods.py$ which includes self-implemented functions. There is few difference between the functions expect for the weights calculation. The $all\_weigths$ takes different dimensional tensors so correspondingly the reference to $zero\_weigth$ are modified.
-
+% TODO:revise it
 \section{Task 4: Quantitative evaluation of the attribution methods}
 
 In this task, we use two rates, decrease rate and increase rate, to evaluate the explanation map generated by the attribution methods, in order to assess the performance of the methods we implemented. Besides, we would like to use some subjective observation to evaluate the performance as a supportive evaluation.
@@ -941,14 +942,43 @@ From the table we could know that in HMT, Ablation-CAM works best, as it has low
 We will further discuss the evaluation result in the next section.
 
 \subsection{Discussion}
-
+Q:\'Were your selected methods successful in interpreting the target model trained on the HMT and MNIST-1D dataset correctly?\'\par
+A: From what is shown in the qualitative and quantitative analysis, GradCAM and Ablation-CAM show a better performance in MNIST-1D and HMT, while LIME get a very bad grade on drop rate. This is decided by their inherent attributes. LIME is a local explanation method. Although it can be used to interprete the global model, it still uses the local neighbours to explain the target cases, this will definitely lead to bad performance in the global interpretation.
+Compared with MNIST1D, XAI methods did not work better on HMT dataset. This is due to the features in the datasets. 
+\begin{itemize}
+	\item First, MNIST1D is a one-dimensional vector dataset and HMT is a two-dimensional vector dataset. HMT is much more complex than MNIST1D, so the models for HMT is more complex than those for MNIST1D, thus making it difficult to interprete the datasets.
+	\item Second, features of types in MNIST1D show much difference from each other. It's easier for the models to identify the categories in MNIST1D. 
+	In contrast to it, the categories in HMT are much more difficult to identify. Different categories in HMT datasets do not show great difference with other categories, and the images within the same group differ a lot from each other.
+	This is supported by the normalized confusion matrix. 
+	As is shown in Fig.10 and Fig.22, the matrix for HMT is worse than MNIST1D. In the label 4 of HMT dataset, there is 44\% possibility of mistaking it for label 1. This is much too high and most equivalent to the true label, so the features of cases in HMT is similar to each other. MNIST1D matrix does not have data like that, so it's obvious that it's easier to interperte the MNIST1D dataset.
+\end{itemize}
+Q:\'In what cases they fail to explain the target model’s predictions?\'\par
+A: Let's take the case 20 in HMT as an example, as is shown in Fig.25, LIME does not extract the correct parts to explain the image. This is because:
+\begin{itemize}
+	\item First, features of different types in dataset don't show much difference from each other, while they differs a lot within the same label. This is illustrated above and we can find it in the confusion matrix.
+	\item Second, the attributes of the methods themselves is important. LIME is a local explanation. This decides the bad performance in global interpretation, so this method performs extremely bad on these cases.
+\end{itemize}
+So we can conclude that the cases which vary a lot from other cases in the same label group are most likely to be failure cases to explain. They are likely to be misinterpreted as some other categories, and they can be identified in the normalized confusion matrix. If value in row $i$, col $i$ is small, it means that this category is easy to be misinterpreted.
+\par
+Q:\'If you select two attribution methods, in what cases each one of them works better than the other one?\'\par
+A: In our evaluation, LIME failed to have improved performance comparing to the other methods in all datasets because it's local interpretation. 
+Maybe there are some cases in which LIME performs better, but generally speaking, LIME is not a good choice for global interpretation. 
+If we want to get a local explanation, LIME may be a good choice.\par
+And in our evaluation, Grad-CAM performs well enough in MNIST1D, although Ablation-CAM shows a better performance in both datasets. 
+From that we could have a hypothesis that, Grad-CAM itself,  fit into dealing with small-scale or low-dimensional problems. 
+It can be predicted to perform well in such one-hot networks.  But if we want to have a precise global explanation of it, we should definitely pick the Ablation-CAM.
+\par
+As a conclusion, when we need to choose an attribution method, it will be a good choice to use CAM on simple structured networks. 
+Ablation-CAM works well in vision-related or 2-Dimensional problems, showing essential improvements comparing to the gradient-based methods. 
+However, there is also an important drawback of Ablation-CAM that, it has much longer running time than the others due to its complete visit to every unit in every maps. 
+In those small-scaled problems, especially one-dimensional based problem, Grad-CAM will take great advantages of it.
+\par
 %This approach choose three different kind of CAM methods to evaluate two different model with different dimensions. It is obvious that Ablation-CAM holds the best performance on both datatsets. According to the paper of the ablation method, this algorithm can fit into all kinds of CNN architecture, but could perfectly fit in those networks with not so many layers. Our experiment includes one-hot and VGG-7 networks, and neither of them could be classified as DNN.\par
 %Ablation method comes out to fix the problem of gradient-related principle in the previous network. In the origin paper, it uses Grad-CAM as benchmark and use VGG and Inception-v4 as networks, resulting in a high performance in VGG but no significant improvement in Inception-v4, which is similar to our conclusion from the result.\par
-%In our evaluation, Grad-CAM++ failed to have improved performance comparing to the Grad-CAM in HMT, but have a considerable improvement on MNIST-1D. From that we could have a hypothesis that, Grad-CAM itself, including Grad-CAM++, fit into dealing with small-scale or low-dimensional problems. It can be predicted to perform well in such one-hot networks.\par
-%As a conclusion, when we need to choose an attribution method, it will be a good choice to use CAM on simple structured networks. Ablation-CAM works well in vision-related or 2-Dimensional problems, showing essential improvements comparing to the gradient-based methods. However, there is also an important drawback of Ablation-CAM that, it has much longer running time than the others due to its complete visit to every unit in every maps. In those small-scaled problems, especially one-dimensional based problem, Grad-CAM++ will take great advantages of it.
+
 
 \begin{thebibliography}{00}
-\bibitem{b1}Selvaraju, Ramprasaath R., Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. "Grad-cam: Visual explanations from deep networks via gradient-based localization." In Proceedings of the IEEE international conference on computer vision, pp. 618-626. 2017. https://arxiv.org/abs/1610.02391
+\bibitem{b1} Selvaraju, Ramprasaath R., Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. "Grad-cam: Visual explanations from deep networks via gradient-based localization." In Proceedings of the IEEE international conference on computer vision, pp. 618-626. 2017. https://arxiv.org/abs/1610.02391
 \bibitem{b2} Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin. "'Why should i trust you?' Explaining the predictions of any classifier." In Proceedings of the 22nd ACM SIGKDD international conference on knowledge discovery and data mining, pp. 1135-1144. 2016. https://arxiv.org/abs/1602.04938
 \bibitem{b3} Ramaswamy, Harish Guruprasad. "Ablation-cam: Visual explanations for deep convolutional 
 network via gradient-free localization." In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision, pp. 983-991. 2020. 
