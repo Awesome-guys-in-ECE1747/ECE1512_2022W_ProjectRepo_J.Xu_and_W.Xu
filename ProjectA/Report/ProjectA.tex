@@ -419,7 +419,17 @@ LIME, Local Interpretable Model-agnostic Explanations, is an algorithm that can 
 
 There are four principles for LIME to assure, first, an essential criterion for explanations is that the explanation have to be interpretable, besides, another criterion is local fidelity, as it must be at least locally faithful for an explanation to be meaningful, moreover, the explainer should be model-agnostic, i.e. it could treat the original model as a black box and be able to explain any model. Last but not the least, in addition to explaining prediction, the explainer also provides a global perspective, which is important to ascertain trust in the model.
 
+The LIME algorithm use interpretalbe data representations instead of acutal feature used by the model in order to explan the prediction interpretably, i.e. understandable to humans. Besides, it uses $\Omega(g)$ as a measure of complexity to satisfy fidelity, where g stands for a model, which is opposed to interpretability. An formula could represent the explanation given by the LIME.
 
+$$\xi(x)=\mathop{argmin}\limits_{g\in{G}}L(f,g,{\pi}_{x})+{\Omega}(g)$$
+
+where f stands for a complex model, CNN in our case, and g is a simple interpretable model, we use linear regression which is a universal methods for the interpretable model, and ${\pi}_{x}$ is the locality defination when $g$ is in approximating $f$, so as awhole $L(f,g,{\pi}_{x})$ represent the context how unfaithful $g$ is when using it the approximate $f$. ${\pi}_{x}$ could be calculated using the following formula.
+
+$${\pi}_{x}(z)=exp(-D{(x,z)}^{2}/{\sigma}^2)$$
+
+Combine them, we could have the formula calculating $L(f,g,{\pi}_{x})$, and conclusively we are able to present the explanation map with LIME, the implementation code is as follows.
+
+$$L(f,g,{\pi}_{x})=\sum_{z,z'{\in}Z}{\pi}_{x}(z){(f(z)-g(z'))}^2$$
 
 \begin{lstlisting}[title={LIME Algorithm Implementation},label={lime}]
 def perturb_1d(input, perturb, sec_size):
@@ -839,52 +849,6 @@ Subjectively, it could be clearly seen in Fig that ablation-CAM has higher contr
     \caption{Explaination Map Visualization of HMT} 
 \end{figure}
 
-We implements Ablation-CAM in two separated functions, $ablation\_cam\_1d$ and $ablation\_cam\_2d$, and  as the 1-D version is already described in the previous section, only the $ablation\_cam\_2d$ function is shown below.
-
-\begin{lstlisting}
-def ablation_cam_2d(input_model, image, layer_name):
-
-    y_c = input_model.output
-    conv_output = input_model.get_layer(layer_name).output
-    ac_model = keras.models.Model([input_model.input], [conv_output, y_c])
-
-    ff_results=ac_model([image])
-    all_fmap_masks, predictions = ff_results[0], ff_results[-1]
-    # print(image.shape)
-    # print(predictions)
-    #index
-    _pred = np.argmax(predictions, axis=1)[0]
-    # print(_pred)
-    # Real Y_C
-
-    _y_c = predictions[0][_pred]
-    # print(_y_c)
-
-    # print(input_model.get_layer(layer_name))
-    _wt = np.zeros(input_model.get_layer(layer_name).get_weights()[1].shape)
-    # print(_wt)
-    # print(_wt.shape)
-    all_weigths = input_model.get_layer(layer_name).get_weights().copy()
-    zero_weigth = all_weigths[0][:, :, :, 0] * 0
-    weigth_local = [np.zeros(all_weigths[0].shape)]
-    weigth_local.append(np.zeros(all_weigths[1].shape))
-    for i in range(_wt.shape[0]):
-        weigth_local[0] = all_weigths[0].copy()
-        weigth_local[0][:, :, :, i] = zero_weigth
-        input_model.get_layer(layer_name).set_weights(weigth_local)
-        y_k = input_model.predict([image])[0][_pred]
-        _wt[i] = (_y_c - y_k) / _y_c
-
-    a_k = all_fmap_masks[0]
-    # print(a_k)
-
-    ab_map = a_k * _wt
-    # print(ab_map)
-    explanation = np.sum(ab_map, axis=2)
-    explanation = np.maximum(explanation, 0)
-    # print(explanation)
-    return explanation
-\end{lstlisting}
 
 The variables and parameters are defined in a naive way and influenced by the provided methods in $xai\_utils.py$. There is few difference between the functions expect for the weights calculation. The $all\_weigths$ takes different dimensional tensors so correspondingly the reference to $zero\_weigth$ are modified.
 
@@ -976,10 +940,10 @@ We can get all the rates after rounds of experiment, and the data is shown in th
 \hline
 Rate                    & Drop Rate (\%) & Increase Rate (\%) \\ \hline
 Grad-CAM (MNIST-1D)     & 36.980         & 33.000             \\ \hline
-LIME (MNIST-1D)   & 21.964         & 27.000             \\ \hline
+LIME (MNIST-1D)   & 72.612         & 14.333             \\ \hline
 Ablation-CAM (MNIST-1D) & 19.715         & 32.000             \\ \hline
 Grad-CAM (HMT)          & 47.436         & 22.083             \\ \hline
-LIME (HMT)        & 50.921         & 19.792             \\ \hline
+LIME (HMT)        & 81.913         & 12.627             \\ \hline
 Ablation-CAM (HMT)      & 43.341         & 30.469             \\ \hline
 \end{tabular}
 \end{table}
