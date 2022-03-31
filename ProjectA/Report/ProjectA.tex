@@ -415,13 +415,13 @@ The disadvantages for Grad-CAM is that: it considers the global features for all
 
 \subsection{LIME}
 
-LIME, Local Interpretable Model-agnostic Explanations, is an algorithm that can explain the predictions of any classifier or regressor in a faithful way by approximating it locally with an interpretable model. According to the M.T. Ribeiro et al., the trustness of models consists of three parts, trustness of prediction, trustness of model and that people could evaluate model as a whole so that they could evaluate the exact impact of different components. The paper indeedly introduce 3 parts of methods corresponding to the three part of trustness, and LIME, is what they used to evaluate the prediction, which is a XAI method.
+LIME, Local Interpretable Model-agnostic Explanations, is an algorithm that can explain the predictions of any classifier or regressor in a faithful way by approximating it locally with an interpretable model. According to the M.T. Ribeiro et al.\cite{b2}, the trustness of models consists of three parts, trustness of prediction, trustness of model and that people could evaluate model as a whole so that they could evaluate the exact impact of different components. The paper indeedly introduce 3 parts of methods corresponding to the three part of trustness, and LIME, is what they used to evaluate the prediction, which is a XAI method.
 
-There are four principles for LIME to assure, first, an essential criterion for explanations is that the model have to be interpretable, besides, another criterion is local fidelity, as it must be at least locally faithful for an explanation to be meaningful, moreover, the explainer should be model-agnostic, i.e. it could treat the original model as a black box and be able to explain any model which fit the criterions. Last but not the least, in addition to explaining prediction, the explainer also provides a global perspective, which is important to ascertain trust in the model.
+There are four principles for LIME to assure, first, an essential criterion for explanations is that the explanation have to be interpretable, besides, another criterion is local fidelity, as it must be at least locally faithful for an explanation to be meaningful, moreover, the explainer should be model-agnostic, i.e. it could treat the original model as a black box and be able to explain any model. Last but not the least, in addition to explaining prediction, the explainer also provides a global perspective, which is important to ascertain trust in the model.
 
 
 
-\begin{lstlisting}
+\begin{lstlisting}[title={LIME Algorithm Implementation},label={lime}]
 def perturb_1d(input, perturb, sec_size):
     mask = np.zeros(input.shape)[0]
     not_masked = np.where(perturb == 1)[0]
@@ -976,10 +976,10 @@ We can get all the rates after rounds of experiment, and the data is shown in th
 \hline
 Rate                    & Drop Rate (\%) & Increase Rate (\%) \\ \hline
 Grad-CAM (MNIST-1D)     & 36.980         & 33.000             \\ \hline
-Grad-CAM++ (MNIST-1D)   & 21.964         & 27.000             \\ \hline
+LIME (MNIST-1D)   & 21.964         & 27.000             \\ \hline
 Ablation-CAM (MNIST-1D) & 19.715         & 32.000             \\ \hline
 Grad-CAM (HMT)          & 47.436         & 22.083             \\ \hline
-Grad-CAM++ (HMT)        & 50.921         & 19.792             \\ \hline
+LIME (HMT)        & 50.921         & 19.792             \\ \hline
 Ablation-CAM (HMT)      & 43.341         & 30.469             \\ \hline
 \end{tabular}
 \end{table}
@@ -998,7 +998,7 @@ As a conclusion, when we need to choose an attribution method, it will be a good
 
 \begin{thebibliography}{00}
 \bibitem{b1}Selvaraju, Ramprasaath R., Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. "Grad-cam: Visual explanations from deep networks via gradient-based localization." In Proceedings of the IEEE international conference on computer vision, pp. 618-626. 2017. https://arxiv.org/abs/1610.02391
-\bibitem{b2} Chattopadhay, Aditya, Anirban Sarkar, Prantik Howlader, and Vineeth N. Balasubramanian. "Grad-cam++: Generalized gradient-based visual explanations for deep convolutional networks." In 2018 IEEE winter conference on applications of computer vision (WACV), pp. 839-847. IEEE, 2018. https://arxiv.org/abs/1710.11063
+\bibitem{b2} Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin. "'Why should i trust you?' Explaining the predictions of any classifier." In Proceedings of the 22nd ACM SIGKDD international conference on knowledge discovery and data mining, pp. 1135-1144. 2016. https://arxiv.org/abs/1602.04938
 \bibitem{b3} Ramaswamy, Harish Guruprasad. "Ablation-cam: Visual explanations for deep convolutional 
 network via gradient-free localization." In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision, pp. 983-991. 2020. 
 \bibitem{b4}Franelstar. "Franelstar/Heatmap-CNN". \textit{github}.(2021) [Online]. Available:https://github.com/Franelstar/Heatmap-CNN
