@@ -16,15 +16,41 @@
 \maketitle
 
 \begin{abstract}
-
-This paper introduce the implementation and evaluation of KD based on two couples of Teacher-Student Models.
-
+This paper is a report for Project A of ECE1512 2022W, University of Toronto.
+In this paper, we introduce two tasks assigned to us in detail, including the implementation and evaluation of KD based on two couples of Teacher-Student Models.
+For the 
 \end{abstract}
 
 \section{Task 1: Knowledge Distillation in MNIST dataset}
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
+In this task, we basically implement the load \& preprocess of dataset, model construction,training and evaluation for teacher and student models using our own training functions.
+In addition, we implement the Early-Stopping Knowledge Distillation as the improving algorithm.
+\subsection{Question 1}
+In this section, we read the paper "Distilling the Knowledge in a Neural Network"\cite{b6}, and answer the assigned questions.
+\subsubsection{SubQuestion a}
+The purpose of using Knowledge Distillation is to compress the knowledge in an ensemble to a single model which is much easier to deploy.
 
+\subsubsection{SubQuestion b}
+In the paper, what knowledge is transferred from the teacher model to the student model?
+\subsubsection{SubQuestion c}
+What is the temperature hyperparameter T? Why do we use it when transferring knowledge
+from one model to another? What effect does the temperature hyperparameter have in KD?
+\subsubsection{SubQuestion d}
+Explain in detail the loss functions on which the teacher and student model are trained in
+this paper. How does the task balance parameter affect student learning? 
+\subsubsection{SubQuestion e}
+Can we look at the KD as a regularization technique, here? Explain your rationale.
+\subsection{Question 2}
+\subsection{Question 3}
+\subsection{Question 4}
+\subsection{Question 5}
+\subsection{Question 6}
+\subsection{Question 7}
+\subsection{Question 8}
+\subsection{Question 9}
+\subsection{Question 10}
+\subsection{Question 11}
+\subsection{Question 12}
+\subsection{Question 13}
 \section{Task 2: Knowledge Distillation in MHIST dataset}
 
 
