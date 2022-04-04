@@ -27,30 +27,412 @@ In addition, we implement the Early-Stopping Knowledge Distillation as the impro
 \subsection{Question 1}
 In this section, we read the paper "Distilling the Knowledge in a Neural Network"\cite{b6}, and answer the assigned questions.
 \subsubsection{SubQuestion a}
-The purpose of using Knowledge Distillation is to compress the knowledge in an ensemble to a single model which is much easier to deploy.
+The purpose of using Knowledge Distillation is to compress the knowledge in an ensemble to a single model which is much easier to deploy without lossing much accuracy.\par
+As is widely acknowledged, in machine learning, large models usually have higher knowledge capacity than small models, thus improving state of the art on more tasks. 
+However, with the increase of parameters in models, it takes more time and money to deploy, train and evaluate larger models.
+In the resource-restricted systems such as mobile devices, it's hard for them to train the models. What's more, in realtime systems, although they have enough resources for training, the low efficiency means that it's inapplicable.
+In order to solve it, smaller models are proposed to mimic the prediction of large models, especially in edge device such as mobile device. In a word, the goal of knowledge distillation is transgerring from the teacher model to the student model and making a lightweight model that is fast, memory-efficient, and energy-efficient.
 
 \subsubsection{SubQuestion b}
-In the paper, what knowledge is transferred from the teacher model to the student model?
+% In the paper, what knowledge is transferred from the teacher model to the student model?
+The knowledge is a learned mapping from input vectors to output vectors.\par
+In the previous studies, researchers tend to consider the parameters in the model as the knowledge, but it's inapplicable here. If we want to compress the model without lossing too much accuracy, we have to update this concept. 
+The basic nature of all the functions and models are mapping from the input to the output. 
+If we want the student model which is the simple model to act like teacher while having less parameters, it means they should have similar output vectors. So both student and teacher models should have similar functions of mapping from the same input vectors to the similar output vectors.
 \subsubsection{SubQuestion c}
-What is the temperature hyperparameter T? Why do we use it when transferring knowledge
-from one model to another? What effect does the temperature hyperparameter have in KD?
+% What is the temperature hyperparameter T? Why do we use it when transferring knowledge
+% from one model to another? What effect does the temperature hyperparameter have in KD?
+The temperature hyperparameter T is a parameter used to adjust the corresponding loss values for different labels in the soft targets. T makes the labels which have low probabilities influence more in the cross-entropy cost function during the transfer stage.\par
+In our normal training, we only pay attention to the difference between result with highest probability and ground truth. This kind of similarity is constructed based on large amount of samples.
+When the soft targets have high entropy, they'll provide much more information for the student model training than hard targets. However, in this kind of situation, the results which have a low probability contribute little to the loss functions, thus providing little information for the knowledge transferring stage.
+For example, the teacher model in task1 has a high accuracy on MNIST, much of the information about the learned model is contained in the options which have very samll probabilities in the soft targets. To solve it, Hinton\cite{b6} put forward the temperature hyperparameter T to magnify the corresponding loss values of low probability options.
+\par
+So the effect of the temperature hyperparameter is decreasing the influence of highest probability prediction and increase the influence of other labels in the knowledge transferring stage.
+
 \subsubsection{SubQuestion d}
-Explain in detail the loss functions on which the teacher and student model are trained in
-this paper. How does the task balance parameter affect student learning? 
+This is the graph of Knowledge Distillation.
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/KD.png}
+    \caption{Knowledge Distillation}
+    \label{Fig.t1q3e}
+\end{figure}
+% Explain in detail the loss functions on which the teacher and student model are trained in this paper. How does the task balance parameter affect student learning? 
+For the teacher model, assuming that the output vector of the final fully connection layer is $z$, then $z_{i}$ will be the logits of label $i$. 
+The predicted probability for the input vector to belong to label $i$ is calculated with softmax function:
+$$p_{i}=\frac{exp(z_{i})}{\sum_{j}exp(z_{j})}$$
+where $p_{i}$ is the probability of being label $i$, $z_{i}$ is the logits of label $i$, $j$ is the list of all the labels.
+According to it, we will calculate the loss value of teacher model like the normal neural networks. The formula is:
+$$L_{teacher}=-\sum_{i}^{N}y_{i}log(p_{i})$$
+where $N$ is the number of classes in total, $y_{i}$ is a boolean value, if the sample in input vector belongs to label $i$, it'll be 1, else it'll be 0. $p_{i}$ is the predicted probability for the input vector to belong to label $i$.
+\par
+
+For the student model, we will first talk about "how does the task balance parameter affect student learning?".
+The temperature hyperparameter T controls the importance and influence of every soft targets by revising the predicted probability for the input vector to belong to label $i$. The revised version of probability for label $i$ under temperature $T$, named $q_{i}^{T}$, is:
+$$q_{i}^{T}=\frac{exp(z_{i}/T)}{\sum_{j}exp(z_{j}/T)}$$
+where $q_{i}_{T}$ is the probability of being label $i$, $z_{i}$ is the logits of label $i$ in student model, $j$ is the list of all the labels.
+Higher temperature will make the probability distribution more balanced. To be specific, suppose: $$T\to \infty $$, then every labels will have the same probabilities. 
+On the contrary, if $$T\to 0 $$ soft targets will become ont-hot tensor, which is named "hard targets".\par
+Let's continue to talk about the loss value of student model. The traditional knowledge distillation is the combination of both the student loss and distillation loss.
+The formula for the combination is:
+$$L=\alpha L_{soft}+\beta L_{hard}$$
+where $L_{soft}$ is the distill loss (corresponding to soft targets) and student loss (corresponding to hard targets). $\alpha$ is the weight of $L_{soft}$ which is defined manually, and $\beta$ is the weight of $L_{hard}$ which equals $(1-\alpha)$ here.
+For the student loss, it should be similar to teacher model. This is named $L_{hard}$ for it's the hard targets loss of the student model. The formula is:
+$$L_{hard}=-\sum_{i}^{N}y_{i}log(q_{i}^{1})$$
+where $N$ is the number of classes in total, $y_{i}$ is a boolean value, if the sample in input vector belongs to label $i$, it'll be 1, else it'll be 0. $q_{i}^{1}$ is the predicted probability for the input vector to belong to label $i$ in temperature $1$.
+For the soft targets loss, the formula is:
+$$L_{soft}=-\sum_{i}^{N}p_{i}^{T}log(q_{i}^{T})$$
+where $N$ is the number of classes in total, $p_{i}^{T}$ is the predicted probability for the input vector in teacher model to belong to label $i$ in temperature $T$, $q_{i}^{T}$ is the predicted probability for the input vector in student model to belong to label $i$ in temperature $T$.
+To explain $p_{i}^{T}$ in detail, we listed the formula too:
+$$p_{i}^{T}=\frac{exp(v_{i}/T)}{\sum_{j}exp(v_{j}/T)}$$
+where $p_{i}_{T}$ is the probability of being label $i$, $v_{i}$ is the logits of label $i$ in teacher model, $j$ is the list of all the labels.
 \subsubsection{SubQuestion e}
-Can we look at the KD as a regularization technique, here? Explain your rationale.
+% Can we look at the KD as a regularization technique, here? Explain your rationale.
+From our perspective, the knowledge distillation can be considered as a regularization technique.
+% TODO::一会儿再看
 \subsection{Question 2}
+In this section, we build a cumbersome teacher and a lightweight student model training on MNIST dataset. The network structure is plotted by $model:summary()$.
+The teacher model contains two convolutional layers with relu function, two maxpooling layers, a flatten layer and two dense layers. It's not a complex network, the implementation code is as followed.
+\begin{lstlisting}
+    from keras.models import Sequential
+    from keras.layers import Input, Conv2D, MaxPooling2D, Dense, Flatten, Dropout
+    
+    # print(mnist_test)
+    
+    # Build CNN teacher.
+    def build_cnn():
+      cnn_model = Sequential()
+      cnn_model.add(Input((28,28,1)))
+      cnn_model.add(Conv2D(filters=32, kernel_size=(3,3), strides= (1,1), activation='relu'))
+      cnn_model.add(MaxPooling2D(pool_size=(2,2), strides= (1,1)))
+      cnn_model.add(Conv2D(filters=64, kernel_size=(3,3), strides= (1,1), activation='relu'))
+      cnn_model.add(MaxPooling2D(pool_size=(2,2), strides= (2,2)))
+      cnn_model.add(Flatten())
+      cnn_model.add(Dropout(rate=0.5))
+      cnn_model.add(Dense(units=128, activation='relu'))
+      cnn_model.add(Dropout(rate=0.5))
+      cnn_model.add(Dense(NUM_CLASSES, activation='softmax'))
+      return cnn_model
+    
+    cnn_model=build_cnn()
+    print("\n\n\n============ Teacher Model ============\n")
+    cnn_model.summary()
+\end{lstlisting} \par
+The screenshot of teacher model is shown below:
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Teacher_MNIST.png}
+    \caption{Teacher Model}
+    \label{Fig.t1q3e}
+\end{figure}
+The student model contains a flatten layer and three dense layers.The code is listed as below:
+\begin{lstlisting}
+# Build fully connected student.
+def build_fc():
+  fc_model = Sequential()
+  fc_model.add(Input((28,28,1)))
+  fc_model.add(Flatten())
+  fc_model.add(Dense(units=784,activation='relu'))
+  fc_model.add(Dense(units=784,activation='relu'))
+  fc_model.add(Dense(NUM_CLASSES, activation='softmax'))
+  return fc_model
+fc_model=build_fc()
+print("\n\n\n============ Student Model ============\n")
+fc_model.summary()
+\end{lstlisting} \par
+The screenshot of student model summary is shown below:
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Student_MNIST.png}
+    \caption{Student Model}
+    \label{Fig.t1q3e}
+\end{figure}
 \subsection{Question 3}
+In this section, we will talk about the implementation of loss functions in teacher and student models, consisting of three parts.\par
+The first part is the loss function for teacher model. The code is shown below.\par 
+We first calculated the logits of teacher model using the input images. Then we call the function in tensorflow $tf.nn.sparse_softmax_cross_entropy_with_logits$ to calculate the cross-entropy loss with logits. 
+The logits parameter is the $subclass_logits$ which is calculated above, and the label is $tf.argmax(labels, 1)$, since the $labels$ is a 1D vector which has 10 elements. In the vector, only the true label is set to 1 while others are set to 0.
+As a result, $tf.argmax(labels, 1)$ is the true label.
+\begin{lstlisting}
+@tf.function
+def compute_teacher_loss(images, labels):
+  """Compute subclass knowledge distillation teacher loss for given images
+     and labels.
+
+  Args:
+    images: Tensor representing a batch of images.
+    labels: Tensor representing a batch of labels.
+
+  Returns:
+    Scalar loss Tensor.
+  """
+  subclass_logits = cnn_model(images, training=True)
+  # print(subclass_logits.shape)
+  # print(tf.argmax(labels, 1).shape)
+  # Compute cross-entropy loss for subclasses.
+
+  # your code start from here for step 3
+  cross_entropy_loss_value = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=subclass_logits, labels=tf.argmax(labels, 1))
+
+
+  return cross_entropy_loss_value
+\end{lstlisting}
+The second part is the $distillation_loss$ function. 
+In this function, we first define the $\alpha$ and the temperature $T$ according to the requirement in the lab manual.
+Then we calculated the soft targets according to the formula above and the softmax function.
+After that, we will calculate the cross-entropy loss like the teacher model loss.
+At last, we calculated the average number of cross-entropy multiply $T_{2}$ as the soft targets loss value, named $L_{soft}$.\par
+The code is shown below.
+\begin{lstlisting}
+# Hyperparameters for distillation (need to be tuned).
+ALPHA = 0.5 # task balance between cross-entropy and distillation loss
+DISTILLATION_TEMPERATURE = 4. # temperature hyperparameter
+import numpy as np
+import torch
+import torch.nn as nn
+def distillation_loss(teacher_logits: tf.Tensor, student_logits: tf.Tensor,
+                      temperature: Union[float, tf.Tensor]):
+  """Compute distillation loss.
+
+  This function computes cross entropy between softened logits and softened
+  targets. The resulting loss is scaled by the squared temperature so that
+  the gradient magnitude remains approximately constant as the temperature is
+  changed. For reference, see Hinton et al., 2014, "Distilling the knowledge in
+  a neural network."
+
+  Args:
+    teacher_logits: A Tensor of logits provided by the teacher.
+    student_logits: A Tensor of logits provided by the student, of the same
+      shape as `teacher_logits`.
+    temperature: Temperature to use for distillation.
+
+  Returns:
+    A scalar Tensor containing the distillation loss.
+  """
+  # print(tf.reduce_sum(tf.exp(teacher_logits/temperature),axis=1,keepdims=True).shape)
+  soft_targets = tf.exp((teacher_logits-np.max(teacher_logits,axis=-1,keepdims=True))/temperature)/tf.reduce_sum(tf.exp(np.max(teacher_logits,axis=-1,keepdims=True)/temperature),axis=1,keepdims=True)
+
+  return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(soft_targets, student_logits / temperature)) * temperature ** 2
+
+\end{lstlisting}
+The thrid part is the student loss which combines both $L_{hard}$ and $L_{soft}$.First, we calculate the logits for student model as $student_subclass_logits$ and logits for taecher model as $teacher_subclass_logits$.
+Then we call the $distillation_loss$ function defined above to calculate the soft targets loss value $L_{soft}$.
+After that, we calculate the $L_{hard}$ like the teacher loss. We use the $tf.nn.sparse_softmax_cross_entropy_with_logits$ function to compute the student hard loss.
+At last, for the overall loss value, we calculate the combination of $L_{hard}$ and $L_{soft}$ with their weights accordingly.\par
+The code is shown below:
+\begin{lstlisting}
+def compute_student_loss(images, labels):
+  """Compute subclass knowledge distillation student loss for given images
+     and labels.
+
+  Args:
+    images: Tensor representing a batch of images.
+    labels: Tensor representing a batch of labels.
+
+  Returns:
+    Scalar loss Tensor.
+  """
+  student_subclass_logits = fc_model(images, training=True)
+
+  # Compute subclass distillation loss between student subclass logits and
+  # softened teacher subclass targets probabilities.
+
+  teacher_subclass_logits = cnn_model(images, training=False)
+  distillation_loss_value = distillation_loss(teacher_subclass_logits,student_subclass_logits,DISTILLATION_TEMPERATURE)
+  L_hard=tf.nn.sparse_softmax_cross_entropy_with_logits(logits=student_subclass_logits, labels=tf.argmax(labels, 1))
+  # print(labels)
+  # Compute cross-entropy loss with hard targets.
+
+  cross_entropy_loss_value = ALPHA*distillation_loss_value+(1-ALPHA)*L_hard
+
+  return cross_entropy_loss_value
+\end{lstlisting}
+
 \subsection{Question 4}
+In this section, we complete the $train_and_evaluate$ function.
+First, we define the optimizer with $Adam$ and set learning rate as $0.001$.
+Then we use a for loop to simulate the training process in tensorflow library.
+In the each epoch, we calculate the loss value by calling the $compute_loss_fn$ function and pass in the images and corresponding labels in the training batch.
+The $compute_loss_fn$ function is the loss function name passed in.
+Then we will apply the loss values to compute the gradients with function $tape.gradient$. 
+After that, we will apply the gradients to modify the model's variables.
+At the end of the epoch, we call the $compute_num_correct$ function to evaluate the performance of this training epoch.\par
+The code is listed below.
+\begin{lstlisting}
+    def train_and_evaluate(model, compute_loss_fn):
+    """Perform training and evaluation for a given model.
+  
+    Args:
+      model: Instance of tf.keras.Model.
+      compute_loss_fn: A function that computes the training loss given the
+        images, and labels.
+    """
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    res=0.0
+    for epoch in range(1, NUM_EPOCHS + 1):
+      # Run training.
+      print('Epoch {}: '.format(epoch), end='')
+      for images, labels in mnist_train:
+        with tf.GradientTape() as tape:
+          loss_value = compute_loss_fn(images,labels)
+  
+        grads = tape.gradient(loss_value,model.variables)
+        optimizer.apply_gradients(zip(grads, model.variables))
+  
+      # Run evaluation.
+      num_correct = 0
+      num_total = builder.info.splits['test'].num_examples
+      for images, labels in mnist_test:
+        num_correct += tf.cast(compute_num_correct(model,images,labels)[0],tf.int32)
+      print("Class_accuracy: " + '{:.2f}%'.format(
+          num_correct / num_total * 100))
+      res=num_correct / num_total * 100
+    return res
+      
+\end{lstlisting}
 \subsection{Question 5}
+For the first part, we will talk about the training and test accuracy of the teacher amd student model.
+First is the teacher model, we just call the $train_and_evaluate$ function. The code is listed below.
+\begin{lstlisting}
+# your code start from here for step 5 
+train_and_evaluate(cnn_model,compute_teacher_loss)
+\end{lstlisting}
+The screenshot of the accuracy is shown below.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/teacher_accuracy_mnist.png}
+    \caption{Teacher Model Testing Accuracy}
+    \label{Fig.t1q3e}
+\end{figure}
+Second is the student model, since we need to tune the distillation hyperparameters, we used a loop to do it.
+We set the parameter temperature to $1,2,4,16,32,64$ and set alpha to $0.1,0.3,0.5,0.7,0.9$. In total, we trained 30 models.
+The code is shown below.
+\begin{lstlisting}
+T=[1,2,4,16,32,64]
+A=[0.1,0.3,0.5,0.7,0.9]
+y=[]
+for i in T:
+  for j in A:
+    DISTILLATION_TEMPERATURE = i # Temperature hyperparameter
+    ALPHA=j
+    fc_model=build_fc()
+    print('temperature:'+str(i)+' Alpha:'+str(j))
+    acu=train_and_evaluate(fc_model,compute_student_loss)
+    fc_model.save('student_MNIST_t'+str(i)+'a'+str(j)+'.h5')
+    y.append(acu)
+# train_and_evaluate(fc_model,compute_student_loss)
+\end{lstlisting}
+Then we print out the training accuracy stored with the code below.
+\begin{lstlisting}
+# fc_model.save('student_MNIST_4.h5')
+for i in range(6):
+  for j in range(5):
+    print('Temperature:'+str(i)+' Alpha:'+str(j)+' Accuracy:'+str(y[i*5+j]))
+\end{lstlisting}
+
+Here is the screenshot of testing results.
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/student_accuracy_mnist.png}
+    \caption{Teacher Model Testing Accuracy}
+    \label{Fig.t1q3e}
+\end{figure}
+And here is the test accuracy table for the hyperparameter tuning procedure.
+\begin{table}[]
+    \begin{tabular}{|l|l|l|}
+    \hline
+    Temperature & Alpha & Test Accuracy      \\ \hline
+    1           & 0.1   & 2.293055827077731  \\ \hline
+    1           & 0.3   & 2.5276225515024704 \\ \hline
+    1           & 0.5   & 2.76218927592721   \\ \hline
+    1           & 0.7   & 2.9967560003519496 \\ \hline
+    1           & 0.9   & 3.231322724776689  \\ \hline
+    2           & 0.1   & 3.4658894492014287 \\ \hline
+    2           & 0.3   & 2.3360749754228634 \\ \hline
+    2           & 0.5   & 2.5706416998476027 \\ \hline
+    2           & 0.7   & 2.805208424272342  \\ \hline
+    2           & 0.9   & 3.039775148697082  \\ \hline
+    4           & 0.1   & 3.2743418731218217 \\ \hline
+    4           & 0.3   & 3.5089085975465606 \\ \hline
+    4           & 0.5   & 2.3790941237679952 \\ \hline
+    4           & 0.7   & 2.613660848192735  \\ \hline
+    4           & 0.9   & 2.8482275726174744 \\ \hline
+    16          & 0.1   & 3.0827942970422137 \\ \hline
+    16          & 0.3   & 3.3173610214669536 \\ \hline
+    16          & 0.5   & 3.551927745891693  \\ \hline
+    16          & 0.7   & 2.4221132721131275 \\ \hline
+    16          & 0.9   & 2.656679996537867  \\ \hline
+    32          & 0.1   & 2.8912467209626067 \\ \hline
+    32          & 0.3   & 3.125813445387346  \\ \hline
+    32          & 0.5   & 3.3603801698120854 \\ \hline
+    32          & 0.7   & 3.5949468942368252 \\ \hline
+    32          & 0.9   & 2.46513242045826   \\ \hline
+    64          & 0.1   & 2.6996991448829992 \\ \hline
+    64          & 0.3   & 2.9342658693077386 \\ \hline
+    64          & 0.5   & 3.1688325937324784 \\ \hline
+    64          & 0.7   & 3.4033993181572177 \\ \hline
+    64          & 0.9   & 3.637966042581957  \\ \hline
+    \end{tabular}
+    \end{table}
+As is shown in the table, we think that the best alpha should be , and the best temperature is.
 \subsection{Question 6}
+In this section, we will talk about the plot of a curve which is student test accuracy versus temperature hyperparameters. 
+According to the requirement in the Lab Manual, we set the task balance parameter $\alpha$ as 0.5, and use a loop to change the temperature in the list.
+In every loop, we change the temperature, reset the model and retrain it. The code is shown below.
+\begin{lstlisting}
+T=[1,2,4,16,32,64]
+y=[]
+for i in T:
+  DISTILLATION_TEMPERATURE = i # Temperature hyperparameter
+  fc_model=build_fc()
+  print('temperature:'+str(i))
+  acu=train_and_evaluate(fc_model,compute_student_loss)
+  fc_model.save('student_MNIST_'+str(i)+'.h5')
+  y.append(acu)
+\end{lstlisting}
+The screenshot of the training and testing is shown here.
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/T1Q6_train.png}
+    \caption{Training and testing procedure}
+    \label{Fig.t1q3e}
+\end{figure}
+Then we use $matplotlib.pyplot$ library to plot the curve.
+The code is like below.
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+x=['1','2','4','16','32','64']
+l=plt.plot(x,y)
+plt.title('Test accuracy vs. tempreture curve')
+plt.xlabel('temperature')
+plt.ylabel('test_accuracy')
+plt.legend()
+plt.show()
+\end{lstlisting}
+The curve is shown here.
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/accuracy_vs_temperature.png}
+    \caption{Teacher Model Testing Accuracy}
+    \label{Fig.t1q3e}
+\end{figure}
+As is clearly shown in the picture, the accuracy decreases in general, but it does not decrease a lot.
+The reason for decreasing is that: As we have stated above, with a high temperature,
 \subsection{Question 7}
+
 \subsection{Question 8}
+
 \subsection{Question 9}
+
 \subsection{Question 10}
+
 \subsection{Question 11}
+
 \subsection{Question 12}
+
 \subsection{Question 13}
+
 \section{Task 2: Knowledge Distillation in MHIST dataset}
 
 
