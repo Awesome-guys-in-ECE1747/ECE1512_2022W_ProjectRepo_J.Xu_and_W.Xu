@@ -643,16 +643,18 @@ plt.show()
 \section{Task 2: Knowledge Distillation in MHIST dataset}
 
 \subsection{Question 1}
-\subsubsection{SubQuestion a} \textbf{How can we adapt these models for the MHIST dataset using transfer learning? Talk about the Feature Extraction and Fine-Tuning processes during transfer learning.}\\
-
-The core idea of Transfer learning is consists of taking features learned on one problem, and leveraging them on a new, similar problem.\cite{keras}
-Feature Extraction is 
-\\
-Fine tuning
-%%%%%%%%%%
-\cite{blog}
+\subsubsection{SubQuestion a} \textbf{How can we adapt these models for the MHIST dataset using transfer learning? Talk about the Feature Extraction and Fine-Tuning processes during transfer learning.} 
+The core idea of Transfer learning is consists of taking features learned on one problem, and leveraging them on a new, similar problem, which is also known as using pre-trained models. Transfer learning is usually used in tasks where the data is too little to train a full-scale model.\cite{keras} A typical steps will be as followed:
+\begin{enumerate}
+  \item Get the layers from a pre-trained model.
+  \item Freeze all the layers to avoid destroying their information in future training.
+  \item Add some trainable layers on the top.
+  \item Train the new layers with MHIST to fit a new model.
+\end{enumerate}
+Feature Extraction is typically done with convolution layers. In our approach, we could adapt feature extraction using the new layers we added on the top of the adapted layers of model.
+\\Fine tuning is an optional step of transfer learning which consists of unfreezing the entire or part of the model obtained above, and retraining it on the new data with a very low learning rate. This can potentially achieve meaningful improvements, by incrementally adapting the pre-trained features to the new data.\cite{keras}\cite{blog}
 \subsubsection{SubQuestion b} \textbf{What is a residual block in ResNet architectures?}
-The residual block is the significant and elemental component of ResNet, Residual Network, an example is shown in figure \label{res}.
+The residual block is the significant and elemental component of ResNet, Residual Network, an example is shown in figure \ref{res}.
 
 \begin{figure}[h] 
     \centering
@@ -694,25 +696,57 @@ Secondly, the stride strategy is different. ResNetV1 keep the size of feature ma
 
 \subsubsection{SubQuestion d} \textbf{What are the differences between the MobileNetV1 and MobileNetV2 architectures?}
 
-%%%%%%%%%%%%
+There are a few improvement MobileNetV2 made upon the previous version, MobileNetV1. MobileNetV1 have 28 trainable layers, along with average pooling layers and softmax layers. It use a stride of 2 to sampling the input with convolution. The hidden convolution layers are all novel structures called depth-wise separable convolution. Every convolution layer is followed by Batch Normalization Layer and ReLU activation layer. Last but not the least, the least full connection layer is without activation function.
+MobileNetV2 have two novel structure that MobileNetV1 doesn't have, Linear Bottleneck and Inverted Residual. It consists of 17 bottleneck layer, totally 54 trainable layer. The inverted residual will expand the dimension then decrease it in order to extract more feature and enhance the propagation of gradient. In that, it decrease the size of model even more.
+
 \subsubsection{SubQuestion e} \textbf{How can ResNet architectures, regardless of model depth, overcome the vanishing gradient problem?}
 This question is partiality explained in the section of SubQuestion b. More theoretical explanation in general will be that the ResNet will "decrease" the number of layers, especially during back propagation procedure. The core reason of vanishing gradient problem is as the depth of network increases, the influence of input itself will finally decrease or increase at the output significantly. As a result, the input will have almost nothing to do with the result at this time, and the accuracy will drop gigantically after its increasing with the depth increases. So "shorten" the depth by using ResNet will solve the problem.
 
 \subsubsection{SubQuestion f} \textbf{Is MobileNetV2 a lightweight model? Why?}
+Yes, MobileNetV2 is definitely a lightweight model. Practically, in our approach, the MobileNetV2 have $3,540,986$ parameters in total, while the ResNet $25,615,802$ parameters totally, which is a quite big difference of the size (weight). Theoretically, a lightweight model can be defined as a "light-weighted" model, which means it contains some structures or facilities which could help the model keep the performance and reduce its size. One typical strategy of light-weighting model is to replace some large feature mapping convolution layer with some small size or grouped convolution layers, both MobileNetV1 and MobileNetV2 uses the strategy, whose detailed structure is discussed in the sub question d.
 
-\subsection{Question 2} In this section, we introduce our implementation sub task 3,4,5,6,7,8,13 in Task 1 using MHIST dataset with two pre-trained network, ResNet50V2 and MobileNetV2. As there are a number of similarities between this section and Task 1, we would ignore some codes of some functions which is almost the same as the previous selection. We also finish more complete data analysis and preview during the procedure, so we are going to show the full procedure of implementation in this part, with divisions of stages in model training and knowledge distillation.
+\subsection{Question 2} In this section, we introduce our implementation sub task 3,4,5,6,7,8,13 in Task 1 using MHIST dataset with two pre-trained network, ResNet50V2 and MobileNetV2 without transfer learning. As there are a number of similarities between this section and Task 1, we would ignore some codes of some functions which is almost the same as the previous selection. We also finish more complete data analysis and preview during the procedure, so we are going to show the full procedure of implementation in this part, with divisions of stages in model training and knowledge distillation.
+
 \subsubsection{Data Importing and preprocessing}
+
+The material of MHIST dataset we obtained is an annotation CSV file and a images folder consists of all the images in the dataset. For the first step, we could get a preview of the annotation file and the image data. We use DataFrame container of package \textit{pandas} to extract the information of annotations. And we can also easily use \textit{plt} to import and plot the image easily.
+
+The 
+\begin{lstlisting}
+
+\end{lstlisting}
 
 \subsubsection{Model Construction}
 
+\begin{lstlisting}
+
+\end{lstlisting}
+
 \subsubsection{Train Facilities}
+
+\begin{lstlisting}
+
+\end{lstlisting}
 
 \subsubsection{Model Training}
 
+\begin{lstlisting}
+
+\end{lstlisting}
+
 \subsubsection{Data Analysis and Evaluation}
+
+\begin{lstlisting}
+
+\end{lstlisting}
 
 \subsection{Question 3} \textbf{Explain the effect of transfer learning and knowledge distillation in the performance of the student model. Do pre-trained weights help the teacher and student models perform well on the MHIST dataset? Does knowledge transfer from the teacher to the student model increase the student’s performance?}
 
+They do improve acc,
+
+yes,
+
+no,
 
 \begin{thebibliography}{00}
 
@@ -724,6 +758,9 @@ This question is partiality explained in the section of SubQuestion b. More theo
 %%%%%%%%%%
 \bibitem{keras} Transfer learning \& fine-tuning, Keras developer guide, 2020, https://keras.io/guides/transfer\_learning.
 \bibitem{blog} Anusua Trivedi, Deep Learning Part 2: Transfer Learning and Fine-tuning Deep Convolutional Neural Networks, Revolutions. https://blog.revolutionanalytics.com/2016/08/deep-learning-part-2.html.
+\bibitem{resnet} Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun; Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016, pp. 770-778
+\bibitem{wu} Andrew Ng, Deeplearning.ai. https://www.deeplearning.ai.
+\bibitem{v1v2}Le Huy Hien, Ngo \& V.H., Nguyen. (2020). Recognition of Plant Species using Deep Convolutional Feature Extraction. 11. 904-910.
 \end{thebibliography}
 
 
