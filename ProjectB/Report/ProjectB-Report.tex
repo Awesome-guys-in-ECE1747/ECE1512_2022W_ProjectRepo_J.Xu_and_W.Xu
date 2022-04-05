@@ -554,9 +554,116 @@
   The student models have the same FLOPs, because what the knowledge distillation do is changing the calculation of loss values, it'll not increase the times of floating computation, thus keeping the low complexity of the model training. The teacher model has a much higher FLOPs than student models because the model is more complex and contains convolutional layer which needs large amount of floating computation.
   \subsection{Question 9}
   In this part, we will talk about our XAI methodology used to build the explanation map for the models.
-  Here we choose LIME/RISE to do the visualization.
-  Here is the code.%TODO: Do the XAI!
-  The explanation map is shown here.
+  We choose RISE to do the visualization, the code is highly adapted from the $xai\_utils.py$ in Project A, but with modifications to support 1-Channel Images. Besides, the calling function is also modified to fit in the format of data. A here is the modified function of RISE.
+    \begin{lstlisting}
+def create_random_mask(h=7,
+                       w=7,
+                       H=28,
+                       W=28,
+                       p_1=0.5,
+                       resample=Image.BILINEAR):
+    '''
+    Generates one random mask utilized in RISE
+    inputs:
+        h, w: initial size of binary mask
+        H, W: final size of the upsampled mask
+        p_1: probability of actiating pixels in the down-sampled masks.
+        interp: upsampling technique.
+    returns:
+        mask: a smooth mask with the values in range [0,1] with size of HxW.
+    '''
+    assert H > h, 'Masks should be resized to higher dimensions.'
+    assert W > w, 'Masks should be resized to higher dimensions.'
+    # create random binary hxw mask
+    mask = np.random.choice([0, 1], size=(h, w), p=[1 - p_1, p_1])
+
+    # upsample mask to (h+H,w+W)
+    mask = Image.fromarray(mask * 255.)
+    mask = mask.resize((H + h, W + w), resample=resample)
+    mask = np.array(mask)
+
+    # randomly crop mask to HxW
+    w_crop = np.random.randint(0, w + 1)
+    h_crop = np.random.randint(0, h + 1)
+    mask = mask[h_crop:H + h_crop, w_crop:W + w_crop]
+
+    # normalize between 0 and 1
+    mask /= np.max(mask)
+
+    return mask
+
+def RISE(img, model, class_index, N_MASKS=8000, H=28, W=28, C=1):
+    '''
+	img: a 3-D input image
+	model: a trained model
+	class_index; The class of interest
+	N_MASKS: The number of random masks to be generated
+	H,W,C: The desired dimensions of the random masks
+	'''
+    X = np.zeros(shape=(N_MASKS, H, W, C), dtype=np.float32)
+    masks = np.zeros((N_MASKS, H, W), dtype=np.float32)
+    for i in range(N_MASKS):
+        m = create_random_mask(H=H, W=W)
+        masks[i] = m
+        # print(img)
+        # x = img.numpy()
+        x = img.copy()
+        if C==1:
+          x[:, :, 0] *= m
+        if C==3:
+          x[:, :, 0] *= m
+          x[:, :, 1] *= m
+          x[:, :, 2] *= m
+        X[i] = x
+    preds_masked = model.predict(X, verbose=0)
+    sum_mask = np.zeros(masks[0].shape, dtype=np.float32)
+
+    # np.einsum???
+    for i, mask in enumerate(masks):
+        # print(i)
+        # print(mask)
+        m = mask * preds_masked[i, class_index]
+        sum_mask += m
+
+    sum_mask -= np.min(sum_mask)
+    sum_mask /= np.max(sum_mask)
+    return sum_mask
+  \end{lstlisting}
+  Note that we add the condition of $C==1$, and modify the default size and channel number of the function. To call this function, we have to use the following sentence, students are almost the same.
+  \begin{lstlisting}
+explanation_map_RISE_teacher = RISE(dataf[index].numpy(), cnn_model, class_index=np.argmax(label[index]) ,N_MASKS=1000)
+explanation_map_RISE_teacher -= explanation_map_RISE_teacher.min()
+explanation_map_RISE_teacher /= explanation_map_RISE_teacher.max()+10e-30
+\end{lstlisting}
+
+The plotting is quite simple, but only one thing have to notice is that we have to reshape the original image into 2-Dimensional array, as the $plt.imshow()$ only accept 2-Dimensional images or 3-Dimensional images with channels of 3 or 4.
+
+  And the explanation map is shown here. We present 3 groups of explanation maps of 3 samples in the validation set.
+  
+    \begin{figure}[h] 
+      \centering
+      \includegraphics[width=0.45\textwidth]{./graphs/xai-3.png}
+      \caption{Explanation maps (index=3)}
+      \label{Fig.xai-3}
+  \end{figure}
+  
+    \begin{figure}[h] 
+      \centering
+      \includegraphics[width=0.45\textwidth]{./graphs/xai-5.png}
+      \caption{Explanation maps (index=5)}
+      \label{Fig.xai-5}
+  \end{figure}
+  
+    \begin{figure}[h] 
+      \centering
+      \includegraphics[width=0.45\textwidth]{./graphs/xai-8.png}
+      \caption{Explanation maps (index=8)}
+      \label{Fig.xai-8}
+  \end{figure}
+  
+  %%%%%%%%%%%%%%%%RD
+  According to the three groups of explanation maps above, we could easily see that the student with KD inherit the weight partiality from the teacher model, while it still slightly keep some of its original highlighted region. Conclusively, the student with KD takes the feature as the combination of teacher model and origin trained model itself.
+  
   \subsection{Question 10}
   In this part, we read Jang Hyun Cho and Bharath Hariharan's\cite{b2} paper. The novel idea is that the higher accuracy of teacher model does not necessarily mean that the corresponding student model will have higher accuracy. The reason is that mismatched capacity makes it difficult for the students to mimic the teacher model's behavior and prediction stably. For the same student model, if the teacher model is more complex and has higher accuracy, the performance of student model will become worse.\par
   What's more, Teacher Assistant Knowledge Distillation(TAKD) is not an effective way to solve this problem. They propose that the only solution is to stop the training of the teacher model earlier before it converges. This kind of training method is named "Early-Stopping Knowledge Distillation"(ESKD).
@@ -769,35 +876,194 @@ Yes, MobileNetV2 is definitely a lightweight model. Practically, in our approach
 
 The material of MHIST dataset we obtained is an annotation CSV file and a images folder consists of all the images in the dataset. For the first step, we could get a preview of the annotation file and the image data. We use DataFrame container of package \textit{pandas} to extract the information of annotations. And we can also easily use \textit{plt} to import and plot the image easily.
 
-The 
 \begin{lstlisting}
+raw_data = pd.read_csv(annotation_path)
 
+train_data = raw_data.query("Partition == 'train'")
+test_data = raw_data.query("Partition == 'test'")
+print("Train Data Size", train_data.shape)
+print("Test Data Size", test_data.shape)
+\end{lstlisting}
+
+The data generator is constructed using ImageDataGenerator from keras, which is highly inspired by the HMT Task of Project A.
+\begin{lstlisting}
+from keras.preprocessing.image import ImageDataGenerator
+train_set_generator = ImageDataGenerator(rescale=1/255., shear_range=0.1, rotation_range=15, horizontal_flip=True, vertical_flip=True)
+test_set_generator = ImageDataGenerator(rescale=1/255.)
+\end{lstlisting}
+
+Different from the implementation of HMT task, the dataset is not categorized by folder so it's better to use DataFrame as a source to config the instance of generators.
+
+\begin{lstlisting}
+train_generator = train_set_generator.flow_from_dataframe(
+    dataframe=train_data,
+    x_col='Image Name',
+    y_col='Majority Vote Label',
+    directory='./images/',
+    # subset='training',
+    batch_size=32,
+    shuffle=True,
+    class_mode="categorical",
+    target_size=(224,224)
+)
+
+test_generator = test_set_generator.flow_from_dataframe(
+    dataframe=test_data,
+    x_col='Image Name',
+    y_col='Majority Vote Label',
+    directory='./images/',
+    # subset='validation',
+    batch_size=32,
+    shuffle=True,
+    class_mode="categorical",
+    target_size=(224,224)
+)
 \end{lstlisting}
 
 \subsubsection{Model Construction}
 
-\begin{lstlisting}
+We create the model by adapting the pre-trained model from keras.
 
+\begin{lstlisting}
+from tensorflow.keras.applications.resnet_v2 import ResNet50V2
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
+from tensorflow.keras.layers import Dense
+from tensorflow.keras import Sequential
+
+teacher_model = Sequential()
+teacher_model.add(ResNet50V2(classifier_activation = None, input_shape = (224,224,3)))
+teacher_model.add(Dense(NUM_CLASSES))
+print(teacher_model.summary())
+
+student_model = Sequential()
+student_model.add(MobileNetV2(classifier_activation=None, input_shape=(224,224,3)))
+student_model.add(Dense(NUM_CLASSES))
+print(student_model.summary())
 \end{lstlisting}
+
+The basic information of model is shown in figure %.
+
+%%%%%%%%
 
 \subsubsection{Train Facilities}
 
-\begin{lstlisting}
+The major facility we have to apply is the loss function, which could be integrated from the Task 1. However, we slightly modified the train\_and\_evaluate function in order to test fined model under different temperature. The code is shown below.
 
+\begin{lstlisting}
+def train_and_evaluate(model, compute_loss_fn, num_epochs, learning_rate, **kwargs):
+    """Perform training and evaluation for a given model.
+
+    Args:
+    model: Main Instance of tf.keras.Model.
+    compute_loss_fn: A function that computes the training loss given the
+        images, and labels.
+    num_epochs: Number of epochs to train for
+    learning_rate: Optimizer learning rate
+    kwargs: Passed through to loss fn
+    """
+
+    # your code start from here for step 4
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+
+    train_generator.reset()
+    
+    accuracy = 0
+    
+    for epoch in range(1, num_epochs + 1):
+        # Run training.
+        print('Epoch {}: '.format(epoch), end='')
+
+        #for images, labels in mhist_train:
+        for batch in range(TRAIN_BATCH_NUM):
+            
+            images, labels = train_generator.next()
+
+            with tf.GradientTape() as tape:
+
+                loss_value = compute_loss_fn(model, images, labels, **kwargs)
+
+            grads = tape.gradient(loss_value, model.trainable_variables)
+            optimizer.apply_gradients(zip(grads, model.trainable_variables))
+
+        # Run evaluation.
+        num_correct = 0
+        num_total = BATCH_SIZE*TEST_BATCH_NUM
+        
+        test_generator.reset()
+        
+        for batch in range(TEST_BATCH_NUM):
+            images, labels = test_generator.next()
+            num_correct += compute_num_correct(model,images,labels)[0]
+        accuracy = num_correct / num_total * 100
+        print("Class_accuracy: " + '{:.2f}%'.format(accuracy))
+    
+    return accuracy
 \end{lstlisting}
 
 \subsubsection{Model Training}
 
-\begin{lstlisting}
+We did a large-scale experiment in this part, we divide the training into 7 groups, teacher model and temperature at 6 different degrees. Despite the teacher group consists of initial training and fined training, each student group consists of four model trainings: student-kd-initial, student-kd-fined, student-scratch-initial, student-scratch-fined. So there is a pile of data we would like to present here. And each group is executed with the code as follows.
 
+\begin{lstlisting}
+# Alpha = 0.5, Learning rate as table 1 in instruction
+
+current_temperature = 64
+
+print("\n========Student(KD) Model-Initial========")
+student_kd_init_acc = train_and_evaluate(student_model, compute_student_loss, INIT_EPOCH_NUM, 1e-3, teacher_model=teacher_model, temperature=current_temperature, alpha=0.5)
+student_model.save('student_kd_model_init_{}.h5'.format(current_temperature))
+print("\n=========Student(KD) Model-Fine=========")
+student_kd_fine_acc = train_and_evaluate(student_model, compute_student_loss, FINE_EPOCH_NUM, 1e-4, teacher_model=teacher_model, temperature=current_temperature, alpha=0.5)
+student_model.save('student_kd_model_fine_{}.h5'.format(current_temperature))
+
+print("\n========Student(Scratch)-Initial========")
+student_nokd_init_acc = train_and_evaluate(student_model_nokd, compute_student_scratch_loss, INIT_EPOCH_NUM, 1e-3, temperature=current_temperature)
+student_model_nokd.save('student_nokd_model_init_{}.h5'.format(current_temperature))
+print("\n=========Student(Scratch)-Fine=========")
+student_nokd_fine_acc = train_and_evaluate(student_model_nokd, compute_student_scratch_loss, FINE_EPOCH_NUM, 1e-4, temperature=current_temperature)
+student_model_nokd.save('student_nokd_model_fine_{}.h5'.format(current_temperature))
+
+print("\n\n===============SUMMARY===============")
+print("Current Temperature: ", current_temperature)
+print("Student(KD) Initial Accuracy: ", student_kd_init_acc)
+print("Student(KD) Fine Accuracy: ", student_kd_fine_acc)
+print("Student(Scratch) Initial Accuracy: ", student_nokd_init_acc)
+print("Student(Scratch) Fine Accuracy: ", student_nokd_fine_acc)
+print("=====================================")
 \end{lstlisting}
+
+%%%%%%%%%%TODO
+
 
 \subsubsection{Data Analysis and Evaluation}
 
-\begin{lstlisting}
+The model should be evaluated with metrics other than accuracy due to the unbalanced dataset. We've evaluate the F1-score as alternative. However, we think accuracy also makes sense in some cases, since in the same condition, the different accuracy could show the model performance qualitatively. In the report, we only includes the F1-score result, if you want to know the accuracy status, you can refer to our public repository.
 
+
+\begin{lstlisting}
+this_model = load_model("./models/Task2/student_kd_model_fine_16.h5")
+
+y_pred = this_model.predict(x_test)
+y_predicted = np.argmax(y_pred,axis=1)
+
+print(classification_report(y_true=y_true,y_pred=y_predicted, target_names=labels))
 \end{lstlisting}
 
+\begin{lstlisting}
+	def imgFlow2npArray(img_flow, img_sum, img_size):
+    x = np.zeros(shape = (img_sum, img_size[0], img_size[1], img_size[2]))
+    y = np.zeros(shape = (img_sum))
+    for image in img_flow:
+        img_sum = img_sum - 1
+        x[img_sum] = image[0][0] #image[0] save image data in matrix, so needs to del one dim
+        y[img_sum] = image[1][0].tolist().index(1.) #image[1] save image label in matrix, so needs to del one dim as well
+        if img_sum <= 0:
+            break
+    return x, y
+# Adapted from: https://blog.csdn.net/qq_44980390/article/details/118029300
+\end{lstlisting}
+
+%%%%TODO: Discussion, FLOPS
 \subsection{Question 3} \textbf{Explain the effect of transfer learning and knowledge distillation in the performance of the student model. Do pre-trained weights help the teacher and student models perform well on the MHIST dataset? Does knowledge transfer from the teacher to the student model increase the student’s performance?}
 
 They do improve acc,
@@ -805,6 +1071,7 @@ They do improve acc,
 yes,
 
 no,
+%%%%%%%%RD
 
 \begin{thebibliography}{00}
 
@@ -812,8 +1079,6 @@ no,
 \bibitem{b2} Jang Hyun Cho and Bharath Hariharan. On the efficacy of knowledge distillation. In Proceedings of the IEEE/CVF international conference on computer vision, pages 4794–4802, 2019. http://openaccess.thecvf.com/content\_ICCV\_2019/papers/\\Cho\_On\_the\_Efficacy\_of\_Knowledge\_Distillation\_\\ICCV\_2019\_paper.pdf.
 \bibitem{b6} Geoffrey Hinton, Oriol Vinyals, Jeff Dean, et al. Distilling the knowledge in a neural network. arXiv preprint arXiv:1503.02531, 2(7), 2015. https://arxiv.org/abs/1503.02531.
 
-
-%%%%%%%%%%
 \bibitem{keras} Transfer learning \& fine-tuning, Keras developer guide, 2020, https://keras.io/guides/transfer\_learning.
 \bibitem{blog} Anusua Trivedi, Deep Learning Part 2: Transfer Learning and Fine-tuning Deep Convolutional Neural Networks, Revolutions. https://blog.revolutionanalytics.com/2016/08/deep-learning-part-2.html.
 \bibitem{resnet} Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun; Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016, pp. 770-778
