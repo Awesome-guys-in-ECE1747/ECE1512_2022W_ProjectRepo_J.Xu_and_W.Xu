@@ -180,8 +180,8 @@ The screenshot of student model summary is shown below:
 \subsection{Question 3}
 In this section, we will talk about the implementation of loss functions in teacher and student models, consisting of three parts.\par
 The first part is the loss function for teacher model. The code is shown below.\par 
-We first calculated the logits of teacher model using the input images. Then we call the function in tensorflow $tf.nn.sparse_softmax_cross_entropy_with_logits$ to calculate the cross-entropy loss with logits. 
-The logits parameter is the $subclass_logits$ which is calculated above, and the label is $tf.argmax(labels, 1)$, since the $labels$ is a 1D vector which has 10 elements. In the vector, only the true label is set to 1 while others are set to 0.
+We first calculated the logits of teacher model using the input images. Then we call the function in tensorflow $tf.nn.sparse\_softmax\_cross\_entropy\_with\_logits$ to calculate the cross-entropy loss with logits. 
+The logits parameter is the $subclass\_logits$ which is calculated above, and the label is $tf.argmax(labels, 1)$, since the $labels$ is a 1D vector which has 10 elements. In the vector, only the true label is set to 1 while others are set to 0.
 As a result, $tf.argmax(labels, 1)$ is the true label.
 \begin{lstlisting}
 @tf.function
@@ -207,7 +207,7 @@ def compute_teacher_loss(images, labels):
 
   return cross_entropy_loss_value
 \end{lstlisting}
-The second part is the $distillation_loss$ function. 
+The second part is the $distillation\_loss$ function. 
 In this function, we first define the $\alpha$ and the temperature $T$ according to the requirement in the lab manual.
 Then we calculated the soft targets according to the formula above and the softmax function.
 After that, we will calculate the cross-entropy loss like the teacher model loss.
@@ -245,9 +245,9 @@ def distillation_loss(teacher_logits: tf.Tensor, student_logits: tf.Tensor,
   return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(soft_targets, student_logits / temperature)) * temperature ** 2
 
 \end{lstlisting}
-The thrid part is the student loss which combines both $L_{hard}$ and $L_{soft}$.First, we calculate the logits for student model as $student_subclass_logits$ and logits for taecher model as $teacher_subclass_logits$.
-Then we call the $distillation_loss$ function defined above to calculate the soft targets loss value $L_{soft}$.
-After that, we calculate the $L_{hard}$ like the teacher loss. We use the $tf.nn.sparse_softmax_cross_entropy_with_logits$ function to compute the student hard loss.
+The thrid part is the student loss which combines both $L_{hard}$ and $L_{soft}$.First, we calculate the logits for student model as $student\_subclass\_logits$ and logits for taecher model as $teacher\_subclass\_logits$.
+Then we call the $distillation\_loss$ function defined above to calculate the soft targets loss value $L_{soft}$.
+After that, we calculate the $L_{hard}$ like the teacher loss. We use the $tf.nn.sparse\_softmax\_cross\_entropy\_with\_logits$ function to compute the student hard loss.
 At last, for the overall loss value, we calculate the combination of $L_{hard}$ and $L_{soft}$ with their weights accordingly.\par
 The code is shown below:
 \begin{lstlisting}
@@ -282,11 +282,11 @@ def compute_student_loss(images, labels):
 In this section, we complete the $train_and_evaluate$ function.
 First, we define the optimizer with $Adam$ and set learning rate as $0.001$.
 Then we use a for loop to simulate the training process in tensorflow library.
-In the each epoch, we calculate the loss value by calling the $compute_loss_fn$ function and pass in the images and corresponding labels in the training batch.
-The $compute_loss_fn$ function is the loss function name passed in.
+In the each epoch, we calculate the loss value by calling the $compute\_loss\_fn$ function and pass in the images and corresponding labels in the training batch.
+The $compute\_loss\_fn$ function is the loss function name passed in.
 Then we will apply the loss values to compute the gradients with function $tape.gradient$. 
 After that, we will apply the gradients to modify the model's variables.
-At the end of the epoch, we call the $compute_num_correct$ function to evaluate the performance of this training epoch.\par
+At the end of the epoch, we call the $compute\_num\_correct$ function to evaluate the performance of this training epoch.\par
 The code is listed below.
 \begin{lstlisting}
     def train_and_evaluate(model, compute_loss_fn):
@@ -322,12 +322,12 @@ The code is listed below.
 \end{lstlisting}
 \subsection{Question 5}
 For the first part, we will talk about the training and test accuracy of the teacher amd student model.
-First is the teacher model, we just call the $train_and_evaluate$ function. The code is listed below.
+First is the teacher model, we just call the $train\_and\_evaluate$ function. The code is listed below.
 \begin{lstlisting}
 # your code start from here for step 5 
 train_and_evaluate(cnn_model,compute_teacher_loss)
 \end{lstlisting}
-The screenshot of the accuracy is shown below.
+The screenshot of the accuracy is shown below.The test accuracy for teacher model is $98.78\%$.
 
 \begin{figure}[h] 
     \centering
@@ -367,8 +367,8 @@ Here is the screenshot of testing results.
     \includegraphics[width=0.45\textwidth]{./graphs/student_accuracy_mnist.png}
     \caption{Teacher Model Testing Accuracy}
     \label{Fig.t1q3e}
-\end{figure}
-And here is the test accuracy table for the hyperparameter tuning procedure.
+\end{figure}\par
+And Table 1 is the test accuracy table for the hyperparameter tuning procedure.\par
 \begin{table}[]
     \begin{tabular}{|l|l|l|}
     \hline
@@ -404,8 +404,9 @@ And here is the test accuracy table for the hyperparameter tuning procedure.
     64          & 0.7   & 98.04 \\ \hline
     64          & 0.9   & 97.82  \\ \hline
     \end{tabular}
-    \end{table}
-As is shown in the table, we think that the best alpha should be 16, and the best temperature is 0.9. However, as we can see here in the table, the hyperparameters do not affect the test accuracy too much. The variance is smaller than 1\%. So we can conclude that the adjustment of hyperparameter does not help a lot for the student models to improve their accuracy and mimic the predictions of the teacher model. It's highly possible that the difference is jitters of in the training.
+    \caption{Result table for tuning alpha and temperature}
+\end{table}\par
+As is shown in the table, we think that the best alpha should be 16, and the best temperature is 0.9.The maximum accuracy for student model is $98.08\%$. However, as we can see here in the table, the hyperparameters do not affect the test accuracy too much. The variance is smaller than 1\%. So we can conclude that the adjustment of hyperparameter does not help a lot for the student models to improve their accuracy and mimic the predictions of the teacher model. It's highly possible that the difference is jitters of in the training.
 \subsection{Question 6}
 In this section, we will talk about the plot of a curve which is student test accuracy versus temperature hyperparameters. 
 According to the requirement in the Lab Manual, we set the task balance parameter $\alpha$ as 0.5, and use a loop to change the temperature in the list.
@@ -440,20 +441,34 @@ plt.ylabel('test_accuracy')
 plt.legend()
 plt.show()
 \end{lstlisting}
-The curve is shown here.
+The result table for the test accuracy under different temperatures is shown below.
+\begin{table}[]
+    \begin{tabular}{|l|l|l|}
+    \hline
+    Temperature & Alpha & Test Accuracy      \\ \hline
+    1           & 0.5   & 97.93   \\ \hline
+    2           & 0.5   & 97.88 \\ \hline
+    4           & 0.5   & 97.91 \\ \hline
+    16          & 0.5   & 97.92  \\ \hline
+    32          & 0.5   & 97.84 \\ \hline
+    64          & 0.5   & 97.80 \\ \hline
+    \end{tabular}
+    \caption{Result Table for Different Temperatures}
+\end{table}\par
+The curve is shown here. To make the curve more clear and beautiful, we rebuild the x-axis scale which is the temperature.
 \begin{figure}[h] 
     \centering
     \includegraphics[width=0.45\textwidth]{./graphs/accuracy_vs_temperature.png}
     \caption{Student Accuracy VS. Temperature}
     \label{Fig.t1q3e}
 \end{figure}
-As is clearly shown in the picture, the accuracy decreases in general, but it does not decrease a lot.
-The reason for decreasing is that: As we have stated above, with a high temperature,
-% TODO: explain here
+As is clearly shown in the picture, the accuracy decreases in general, but it does not decrease a lot.We will analyze the reasons for it in detail.\par
+The reason for decreasing is that:as we have stated above, with a high temperature, the influence of different classes will become more balanced. The predicted possibility which is the true label will bring less information to the model, so the accuracy is reduced.
+The reason for not decreasing so much is that: The dataset MNIST is a well-balanced dataset, the test accuracy for student model is high enough, the difference between student and teacher model is about 2\%, so the accuracy will not decrease below the student model without knowledge distillation.
 \subsection{Question 7}
 In this section, we will train the student model from scratch without using Knowledge Distillation.
-We will firstly create a new model. In the loss function for the student, we will calculate the logits, and pass it into the $tf.nn.sparse_softmax_cross_entropy_with_logits$ function like we do in teacher model.
-Then we will pass this function into $train_and_evaluate$ function to do the training.\par
+We will firstly create a new model. In the loss function for the student, we will calculate the logits, and pass it into the $tf.nn.sparse\_softmax\_cross\_entropy\_with\_logits$ function like we do in teacher model.
+Then we will pass this function into $train\_and\_evaluate$ function to do the training.\par
 The code is shown here.
 \begin{lstlisting}
 # Build fully connected student.
@@ -491,8 +506,8 @@ The screenshot of the test accuracy is shown below.
     \caption{Test Accuracy of the Student Model without KD}
     \label{Fig.t1q3e}
 \end{figure}
-As we can see here, the test accuracy of students model with knowledge distillation is, while student model without knowledge distillation achieves $97.20\%$ accuracy in the final epoch.
-So the test accuracy of student models with knowledge distillation is higher than that of student model without knowledge distillation. (For fair comparison, we set the epoch to 12.)
+As we can see here, the test accuracy of student model without knowledge distillation is $97.20\%$, while student models with knowledge distillation achieves $98.08\%$ test accuracy at most.
+So the test accuracy of student models with knowledge distillation is higher than that of student model without knowledge distillation. (For fair comparison, we set the epoch to 12.) The result is consistent with the expected result.
 
 \subsection{Question 8}
 In this part, we compute the number of parameters and FLOPs(floating-point operations per second) in teacher model and student model
@@ -529,9 +544,12 @@ The result screenshot is shown here.
     \caption{Parameter Number and FLOPs}
     \label{Fig.t1q3e}
 \end{figure}
-From the screenshot, we can see that the teacher model has parameters and FLOPs is times/second. 
-The student model with KD has parameters, and FLOPs is times/second. 
-The student model without KD has parameters, and FLOPs is times/second. 
+From the screenshot, we can see that the teacher model has $1011466$ parameters and FLOPs is 5.6422779648 $times/second$. 
+The student model with KD has $1238730$ parameters, and FLOPs is 0.633838592 $times/second$. 
+The student model without KD has $1238730$ parameters, and FLOPs is 0.633838592 $times/second$. 
+We find that student models have more parameters than teacher models, but student models' FLOPs is much smaller than teacher model. We think the result matches the truth of knowledge distillation.
+The student models have the same amount of parameters. This shows that the knowledge distillation does not have influence on the structure of the models. The student models have more parameters than teacher models because of their network structure.This is decided by the network construction. \par
+The student models have the same FLOPs, because what the knowledge distillation do is changing the calculation of loss values, it'll not increase the times of floating computation, thus keeping the low complexity of the model training. The teacher model has a much higher FLOPs than student models because the model is more complex and contains convolutional layer which needs large amount of floating computation.
 \subsection{Question 9}
 In this part, we will talk about our XAI methodology used to build the explanation map for the models.
 \subsection{Question 10}
@@ -695,6 +713,7 @@ This question is partiality explained in the section of SubQuestion b. More theo
 
 \subsection{Question 3} \textbf{Explain the effect of transfer learning and knowledge distillation in the performance of the student model. Do pre-trained weights help the teacher and student models perform well on the MHIST dataset? Does knowledge transfer from the teacher to the student model increase the student’s performance?}
 
+
 \begin{thebibliography}{00}
 
 
@@ -705,9 +724,6 @@ This question is partiality explained in the section of SubQuestion b. More theo
 %%%%%%%%%%
 \bibitem{keras} Transfer learning \& fine-tuning, Keras developer guide, 2020, https://keras.io/guides/transfer\_learning.
 \bibitem{blog} Anusua Trivedi, Deep Learning Part 2: Transfer Learning and Fine-tuning Deep Convolutional Neural Networks, Revolutions. https://blog.revolutionanalytics.com/2016/08/deep-learning-part-2.html.
-\bibitem{resnet} Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun; Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016, pp. 770-778
-\bibitem{wu} Andrew Ng, Deeplearning.ai. https://www.deeplearning.ai/
-\bibitem{v1v2}Le Huy Hien, Ngo & V.H., Nguyen. (2020). Recognition of Plant Species using Deep Convolutional Feature Extraction. 11. 904-910. 
 \end{thebibliography}
 
 
