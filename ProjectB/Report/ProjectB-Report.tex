@@ -701,7 +701,7 @@
 \section{Task 2: Knowledge Distillation in MHIST dataset}
 
 \subsection{Question 1}
-\subsubsection{SubQuestion a} \textbf{How can we adapt these models for the MHIST dataset using transfer learning? Talk about the Feature Extraction and Fine-Tuning processes during transfer learning.} 
+\subsubsection{SubQuestion a} %\textbf{How can we adapt these models for the MHIST dataset using transfer learning? Talk about the Feature Extraction and Fine-Tuning processes during transfer learning.} 
 The core idea of Transfer learning is consists of taking features learned on one problem, and leveraging them on a new, similar problem, which is also known as using pre-trained models. Transfer learning is usually used in tasks where the data is too little to train a full-scale model.\cite{keras} A typical steps will be as followed:
 \begin{enumerate}
   \item Get the layers from a pre-trained model.
@@ -711,7 +711,7 @@ The core idea of Transfer learning is consists of taking features learned on one
 \end{enumerate}
 Feature Extraction is typically done with convolution layers. In our approach, we could adapt feature extraction using the new layers we added on the top of the adapted layers of model.
 \\Fine tuning is an optional step of transfer learning which consists of unfreezing the entire or part of the model obtained above, and retraining it on the new data with a very low learning rate. This can potentially achieve meaningful improvements, by incrementally adapting the pre-trained features to the new data.\cite{keras}\cite{blog}
-\subsubsection{SubQuestion b} \textbf{What is a residual block in ResNet architectures?}
+\subsubsection{SubQuestion b} %\textbf{What is a residual block in ResNet architectures?}
 The residual block is the significant and elemental component of ResNet, Residual Network, an example is shown in figure \ref{res}.
 
 \begin{figure}[h] 
@@ -739,7 +739,7 @@ However, once we enable the skip connection, we are able to compute $a^{[l+2]}$ 
 $$a^{[l+2]}=g(z^{[l+2]}+a^{[l]})$$
 And the whole structure is a basic example of residual block. It will significantly solve the trouble of deep learning, and networks with the structure, residual block, could be able to contain more layers.
 
-\subsubsection{SubQuestion c} \textbf{What are the differences between the ResNetV1 and ResNetV2 architectures?}
+\subsubsection{SubQuestion c} %\textbf{What are the differences between the ResNetV1 and ResNetV2 architectures?}
 
 ResNetV2 is an improved version of ResNetV1, and there are three major differences between ResNetV1 and ResNetV2. Firstly, the structure of residual block is different, shown in figure \ref{resv1v2}.\cite{v1v2} ResNetV1 use the structure of \textit{Conv-BN-ReLU} and ResNetV2 use the structure of \textit{BN-ReLu-Conv}.
 
@@ -752,15 +752,15 @@ ResNetV2 is an improved version of ResNetV1, and there are three major differenc
 
 Secondly, the stride strategy is different. ResNetV1 keep the size of feature map of \textit{Block1(Conv2\_*)}, and ResNetV2 keep the size of feature map of \textit{Block4(Conv5\_*)}. Thirdly, ResNetV2 enhance the regularization by using pre-activation, so the model will be trained faster.
 
-\subsubsection{SubQuestion d} \textbf{What are the differences between the MobileNetV1 and MobileNetV2 architectures?}
+\subsubsection{SubQuestion d} %\textbf{What are the differences between the MobileNetV1 and MobileNetV2 architectures?}
 
 There are a few improvement MobileNetV2 made upon the previous version, MobileNetV1. MobileNetV1 have 28 trainable layers, along with average pooling layers and SoftMax layers. It use a stride of 2 to sampling the input with convolution. The hidden convolution layers are all novel structures called depth-wise separable convolution. Every convolution layer is followed by Batch Normalization Layer and ReLU activation layer. Last but not the least, the least full connection layer is without activation function.
 MobileNetV2 have two novel structure that MobileNetV1 doesn't have, Linear Bottleneck and Inverted Residual. It consists of 17 bottleneck layer, totally 54 trainable layer. The inverted residual will expand the dimension then decrease it in order to extract more feature and enhance the propagation of gradient. In that, it decrease the size of model even more.
 
-\subsubsection{SubQuestion e} \textbf{How can ResNet architectures, regardless of model depth, overcome the vanishing gradient problem?}
+\subsubsection{SubQuestion e} %\textbf{How can ResNet architectures, regardless of model depth, overcome the vanishing gradient problem?}
 This question is partiality explained in the section of SubQuestion b. More theoretical explanation in general will be that the ResNet will "decrease" the number of layers, especially during back propagation procedure. The core reason of vanishing gradient problem is as the depth of network increases, the influence of input itself will finally decrease or increase at the output significantly. As a result, the input will have almost nothing to do with the result at this time, and the accuracy will drop gigantically after its increasing with the depth increases. So "shorten" the depth by using ResNet will solve the problem.
 
-\subsubsection{SubQuestion f} \textbf{Is MobileNetV2 a lightweight model? Why?}
+\subsubsection{SubQuestion f} %\textbf{Is MobileNetV2 a lightweight model? Why?}
 Yes, MobileNetV2 is definitely a lightweight model. Practically, in our approach, the MobileNetV2 have $3,540,986$ parameters in total, while the ResNet $25,615,802$ parameters totally, which is a quite big difference of the size (weight). Theoretically, a lightweight model can be defined as a "light-weighted" model, which means it contains some structures or facilities which could help the model keep the performance and reduce its size. One typical strategy of light-weighting model is to replace some large feature mapping convolution layer with some small size or grouped convolution layers, both MobileNetV1 and MobileNetV2 uses the strategy, whose detailed structure is discussed in the sub question d.
 
 \subsection{Question 2} In this section, we introduce our implementation sub task 3,4,5,6,7,8,13 in Task 1 using MHIST dataset with two pre-trained network, ResNet50V2 and MobileNetV2 without transfer learning. As there are a number of similarities between this section and Task 1, we would ignore some codes of some functions which is almost the same as the previous selection. We also finish more complete data analysis and preview during the procedure, so we are going to show the full procedure of implementation in this part, with divisions of stages in model training and knowledge distillation.
