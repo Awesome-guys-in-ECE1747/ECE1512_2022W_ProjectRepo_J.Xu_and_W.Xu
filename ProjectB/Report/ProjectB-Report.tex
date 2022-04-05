@@ -874,8 +874,21 @@ Yes, MobileNetV2 is definitely a lightweight model. Practically, in our approach
 
 \subsubsection{Data Importing and preprocessing}
 
-The material of MHIST dataset we obtained is an annotation CSV file and a images folder consists of all the images in the dataset. For the first step, we could get a preview of the annotation file and the image data. We use DataFrame container of package \textit{pandas} to extract the information of annotations. And we can also easily use \textit{plt} to import and plot the image easily.
+The material of MHIST dataset we obtained is an annotation CSV file and a images folder consists of all the images in the dataset. For the first step, we could get a preview of the annotation file and the image data. We use DataFrame container of package \textit{pandas} to extract the information of annotations, the format of annotations is like figure \ref{sd-train} and \ref{sd-test}. And we can also easily use \textit{plt} to import and plot the image easily, two examples is shown in figure \ref{sp-train} and \ref{sp-test}.
 
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/traindata-preview.png}
+    \caption{Some Example Data in Train Set of Annotation File}
+    \label{sd-train}
+\end{figure}
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/testdata-preview.png}
+    \caption{Some Example Data in Test Set of Annotation File}
+    \label{sd-test}
+\end{figure}
 \begin{lstlisting}
 raw_data = pd.read_csv(annotation_path)
 
@@ -884,6 +897,20 @@ test_data = raw_data.query("Partition == 'test'")
 print("Train Data Size", train_data.shape)
 print("Test Data Size", test_data.shape)
 \end{lstlisting}
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{./graphs/Task2/traindata-image.png}
+    \caption{An example image of Train Set}
+    \label{sp-train}
+\end{figure}
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{./graphs/Task2/testdata-image.png}
+    \caption{An example image of Test Set}
+    \label{sp-test}
+\end{figure}
 
 The data generator is constructed using ImageDataGenerator from keras, which is highly inspired by the HMT Task of Project A.
 \begin{lstlisting}
@@ -922,7 +949,7 @@ test_generator = test_set_generator.flow_from_dataframe(
 
 \subsubsection{Model Construction}
 
-We create the model by adapting the pre-trained model from keras.
+We create the model by adapting the pre-trained model from keras, the code is as followed.
 
 \begin{lstlisting}
 from tensorflow.keras.applications.resnet_v2 import ResNet50V2
@@ -941,8 +968,21 @@ student_model.add(Dense(NUM_CLASSES))
 print(student_model.summary())
 \end{lstlisting}
 
-The basic information of model is shown in figure %.
+The basic information of model is shown in figure \ref{model-res} and \ref{model-mob}.
 
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/resnetv2.png}
+    \caption{ResNet50V2 Model Summary}
+    \label{model-res}
+\end{figure}
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/mobilenetv2.png}
+    \caption{MobileNetV2 Model Summary}
+    \label{model-mob}
+\end{figure}
 %%%%%%%%
 
 \subsubsection{Train Facilities}
@@ -1032,8 +1072,56 @@ print("Student(Scratch) Fine Accuracy: ", student_nokd_fine_acc)
 print("=====================================")
 \end{lstlisting}
 
-%%%%%%%%%%TODO
+The summary sections of output for teacher and each student model with different temperature group are shown below.
 
+\begin{figure}[hbtp] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/teacher_acc.png}
+    \caption{The summary of accuracy of Teacher Model Group}
+    \label{sum-te}
+\end{figure}
+
+\begin{figure}[hbtp] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t1_acc.png}
+    \caption{The summary of accuracy of Student Model Group (Temperature=1)}
+    \label{sum-t1}
+\end{figure}
+
+\begin{figure}[hbtp] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t2_acc.png}
+    \caption{The summary of accuracy of Student Model Group (Temperature=2)}
+    \label{sum-t2}
+\end{figure}
+
+\begin{figure}[hbtp] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t4_acc.png}
+    \caption{The summary of accuracy of Student Model Group (Temperature=4)}
+    \label{sum-t4}
+\end{figure}
+
+\begin{figure}[hbtp] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t16_acc.png}
+    \caption{The summary of accuracy of Student Model Group (Temperature=16)}
+    \label{sum-t16}
+\end{figure}
+
+\begin{figure}[hbtp] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t32_acc.png}
+    \caption{The summary of accuracy of Student Model Group (Temperature=32)}
+    \label{sum-t32}
+\end{figure}
+
+\begin{figure}[hbtp] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t64_acc.png}
+    \caption{The summary of accuracy of Student Model Group (Temperature=64)}
+    \label{sum-t64}
+\end{figure}
 
 \subsubsection{Data Analysis and Evaluation}
 
@@ -1049,6 +1137,31 @@ y_predicted = np.argmax(y_pred,axis=1)
 print(classification_report(y_true=y_true,y_pred=y_predicted, target_names=labels))
 \end{lstlisting}
 
+We could manually feed them into arrays and plot them in order to analyze the data, shown in figure \ref{kd-f1},\ref{nokd-f1}and \ref{allinone-f1}.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/kd-f1.png}
+    \caption{F1-Score vs. Temperature Curve (KD)}
+    \label{kd-f1}
+\end{figure}
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/nokd-f1.png}
+    \caption{F1-Score vs. Temperature Curve (Scratch)}
+    \label{nokd-f1}
+\end{figure}
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/allinone-f1.png}
+    \caption{F1-Score vs. Temperature Curve (All-in-one)}
+    \label{allinone-f1}
+\end{figure}
+
+The plots indicate that the fined model are slightly improved its performance, but we're also surprising that Scratch groups have a siginificantly difference. We will discuss it in the next section.
+
+One significant thing we would like to mention, is the convertion from EagerTensor object to Array. We adapted this function from Internet and use it to fit in the input requirement of classfication\_report().
+
 \begin{lstlisting}
 	def imgFlow2npArray(img_flow, img_sum, img_size):
     x = np.zeros(shape = (img_sum, img_size[0], img_size[1], img_size[2]))
@@ -1063,15 +1176,19 @@ print(classification_report(y_true=y_true,y_pred=y_predicted, target_names=label
 # Adapted from: https://blog.csdn.net/qq_44980390/article/details/118029300
 \end{lstlisting}
 
-%%%%TODO: Discussion, FLOPS
-\subsection{Question 3} \textbf{Explain the effect of transfer learning and knowledge distillation in the performance of the student model. Do pre-trained weights help the teacher and student models perform well on the MHIST dataset? Does knowledge transfer from the teacher to the student model increase the student’s performance?}
+We also calculate the Flops of models, and the outcomes are the same for each group of models under different temperature, as shown below in figure \ref{flops-2}, which tells us that KD will not influence the size of the model itself.
 
-They do improve acc,
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/flops.png}
+    \caption{Model Flops}
+    \label{flops-2}
+\end{figure}
 
-yes,
+\subsection{Question 3} %\textbf{Explain the effect of transfer learning and knowledge distillation in the performance of the student model. Do pre-trained weights help the teacher and student models perform well on the MHIST dataset? Does knowledge transfer from the teacher to the student model increase the student’s performance?}
 
-no,
-%%%%%%%%RD
+
+We suppose that transfer learning and knowledge distillation are both the methodology that could improve the performance of student model. Each of the method could work well individually, but there are some scenarios that the combination will also be possible to decrease the performance metrics. Transfer learning plays its role when there's something same in weight of the pretrained model and current model, when adapting weight of some layers of the pretrained model, the learning rate could be set lower and it's more easy to reach the optimal model weights, and also decrease the training time. Knowledge distillation is obviously influence the performance of the student model. Other than adapting weights from all-layers or part of layers, the KD will pass its knowledge to student model and improve its performance, while decrease the size of model. But practically, when we tried to use the methodologies together, the weight might be influence for both, and result in an unsatisfying performance of student model. So in our approach, the answer of KD is no, but the pre-trained weights do help the process of learning. But it's more essential to have experiments on transfer learning in order to get better student model performance.
 
 \begin{thebibliography}{00}
 
