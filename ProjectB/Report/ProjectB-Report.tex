@@ -580,7 +580,8 @@
   \subsection{Question 13}
   In this part, we implement the Early-Stopping Knowledge Distillation.
   We redefine the $train\_and\_evaluate$ function to fit in a new parameter $'epoch\_num'$. We use it to control the running epoch number of the teacher model.
-  The code is listed below.
+  In every epoch, it'll compute the loss values, the gradients and apply gradients to modify parameters in models. Then it'll calculate the accuracy using the test set.
+  The code is listed below. 
   \begin{lstlisting}
   def train_and_evaluate_ESKD(model, compute_loss_fn,epoch_num=12):
     """Perform training and evaluation for a given model.
@@ -614,7 +615,9 @@
       res=num_correct / num_total * 100
     return res
   \end{lstlisting}\par
-  Since this model has only 12 epochs, we try every number for teacher model, and record the corresponding student model performance to decide which one is the best number. Here is the code for it.
+  Since this model has only 12 epochs, we try every number for teacher model, and record the corresponding student model performance to decide which one is the best number. 
+  Here is the code for it.In the program, we rebuild the teacher model and student model first. (Note: If we don't redefine the $compute\_teacher\_loss$ function, it'll finish with reporting bugs somehow.)
+  Then we call the $train\_and\_evaluate\_ESKD$ function to do the training for teacher model and  $train\_and\_evaluate$ function to train student model and record the result of the test accuracy of student model in the final epoch.
   \begin{lstlisting}
   T=[1,2,3,4,5,6,7,8,9,10,11,12]
   y=[]
@@ -652,7 +655,7 @@
     fc_model.save('student_MNIST_ESKD_'+str(i)+'.h5')
     y.append(acu)
   \end{lstlisting}\par
-  Table 3 is the accuracy result table for ESKD.\par
+  Table 3 is the accuracy result table for ESKD. The first column is the training epoch number, the second column is the test accuracy of student model in the final epoch accordingly.(Note: Here we set the Temperature $T$ as 4, task balancer $\alpha$ as 0.5 and student training epoch as 12.)\par
   \begin{table}[h]
   \centering
   \begin{tabular}{|c|c|}
@@ -683,13 +686,18 @@
   plt.legend()
   plt.show()
   \end{lstlisting}
-  The result plot is shown here. As is shown in the picture, we think we should stop at epoch 4. In the table, it's the best choice.
+  The result plot is shown here. 
   \begin{figure}[h] 
       \centering
       \includegraphics[width=0.45\textwidth]{./graphs/T1Q13.png}
       \caption{Result Plot for ESKD}
       \label{Fig.t1q3e}
   \end{figure}
+  We think the teacher model should stop at epoch 4. In the table, it's the best choice. Obviously, the test accuracy does not improve a lot, there are several possible reasons.
+  \begin{itemize}
+    \item First, the test accuracy is high enough, there cannot be a large improvement in the performance.
+    \item Second, the MNIST dataset is a well balanced dataset and it's small and simple to predict. The solution of the teacher model is not beyond the capacity of the student model, so the student model can still learn enough knowledge from teacher model.
+  \end{itemize}
 \section{Task 2: Knowledge Distillation in MHIST dataset}
 
 \subsection{Question 1}
