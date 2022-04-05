@@ -407,7 +407,9 @@
       \end{tabular}
       \caption{Result table for tuning alpha and temperature}
   \end{table}\par
-  As is shown in the table, we think that the best alpha should be 16, and the best temperature is 0.9.The maximum accuracy for student model is $98.08\%$. However, as we can see here in the table, the hyperparameters do not affect the test accuracy too much. The variance is smaller than 1\%. So we can conclude that the adjustment of hyperparameter does not help a lot for the student models to improve their accuracy and mimic the predictions of the teacher model. It's highly possible that the difference is jitters of in the training.
+  As is shown in the table, we think that the best alpha should be 16, and the best temperature is 0.9.The maximum accuracy for student model is $98.08\%$. 
+We think that the temperature T has impacts on the calculation of soft targets, with a higher temperature, the information of different predicted possibilities from different classes will be more balanced. The soft targets will receive their information more equally, as we have illustrated in question 1. And the task balance parameter $\alpha$ is used to adjust the weight of the teacher model transferring knowledge. If $\alpha$ is higher, the teacher model will be more important in the computation.\par
+However, as we can see here in the table, the hyperparameters do not affect the test accuracy too much. The variance is smaller than 1\%. So we can conclude that the adjustment of hyperparameter does not help a lot for the student models to improve their accuracy and mimic the predictions of the teacher model. It's highly possible that the difference is jitters of in the training.
   \subsection{Question 6}
   In this section, we will talk about the plot of a curve which is student test accuracy versus temperature hyperparameters. 
   According to the requirement in the Lab Manual, we set the task balance parameter $\alpha$ as 0.5, and use a loop to change the temperature in the list.
@@ -661,7 +663,7 @@ The plotting is quite simple, but only one thing have to notice is that we have 
       \label{Fig.xai-8}
   \end{figure}
   
-  %%%%%%%%%%%%%%%%RD
+
   According to the three groups of explanation maps above, we could easily see that the student with KD inherit the weight partiality from the teacher model, while it still slightly keep some of its original highlighted region. Conclusively, the student with KD takes the feature as the combination of teacher model and origin trained model itself.
   
   \subsection{Question 10}
@@ -1081,47 +1083,72 @@ The summary sections of output for teacher and each student model with different
     \label{sum-te}
 \end{figure}
 
-\begin{figure}[hbtp] 
-    \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t1_acc.png}
-    \caption{The summary of accuracy of Student Model Group (Temperature=1)}
-    \label{sum-t1}
-\end{figure}
+%\begin{figure}[hbtp] 
+%    \centering
+%    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t1_acc.png}
+%    \caption{The summary of accuracy of Student Model Group (Temperature=1)}
+%    \label{sum-t1}
+%\end{figure}
+%
+%\begin{figure}[hbtp] 
+%    \centering
+%    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t2_acc.png}
+%    \caption{The summary of accuracy of Student Model Group (Temperature=2)}
+%    \label{sum-t2}
+%\end{figure}
+%
+%\begin{figure}[hbtp] 
+%    \centering
+%    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t4_acc.png}
+%    \caption{The summary of accuracy of Student Model Group (Temperature=4)}
+%    \label{sum-t4}
+%\end{figure}
+%
+%\begin{figure}[hbtp] 
+%    \centering
+%    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t16_acc.png}
+%    \caption{The summary of accuracy of Student Model Group (Temperature=16)}
+%    \label{sum-t16}
+%\end{figure}
+%
+%\begin{figure}[hbtp] 
+%    \centering
+%    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t32_acc.png}
+%    \caption{The summary of accuracy of Student Model Group (Temperature=32)}
+%    \label{sum-t32}
+%\end{figure}
+%
+%\begin{figure}[hbtp] 
+%    \centering
+%    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t64_acc.png}
+%    \caption{The summary of accuracy of Student Model Group (Temperature=64)}
+%    \label{sum-t64}
+%\end{figure}
 
-\begin{figure}[hbtp] 
-    \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t2_acc.png}
-    \caption{The summary of accuracy of Student Model Group (Temperature=2)}
-    \label{sum-t2}
-\end{figure}
-
-\begin{figure}[hbtp] 
-    \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t4_acc.png}
-    \caption{The summary of accuracy of Student Model Group (Temperature=4)}
-    \label{sum-t4}
-\end{figure}
-
-\begin{figure}[hbtp] 
-    \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t16_acc.png}
-    \caption{The summary of accuracy of Student Model Group (Temperature=16)}
-    \label{sum-t16}
-\end{figure}
-
-\begin{figure}[hbtp] 
-    \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t32_acc.png}
-    \caption{The summary of accuracy of Student Model Group (Temperature=32)}
-    \label{sum-t32}
-\end{figure}
-
-\begin{figure}[hbtp] 
-    \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/t64_acc.png}
-    \caption{The summary of accuracy of Student Model Group (Temperature=64)}
-    \label{sum-t64}
-\end{figure}
+\begin{figure}[h]
+		\centering  %图片全局居中
+\subfigure[Temperature=1]{
+			\label{sum-1}
+			\includegraphics[width=0.4\textwidth]{./graphs/Task2/t1_acc.png}}
+\subfigure[Temperature=2]{
+			\label{sum-2}
+			\includegraphics[width=0.4\textwidth]{./graphs/Task2/t2_acc.png}}
+\subfigure[Temperature=4]{
+			\label{sum-4}
+			\includegraphics[width=0.4\textwidth]{./graphs/Task2/t4_acc.png}}
+\subfigure[Temperature=16]{
+			\label{sum-16}
+			\includegraphics[width=0.4\textwidth]{./graphs/Task2/t16_acc.png}}
+		\subfigure[Temperature=32]{
+			\label{sum-32}
+			\includegraphics[width=0.4\textwidth]{./graphs/Task2/t32_acc.png}}
+		\subfigure[Temperature=64]{
+			\label{sum-64}
+			\includegraphics[width=0.4\textwidth]{./graphs/Task2/t64_acc.png}}
+		\caption{The summary of accuracy of Student Model Group}
+		\label{sum}
+	\end{figure}
+Temperature experiment have the same conclusion as it in Task 1, ask temperature goes higher, the performance of model grows marginally.
 
 \subsubsection{Data Analysis and Evaluation}
 
@@ -1141,19 +1168,19 @@ We could manually feed them into arrays and plot them in order to analyze the da
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/kd-f1.png}
+    \includegraphics[width=0.3\textwidth]{./graphs/Task2/kd-f1.png}
     \caption{F1-Score vs. Temperature Curve (KD)}
     \label{kd-f1}
 \end{figure}
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/nokd-f1.png}
+    \includegraphics[width=0.3\textwidth]{./graphs/Task2/nokd-f1.png}
     \caption{F1-Score vs. Temperature Curve (Scratch)}
     \label{nokd-f1}
 \end{figure}
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=0.45\textwidth]{./graphs/Task2/allinone-f1.png}
+    \includegraphics[width=0.3\textwidth]{./graphs/Task2/allinone-f1.png}
     \caption{F1-Score vs. Temperature Curve (All-in-one)}
     \label{allinone-f1}
 \end{figure}
@@ -1176,13 +1203,22 @@ One significant thing we would like to mention, is the convertion from EagerTens
 # Adapted from: https://blog.csdn.net/qq_44980390/article/details/118029300
 \end{lstlisting}
 
-We also calculate the Flops of models, and the outcomes are the same for each group of models under different temperature, as shown below in figure \ref{flops-2}, which tells us that KD will not influence the size of the model itself.
+We also calculate the Flops of models, and the outcomes are the same for each group of models under different temperature, as shown below in figure \ref{flops2}, which tells us that KD will not influence the size of the model itself.
 
-\begin{figure}[h] 
+\begin{figure}[hbtp] 
     \centering
     \includegraphics[width=0.45\textwidth]{./graphs/Task2/flops.png}
     \caption{Model Flops}
-    \label{flops-2}
+    \label{flops2}
+\end{figure}
+
+The final sub-task is to apply the methodology we chose, which is Early-Stop KD. Basically we have the same conclusion as it is in Task 1 as well, but somehow the accuracy is highly influenced by the unbalanced dataset. However, it is still able to see that the performance improved as the number of epoches grows up till the optimal point, the result is shown in figure \ref{es}.
+
+\begin{figure}[hbtp] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/es.png}
+    \caption{ESKD Experiment}
+    \label{es}
 \end{figure}
 
 \subsection{Question 3} %\textbf{Explain the effect of transfer learning and knowledge distillation in the performance of the student model. Do pre-trained weights help the teacher and student models perform well on the MHIST dataset? Does knowledge transfer from the teacher to the student model increase the student’s performance?}
