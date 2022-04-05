@@ -22,7 +22,7 @@ This repository is the project repo of ECE1512 2022W at University of Toronto. W
 
 ## Repository Structure
 
-This repository will be as two project folder, Project A and B. The structure of Project A is as followed.
+This repository will be as two project folder, Project A and B. The structure of Project A is as followed, which focusing on XAI problem.
 
 ```
 └── ProjectA
@@ -54,6 +54,19 @@ This repository will be as two project folder, Project A and B. The structure of
         └── graphs
 ```
 
+The structure of Project B is as followed, it focus on the Knowledge Distillation Problem.
+```
+└─ProjectB
+    ├─models
+    │  └─Task2
+    ├─Project_B_Supp
+    │  └─mhist_dataset
+    │      └─images
+    └─Report
+        ├─.texpadtmp
+        └─graphs
+            └─task2
+```
 ## Install Dependencies
 
 We provided easy set-up for our notebooks and experiments, but commands are not guaranteed to operate in all the systems. Our test environment is based on Python 3.8/3.9 on Windows 10/11 AMD64.
