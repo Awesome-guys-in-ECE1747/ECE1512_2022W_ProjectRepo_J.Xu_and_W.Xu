@@ -38,7 +38,7 @@
 \maketitle
 
 \begin{abstract}
-  This paper is a report for Project A of ECE1512 2022W, University of Toronto.
+  This paper is a report for Project B of ECE1512 2022W, University of Toronto.
   In this paper, we introduce two tasks assigned to us in detail, including the implementation and evaluation of KD based on two couples of Teacher-Student Models.
   For the advanced knowledge distillation method, we choose the Early-Stopping Knowledge Distillation. We reviewed the paper 2 in the Lab Manual and implemented the corresponding methodology. Moreover, we fit the methods on different models and evaluated their performance accordingly. This project remote repository is attached on GitHub: https://github.com/Awesome-guys-in-ECE1747/ECE1512\_2022W\_ProjectRepo\_J.Xu\_and\_W.Xu
   \end{abstract}
@@ -209,7 +209,7 @@
   \end{lstlisting}
   The second part is the $distillation\_loss$ function. 
   In this function, we first define the $\alpha$ and the temperature $T$ according to the requirement in the lab manual.
-  Then we calculated the soft targets according to the formula above and the softmax function.
+  Then we calculated the soft targets according to the formula above and the SoftMax function.
   After that, we will calculate the cross-entropy loss like the teacher model loss.
   At last, we calculated the average number of cross-entropy multiply $T_{2}$ as the soft targets loss value, named $L_{soft}$.\par
   The code is shown below.
@@ -563,7 +563,7 @@
   
   \subsection{Question 11}
   % How does the proposed method improve the student performance in comparison to the conventional KD?
-  By stopping the teacher model training earlier before the convergence, it's likely that teacher model hasn't finished training and fitting into the training set. As a result,the solution of teacher model will be relatively simpler compared with the fully trained teacher models. So it'll be more likely for the student model to find an approximate solution similar to the simple teacher model solution with a low capacity.\par
+  By stopping the teacher model training earlier before the convergence, it's likely that teacher model hasn't finished training and fitting into the training set. As a result, the solution of teacher model will be relatively simpler compared with the fully trained teacher models. So it'll be more likely for the student model to find an approximate solution similar to the simple teacher model solution with a low capacity.\par
   By finding an approximate solution, the student model can predict a similar possibility as the teacher model, thus getting more knowledge from the teacher model than traditional knowledge distillation.
   As a result, ESKD improves the student model performance.
   \subsection{Question 12}
@@ -754,7 +754,7 @@ Secondly, the stride strategy is different. ResNetV1 keep the size of feature ma
 
 \subsubsection{SubQuestion d} \textbf{What are the differences between the MobileNetV1 and MobileNetV2 architectures?}
 
-There are a few improvement MobileNetV2 made upon the previous version, MobileNetV1. MobileNetV1 have 28 trainable layers, along with average pooling layers and softmax layers. It use a stride of 2 to sampling the input with convolution. The hidden convolution layers are all novel structures called depth-wise separable convolution. Every convolution layer is followed by Batch Normalization Layer and ReLU activation layer. Last but not the least, the least full connection layer is without activation function.
+There are a few improvement MobileNetV2 made upon the previous version, MobileNetV1. MobileNetV1 have 28 trainable layers, along with average pooling layers and SoftMax layers. It use a stride of 2 to sampling the input with convolution. The hidden convolution layers are all novel structures called depth-wise separable convolution. Every convolution layer is followed by Batch Normalization Layer and ReLU activation layer. Last but not the least, the least full connection layer is without activation function.
 MobileNetV2 have two novel structure that MobileNetV1 doesn't have, Linear Bottleneck and Inverted Residual. It consists of 17 bottleneck layer, totally 54 trainable layer. The inverted residual will expand the dimension then decrease it in order to extract more feature and enhance the propagation of gradient. In that, it decrease the size of model even more.
 
 \subsubsection{SubQuestion e} \textbf{How can ResNet architectures, regardless of model depth, overcome the vanishing gradient problem?}
