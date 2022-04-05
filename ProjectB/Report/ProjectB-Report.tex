@@ -2,11 +2,33 @@
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{stfloats}
+\usepackage{subfigure}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  tabsize=3
+}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -18,7 +40,7 @@
 \begin{abstract}
 This paper is a report for Project A of ECE1512 2022W, University of Toronto.
 In this paper, we introduce two tasks assigned to us in detail, including the implementation and evaluation of KD based on two couples of Teacher-Student Models.
-For the 
+For the advanced knowledge distillation method, we choose the Early-Stopping Knowledge Distillation. We reviewed the paper 2 in the Lab Manual and implemented the corresponding methodology. Moreover, we fit the methods on different models and evaluated their performance accordingly. This project remote repository is attached on GitHub: https://github.com/Awesome-guys-in-ECE1747/ECE1512\_2022W\_ProjectRepo\_J.Xu\_and\_W.Xu
 \end{abstract}
 
 \section{Task 1: Knowledge Distillation in MNIST dataset}
@@ -29,16 +51,16 @@ In addition, we implement the Early-Stopping Knowledge Distillation as the impro
 In this section, we read the paper of Geoffrey Hinton\cite{b6}, and answer the assigned questions.
 
 \subsubsection{SubQuestion a}
-The purpose of using Knowledge Distillation is to compress the knowledge in an ensemble to a single model which is much easier to deploy without lossing much accuracy.\par
+The purpose of using Knowledge Distillation is to compress the knowledge in an ensemble to a single model which is much easier to deploy without losing much accuracy.\par
 As is widely acknowledged, in machine learning, large models usually have higher knowledge capacity than small models, thus improving state of the art on more tasks. 
 However, with the increase of parameters in models, it takes more time and money to deploy, train and evaluate larger models.
-In the resource-restricted systems such as mobile devices, it's hard for them to train the models. What's more, in realtime systems, although they have enough resources for training, the low efficiency means that it's inapplicable.
-In order to solve it, smaller models are proposed to mimic the prediction of large models, especially in edge device such as mobile device. In a word, the goal of knowledge distillation is transgerring from the teacher model to the student model and making a lightweight model that is fast, memory-efficient, and energy-efficient.
+In the resource-restricted systems such as mobile devices, it's hard for them to train the models. What's more, in real-time systems, although they have enough resources for training, the low efficiency means that it's inapplicable.
+In order to solve it, smaller models are proposed to mimic the prediction of large models, especially in edge device such as mobile device. In a word, the goal of knowledge distillation is transferring from the teacher model to the student model and making a lightweight model that is fast, memory-efficient, and energy-efficient.
 
 \subsubsection{SubQuestion b}
 % In the paper, what knowledge is transferred from the teacher model to the student model?
 The knowledge is a learned mapping from input vectors to output vectors.\par
-In the previous studies, researchers tend to consider the parameters in the model as the knowledge, but it's inapplicable here. If we want to compress the model without lossing too much accuracy, we have to update this concept. 
+In the previous studies, researchers tend to consider the parameters in the model as the knowledge, but it's inapplicable here. If we want to compress the model without losing too much accuracy, we have to update this concept. 
 The basic nature of all the functions and models are mapping from the input to the output. 
 If we want the student model which is the simple model to act like teacher while having less parameters, it means they should have similar output vectors. So both student and teacher models should have similar functions of mapping from the same input vectors to the similar output vectors.
 \subsubsection{SubQuestion c}
@@ -47,7 +69,7 @@ If we want the student model which is the simple model to act like teacher while
 The temperature hyperparameter T is a parameter used to adjust the corresponding loss values for different labels in the soft targets. T makes the labels which have low probabilities influence more in the cross-entropy cost function during the transfer stage.\par
 In our normal training, we only pay attention to the difference between result with highest probability and ground truth. This kind of similarity is constructed based on large amount of samples.
 When the soft targets have high entropy, they'll provide much more information for the student model training than hard targets. However, in this kind of situation, the results which have a low probability contribute little to the loss functions, thus providing little information for the knowledge transferring stage.
-For example, the teacher model in task1 has a high accuracy on MNIST, much of the information about the learned model is contained in the options which have very samll probabilities in the soft targets. To solve it, Hinton\cite{b6} put forward the temperature hyperparameter T to magnify the corresponding loss values of low probability options.
+For example, the teacher model in task1 has a high accuracy on MNIST, much of the information about the learned model is contained in the options which have very small probabilities in the soft targets. To solve it, Hinton\cite{b6} put forward the temperature hyperparameter T to magnify the corresponding loss values of low probability options.
 \par
 So the effect of the temperature hyperparameter is decreasing the influence of highest probability prediction and increase the influence of other labels in the knowledge transferring stage.
 
@@ -66,35 +88,41 @@ $$p_{i}=\frac{exp(z_{i})}{\sum_{j}exp(z_{j})}$$
 where $p_{i}$ is the probability of being label $i$, $z_{i}$ is the logits of label $i$, $j$ is the list of all the labels.
 According to it, we will calculate the loss value of teacher model like the normal neural networks. The formula is:
 $$L_{teacher}=-\sum_{i}^{N}y_{i}log(p_{i})$$
-where $N$ is the number of classes in total, $y_{i}$ is a boolean value, if the sample in input vector belongs to label $i$, it'll be 1, else it'll be 0. $p_{i}$ is the predicted probability for the input vector to belong to label $i$.
+where $N$ is the number of classes in total, $y_{i}$ is a Boolean value, if the sample in input vector belongs to label $i$, it'll be 1, else it'll be 0. $p_{i}$ is the predicted probability for the input vector to belong to label $i$.
 \par
 
 For the student model, we will first talk about "how does the task balance parameter affect student learning?".
 The temperature hyperparameter T controls the importance and influence of every soft targets by revising the predicted probability for the input vector to belong to label $i$. The revised version of probability for label $i$ under temperature $T$, named $q_{i}^{T}$, is:
 $$q_{i}^{T}=\frac{exp(z_{i}/T)}{\sum_{j}exp(z_{j}/T)}$$
-where $q_{i}_{T}$ is the probability of being label $i$, $z_{i}$ is the logits of label $i$ in student model, $j$ is the list of all the labels.
+where $q_{i}^{T}$ is the probability of being label $i$, $z_{i}$ is the logits of label $i$ in student model, $j$ is the list of all the labels.
 Higher temperature will make the probability distribution more balanced. To be specific, suppose: $$T\to \infty $$, then every labels will have the same probabilities. 
-On the contrary, if $$T\to 0 $$ soft targets will become ont-hot tensor, which is named "hard targets".\par
+On the contrary, if $$T\to 0 $$ soft targets will become one-hot tensor, which is named "hard targets".\par
 Let's continue to talk about the loss value of student model. The traditional knowledge distillation is the combination of both the student loss and distillation loss.
 The formula for the combination is:
 $$L=\alpha L_{soft}+\beta L_{hard}$$
 where $L_{soft}$ is the distill loss (corresponding to soft targets) and student loss (corresponding to hard targets). $\alpha$ is the weight of $L_{soft}$ which is defined manually, and $\beta$ is the weight of $L_{hard}$ which equals $(1-\alpha)$ here.
 For the student loss, it should be similar to teacher model. This is named $L_{hard}$ for it's the hard targets loss of the student model. The formula is:
 $$L_{hard}=-\sum_{i}^{N}y_{i}log(q_{i}^{1})$$
-where $N$ is the number of classes in total, $y_{i}$ is a boolean value, if the sample in input vector belongs to label $i$, it'll be 1, else it'll be 0. $q_{i}^{1}$ is the predicted probability for the input vector to belong to label $i$ in temperature $1$.
+where $N$ is the number of classes in total, $y_{i}$ is a Boolean value, if the sample in input vector belongs to label $i$, it'll be 1, else it'll be 0. $q_{i}^{1}$ is the predicted probability for the input vector to belong to label $i$ in temperature $1$.
 For the soft targets loss, the formula is:
 $$L_{soft}=-\sum_{i}^{N}p_{i}^{T}log(q_{i}^{T})$$
 where $N$ is the number of classes in total, $p_{i}^{T}$ is the predicted probability for the input vector in teacher model to belong to label $i$ in temperature $T$, $q_{i}^{T}$ is the predicted probability for the input vector in student model to belong to label $i$ in temperature $T$.
 To explain $p_{i}^{T}$ in detail, we listed the formula too:
 $$p_{i}^{T}=\frac{exp(v_{i}/T)}{\sum_{j}exp(v_{j}/T)}$$
-where $p_{i}_{T}$ is the probability of being label $i$, $v_{i}$ is the logits of label $i$ in teacher model, $j$ is the list of all the labels.
+where $p_{i}^{T}$ is the probability of being label $i$, $v_{i}$ is the logits of label $i$ in teacher model, $j$ is the list of all the labels.
 \subsubsection{SubQuestion e}
 % Can we look at the KD as a regularization technique, here? Explain your rationale.
-From our perspective, the knowledge distillation can be considered as a regularization technique.
-% TODO::一会儿再看
+From our perspective, the knowledge distillation can be considered as a regularization technique. As is illustrated in the paper\cite{b6}, we can use soft targets to prevent overfitting. It's the same effect as regularization.
+In an unbalanced dataset, assume one of the classes named 'A' has many more samples than other classes, it's highly likely that the model with a full softmax layer over all classes will be overfitting on this special class A.
+The reason is that: if there are more samples of class A in the input, more information will be applied into the model, thus making the information of other classes which have low predicted possibilities become less important. 
+However, the information in these low possibilities in the soft labels is very important. They contains the information which traditional one-hot labels don't have. 
+\par
+In contrast, if we use soft targets of knowledge distillation as the training targets, we can prevent class A from passing too much information into the model, thus making the information of other labels which have low possibilities more important.
+If we adjust the hyperparameters carefully, we can get balanced information from both the large-sized labels and small-sized labels, which will lead to the good performance of the model. It's the same as regularization technique.
+
 \subsection{Question 2}
 In this section, we build a cumbersome teacher and a lightweight student model training on MNIST dataset. The network structure is plotted by $model:summary()$.
-The teacher model contains two convolutional layers with relu function, two maxpooling layers, a flatten layer and two dense layers. It's not a complex network, the implementation code is as followed.
+The teacher model contains two convolutional layers with relu function, two max-pooling layers, a flatten layer and two dense layers. It's not a complex network, the implementation code is as followed.
 \begin{lstlisting}
     from keras.models import Sequential
     from keras.layers import Input, Conv2D, MaxPooling2D, Dense, Flatten, Dropout
@@ -377,7 +405,7 @@ And here is the test accuracy table for the hyperparameter tuning procedure.
     64          & 0.9   & 97.82  \\ \hline
     \end{tabular}
     \end{table}
-As is shown in the table, we think that the best alpha should be , and the best temperature is.
+As is shown in the table, we think that the best alpha should be 16, and the best temperature is 0.9. However, as we can see here in the table, the hyperparameters do not affect the test accuracy too much. The variance is smaller than 1\%. So we can conclude that the adjustment of hyperparameter does not help a lot for the student models to improve their accuracy and mimic the predictions of the teacher model. It's highly possible that the difference is jitters of in the training.
 \subsection{Question 6}
 In this section, we will talk about the plot of a curve which is student test accuracy versus temperature hyperparameters. 
 According to the requirement in the Lab Manual, we set the task balance parameter $\alpha$ as 0.5, and use a loop to change the temperature in the list.
