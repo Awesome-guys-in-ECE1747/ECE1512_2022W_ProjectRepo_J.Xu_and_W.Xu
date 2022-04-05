@@ -625,19 +625,75 @@ plt.show()
 \section{Task 2: Knowledge Distillation in MHIST dataset}
 
 \subsection{Question 1}
-\subsubsection{SubQuestion a} How can we adapt these models for the MHIST dataset using transfer learning? Talk about the Feature Extraction and Fine-Tuning processes during transfer learning.\\
+\subsubsection{SubQuestion a} \textbf{How can we adapt these models for the MHIST dataset using transfer learning? Talk about the Feature Extraction and Fine-Tuning processes during transfer learning.}\\
 
 The core idea of Transfer learning is consists of taking features learned on one problem, and leveraging them on a new, similar problem.\cite{keras}
 Feature Extraction is 
 \\
 Fine tuning
+%%%%%%%%%%
 \cite{blog}
-\subsubsection{SubQuestion b} What is a residual block in ResNet architectures?
-\subsubsection{SubQuestion c} What are the differences between the ResNetV1 and ResNetV2 architectures?
-\subsubsection{SubQuestion d} What are the differences between the MobileNetV1 and MobileNetV2 architectures?
-\subsubsection{SubQuestion e} How can ResNet architectures, regardless of model depth, overcome the vanishing gradient problem?
-\subsubsection{SubQuestion f} Is MobileNetV2 a lightweight model? Why?
-\subsection{Question 2} Explain the effect of transfer learning and knowledge distillation in the performance of the student model. Do pre-trained weights help the teacher and student models perform well on the MHIST dataset? Does knowledge transfer from the teacher to the student model increase the student’s performance?
+\subsubsection{SubQuestion b} \textbf{What is a residual block in ResNet architectures?}
+The residual block is the significant and elemental component of ResNet, Residual Network, an example is shown in figure \label{res}.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.3\textwidth]{./graphs/Task2/res-block.png}
+    \caption{Residual Block Example}
+    \label{res}
+\end{figure}
+
+A common sense of Convolutional Neural Network is that, when the depth of CNN becomes essentially deep, in which the network could be called DNN, Deep Neural Network. It will be hard to train the network model due to the problem of gradient disappearance (vanishing gradient problem) and gradient explosion. He et al.\cite{resnet} proposed ResNet whose layer could get activated with skip connection, which is like a shortcut to the deeper layers. This structure is called residual block. For example, we assume that there's an input, $a^{[l]}$, two convolution layers, with a hidden value between, $a^{[l+1]}$, and an output, $a^{[l+2]}$, shown in the figure \ref{resex}\cite{wu}.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/resnet-example.png}
+    \caption{2-Layer Structure}
+    \label{resex}
+\end{figure}
+
+In the classic CNN, we need to pass convolutional layer twice in order to compute $a^{[l+2]}$ by $a^{[l]}$, like the following formulas, where $g()$ stands for activation function, e.g. ReLU.
+
+$$z^{[l+1]}=W^{[l+1]}a^{[l]}+b^{[l+1]}, a^{[l+1]}=g(z^{[l+1]})$$
+$$z^{[l+2]}=W^{[l+2]}a^{[l+1]}+b^{[l+2]}, a^{[l+2]}=g(z^{[l+2]})$$
+However, once we enable the skip connection, we are able to compute $a^{[l+2]}$ by $a^{[l]}$ with the following formula.
+
+$$a^{[l+2]}=g(z^{[l+2]}+a^{[l]})$$
+And the whole structure is a basic example of residual block. It will significantly solve the trouble of deep learning, and networks with the structure, residual block, could be able to contain more layers.
+
+\subsubsection{SubQuestion c} \textbf{What are the differences between the ResNetV1 and ResNetV2 architectures?}
+
+ResNetV2 is an improved version of ResNetV1, and there are three major differences between ResNetV1 and ResNetV2. Firstly, the structure of residual block is different, shown in figure \ref{resv1v2}.\cite{v1v2} ResNetV1 use the structure of \textit{Conv-BN-ReLU} and ResNetV2 use the structure of \textit{BN-ReLu-Conv}.
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.45\textwidth]{./graphs/Task2/v1v2.png}
+    \caption{Residual Block Structure of ResNetV1 vs. ResNetV2}
+    \label{resv1v2}
+\end{figure}
+
+Secondly, the stride strategy is different. ResNetV1 keep the size of feature map of \textit{Block1(Conv2\_*)}, and ResNetV2 keep the size of feature map of \textit{Block4(Conv5\_*)}. Thirdly, ResNetV2 enhance the regularization by using pre-activation, so the model will be trained faster.
+
+\subsubsection{SubQuestion d} \textbf{What are the differences between the MobileNetV1 and MobileNetV2 architectures?}
+
+%%%%%%%%%%%%
+\subsubsection{SubQuestion e} \textbf{How can ResNet architectures, regardless of model depth, overcome the vanishing gradient problem?}
+This question is partiality explained in the section of SubQuestion b. More theoretical explanation in general will be that the ResNet will "decrease" the number of layers, especially during back propagation procedure. The core reason of vanishing gradient problem is as the depth of network increases, the influence of input itself will finally decrease or increase at the output significantly. As a result, the input will have almost nothing to do with the result at this time, and the accuracy will drop gigantically after its increasing with the depth increases. So "shorten" the depth by using ResNet will solve the problem.
+
+\subsubsection{SubQuestion f} \textbf{Is MobileNetV2 a lightweight model? Why?}
+
+\subsection{Question 2} In this section, we introduce our implementation sub task 3,4,5,6,7,8,13 in Task 1 using MHIST dataset with two pre-trained network, ResNet50V2 and MobileNetV2. As there are a number of similarities between this section and Task 1, we would ignore some codes of some functions which is almost the same as the previous selection. We also finish more complete data analysis and preview during the procedure, so we are going to show the full procedure of implementation in this part, with divisions of stages in model training and knowledge distillation.
+\subsubsection{Data Importing and preprocessing}
+
+\subsubsection{Model Construction}
+
+\subsubsection{Train Facilities}
+
+\subsubsection{Model Training}
+
+\subsubsection{Data Analysis and Evaluation}
+
+\subsection{Question 3} \textbf{Explain the effect of transfer learning and knowledge distillation in the performance of the student model. Do pre-trained weights help the teacher and student models perform well on the MHIST dataset? Does knowledge transfer from the teacher to the student model increase the student’s performance?}
 
 \begin{thebibliography}{00}
 
@@ -649,6 +705,9 @@ Fine tuning
 %%%%%%%%%%
 \bibitem{keras} Transfer learning \& fine-tuning, Keras developer guide, 2020, https://keras.io/guides/transfer\_learning.
 \bibitem{blog} Anusua Trivedi, Deep Learning Part 2: Transfer Learning and Fine-tuning Deep Convolutional Neural Networks, Revolutions. https://blog.revolutionanalytics.com/2016/08/deep-learning-part-2.html.
+\bibitem{resnet} Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun; Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016, pp. 770-778
+\bibitem{wu} Andrew Ng, Deeplearning.ai. https://www.deeplearning.ai/
+\bibitem{v1v2}Le Huy Hien, Ngo & V.H., Nguyen. (2020). Recognition of Plant Species using Deep Convolutional Feature Extraction. 11. 904-910. 
 \end{thebibliography}
 
 
