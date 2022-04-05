@@ -574,7 +574,8 @@
       If we stop the teacher model too early, the performance of the teacher model is not good enough for the knowledge transferring.If we stop the teacher model too late, too many epochs will make the teacher model too complex and the student model will find it hard to get an approximate solution. As a result, the transferring result is far from good. So it's hard for us to decide the epoch number. If we calculate the number by trying every numbers, it's very time-consuming. \par
       Solution: In the small models, we can try every possible epoch numbers and find the highest accuracy.
       For the bigger models, we can calculate the absolute value of the difference between current loss value and previous loss value, and set a criterion as the limit. If the loss value difference is less than the limit, it means the model is sufficient enough for transferring. This criterion should be defined by calculating on several different models.
-      \item Second, the improvement is not enough from our perspective. The top-1 error for ResNet decreases for only $1.5\%$. We doubt whether it pays to do the ESKD, because it takes some time to compute the appropriate epoch and decide when to stop.
+      \item Second, the improvement is not enough from our perspective. The top-1 error for ResNet decreases for only $1.5\%$. We doubt whether it pays to do the ESKD, because it takes some time to compute the appropriate epoch and decide when to stop.\par
+      Solution: We think we should apply ESKD only to the larger models and larger datasets.
   \end{itemize}
   \subsection{Question 13}
   In this part, we implement the Early-Stopping Knowledge Distillation.
@@ -682,7 +683,7 @@
   plt.legend()
   plt.show()
   \end{lstlisting}
-  The result plot is shown here.
+  The result plot is shown here. As is shown in the picture, we think we should stop at epoch 4. In the table, it's the best choice.
   \begin{figure}[h] 
       \centering
       \includegraphics[width=0.45\textwidth]{./graphs/T1Q13.png}
